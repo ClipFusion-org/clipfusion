@@ -15,11 +15,11 @@ export const ThemeSwitcher = ({
     const onThemeChange = useCallback(() => {
         setTheme(theme == "dark" ? "light" : "dark");
         setDark(!dark);
-    }, [theme, dark]);
+    }, [theme, dark, setTheme]);
 
     useEffect(() => {
         setDark(theme == "dark");
-    }, []);
+    });
 
     return (
         <Toggle pressed={dark} onPressedChange={onThemeChange}>

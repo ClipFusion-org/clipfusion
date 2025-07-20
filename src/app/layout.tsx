@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ReactNode } from "react";
-import { ThemeProvider } from "next-themes";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import Dashboard from "@/components/dashboard";
 import "./globals.css";
-import Providers from "./providers";
+import ThemeProvider from "./theme-provider";
 
 const geist = Geist({
     variable: "--font-geist",
@@ -32,14 +31,14 @@ export default function RootLayout({
         <html lang="en" suppressHydrationWarning>
             <head/>
             <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
-                <Providers>
+                <ThemeProvider>
                     <SidebarProvider>
                         <Dashboard/>
                         <main>
                             {children}
                         </main>
                     </SidebarProvider>
-                </Providers>
+                </ThemeProvider>
             </body>
         </html>
     );
