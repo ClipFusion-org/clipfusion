@@ -1,1 +1,1 @@
-# ClipFusion Video Editor (Community)
+# ClipFusion Video Editor
