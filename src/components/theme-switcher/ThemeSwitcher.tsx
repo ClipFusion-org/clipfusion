@@ -1,3 +1,4 @@
+"use client";
 import { useTheme } from "next-themes";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { Toggle } from "../ui/toggle";
@@ -15,11 +16,11 @@ export const ThemeSwitcher = ({
     const onThemeChange = useCallback(() => {
         setTheme(theme == "dark" ? "light" : "dark");
         setDark(!dark);
-    }, [theme, dark, setTheme]);
+    }, [theme, dark]);
 
     useEffect(() => {
         setDark(theme == "dark");
-    });
+    }, []);
 
     return (
         <Toggle pressed={dark} onPressedChange={onThemeChange}>
