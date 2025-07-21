@@ -8,7 +8,7 @@ export const ClipFusionLogo = (props: {
     className?: string
 }): ReactNode => (
     <div className={`flex flex-row items-center gap-2 hover:scale-105 duration-100 ${props.className}`}>
-        <Image width={props.width} height={props.height} src="/clipfusion-logo.svg" alt="ClipFusion Logo"/>
+        <Image width={props.width} height={props.height} src="/clipfusion-community-logo.png" alt="ClipFusion Logo"/>
         {props.children}
     </div>
 );

@@ -1,0 +1,12 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./src/Dockerfile
+      target: runner
+    ports:
+      - "3000:3000"
+
+networks:
+  default:
+    name: clipfusion-network

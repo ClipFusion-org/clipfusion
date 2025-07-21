@@ -32,7 +32,7 @@ export const Dashboard = (): ReactNode => {
         <Sidebar>
             <SidebarHeader className="flex justify-center items-center">
                 <ClipFusionLogo width="30" height="30">
-                    <p className="font-bold text-xl select-none">ClipFusion</p>
+                    <p className="font-bold text-xl select-none">Community</p>
                 </ClipFusionLogo>
             </SidebarHeader>
             <SidebarContent>
