@@ -1,4 +1,14 @@
 services:
+  web-development:
+    build: 
+      context: .
+      dockerfile: ./src/Dockerfile
+      target: development
+    ports:
+      - "3001:3000"
+    volumes:
+      - "./src:/app/src:ro"
+      - "./public:/app/public:ro"
   web:
     build:
       context: .

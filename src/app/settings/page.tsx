@@ -6,7 +6,7 @@ export default function Settings(): ReactNode {
         <div className="p-5">
             <div className="flex flex-row items-center gap-2">
                 <SidebarTrigger/>
-                <h1 className="text-4xl font-bold">Settings</h1>
+                <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Settings</h2>
             </div>
         </div>
     );

@@ -34,7 +34,7 @@ export default function RootLayout({
                 <ThemeProvider>
                     <SidebarProvider>
                         <Dashboard/>
-                        <main>
+                        <main className="w-full">
                             {children}
                         </main>
                     </SidebarProvider>

@@ -30,7 +30,7 @@ const items: DashboardItem[] = [
 export const Dashboard = (): ReactNode => {
     return (
         <Sidebar>
-            <SidebarHeader className="flex justify-center items-center">
+            <SidebarHeader className="flex justify-center items-center mt-2">
                 <ClipFusionLogo width="30" height="30">
                     <p className="font-bold text-xl select-none">Community</p>
                 </ClipFusionLogo>
