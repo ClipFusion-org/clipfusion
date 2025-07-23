@@ -5,6 +5,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import Dashboard from "@/components/dashboard";
 import "./globals.css";
 import ThemeProvider from "./theme-provider";
+import Analytics from "./analytics";
 
 const geist = Geist({
     variable: "--font-geist",
@@ -29,7 +30,9 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <head/>
+            <head>
+                <Analytics/>
+            </head>
             <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
                 <ThemeProvider>
                     <SidebarProvider>
