@@ -34,9 +34,11 @@ export const Dashboard = (): ReactNode => {
     return (
         <Sidebar>
             <SidebarHeader className="flex justify-center items-center mt-2">
-                <ClipFusionLogo width="30" height="30">
-                    <p className="font-bold text-xl select-none">ClipFusion</p>
-                </ClipFusionLogo>
+                <Link href="/">
+                    <ClipFusionLogo width="30" height="30">
+                        <p className="font-bold text-xl select-none">ClipFusion</p>
+                    </ClipFusionLogo>
+                </Link>
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
@@ -78,7 +80,7 @@ export const Dashboard = (): ReactNode => {
                         <PlusIcon/> <span className="sr-only">Add Folder</span>
                     </SidebarGroupAction>
                     <SidebarGroupContent>
-                        <Label className="flex justify-center text-sm text-muted-foreground">Nothing to show</Label>
+                        <Label className="flex justify-center text-sm text-muted-foreground">Nothing to Show</Label>
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
@@ -92,7 +94,7 @@ export const Dashboard = (): ReactNode => {
                             <Tooltip>
                                 <TooltipTrigger>
                                     <a href="https://github.com/ClipFusion-org/clipfusion" target="_blank">
-                                        <Image src="/github-mark.svg" width="25" height="25" alt="ClipFusion GitHub Repository" className="dark:invert hover:opacity-95 active:scale-95"/>
+                                        <Image src="/github-mark.svg" width="25" height="25" alt="ClipFusion GitHub Repository" className="duration-100 dark:invert hover:opacity-95 active:scale-95"/>
                                     </a>
                                 </TooltipTrigger>
                                 <TooltipContent>
@@ -102,7 +104,7 @@ export const Dashboard = (): ReactNode => {
                             <Tooltip>
                                 <TooltipTrigger>
                                     <a href="https://git.clipfusion.org/ClipFusion-org/clipfusion" target="_blank">
-                                        <Image src="/clipfusion-git-logo.png" width="25" height="25" alt="ClipFusion Git Mirror" className="grayscale hover:opacity-95 active:scale-95"/>
+                                        <Image src="/clipfusion-git-logo.png" width="25" height="25" alt="ClipFusion Git Mirror" className="duration-100 hover:opacity-95 active:scale-95"/>
                                     </a>
                                 </TooltipTrigger>
                                 <TooltipContent>

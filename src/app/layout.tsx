@@ -6,6 +6,8 @@ import Dashboard from "@/components/dashboard";
 import "./globals.css";
 import ThemeProvider from "./theme-provider";
 import Analytics from "./analytics";
+import PersistenceProvider from "./persistence-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const geist = Geist({
     variable: "--font-geist",
@@ -23,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: ReactNode;
@@ -37,10 +39,13 @@ export default function RootLayout({
                 <ThemeProvider>
                     <SidebarProvider>
                         <Dashboard/>
-                        <main className="w-full">
-                            {children}
+                        <main className="w-full h-full">
+                            <PersistenceProvider>
+                                {children}
+                            </PersistenceProvider>
                         </main>
                     </SidebarProvider>
+                    <Toaster/>
                 </ThemeProvider>
             </body>
         </html>
