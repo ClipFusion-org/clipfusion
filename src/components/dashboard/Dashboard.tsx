@@ -1,5 +1,5 @@
 "use client";
-import { FolderOpenIcon, GithubIcon, LucideIcon, PlusIcon, SettingsIcon } from "lucide-react";
+import { FolderOpenIcon, LucideIcon, PlusIcon, SettingsIcon } from "lucide-react";
 import { ReactNode } from "react";
 import { SidebarMenuItem, SidebarMenuButton, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader, SidebarFooter, Sidebar, SidebarGroupLabel, SidebarGroupAction } from "../ui/sidebar";
 import Link from "next/link";
