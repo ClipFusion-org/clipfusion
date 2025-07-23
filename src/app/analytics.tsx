@@ -6,11 +6,7 @@ export default function Analytics(): ReactNode {
         console.log("Analytics is disabled in development environment");
         return (<></>);
     }
-    if (process.env.ENABLE_ANALYTICS != "true") {
-        console.log("Analytics is disabled (ENABLE_ANALYTICS=false)");
-        return (<></>);
-    }
     return (
-        <script defer src={process.env.ANALYTICS_SCRIPT} data-website-id={process.env.ANALYTICS_WEBSITE_ID}/>
+        <script defer src="https://analytics.clipfusion.org/script.js" data-website-id="c3ac4a05-f96b-44dc-840b-d6d8e651e37e"/>
     );
 }
