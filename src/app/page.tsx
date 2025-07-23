@@ -15,7 +15,7 @@ import { Card } from "@/components/ui/card";
 const Project = (): ReactNode => {
     return (
         <AspectRatio ratio={16 / 9}>
-            <Card className=" rounded-lg shadow-md p-4 w-full h-full">
+            <Card className=" rounded-lg shadow-md p-4 w-full h-full overflow-hidden">
                 <h3 className="text-lg font-semibold">Project Title</h3>
                 <p className="text-sm text-gray-600">Project description goes here.</p>
             </Card>
