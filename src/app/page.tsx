@@ -1,6 +1,6 @@
 "use client";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { FormEvent, ReactNode, useState } from "react";
+import { ReactNode, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
 import { Label } from "@/components/ui/label";
@@ -32,7 +32,7 @@ const ProjectContainer = ({
     project: Project
 }): ReactNode => {
     return (
-        <AspectRatio ratio={16 / 9} key={project.uuid}>
+        <AspectRatio ratio={16 / 9}>
             <Card className=" rounded-lg shadow-md p-4 w-full h-full overflow-hidden">
                 <h3 className="text-lg font-semibold">{project.title}</h3>
                 {project.description && <p className="text-sm text-gray-600">{project.description}</p>}
@@ -134,7 +134,7 @@ export default function Home(): ReactNode {
                 </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5">
-                {projects && projects.map((project) => <ProjectContainer project={project}/>)}
+                {projects && projects.map((project) => <ProjectContainer key={project.uuid} project={project}/>)}
             </div>
             {(projects != undefined && projects.length == 0) && (
                 <div className="w-full h-full flex justify-center items-center">

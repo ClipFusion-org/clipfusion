@@ -1,10 +1,8 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckedState } from "@radix-ui/react-checkbox";
 import { InfoIcon } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
 import { usePersistenceContext } from "../persistence-provider";

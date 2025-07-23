@@ -47,11 +47,16 @@ const PersistenceProvider = ({
 
     const allowPersistenceStorage = async () => {
         const persistResult = await persist();
-        if (!persistResult) {
-            console.log("Something went really wrong while enabling persistent storage");
+        if (persistResult === false) {
             toast("Failed to Enable Persistent Storage", {
-                description: persistResult == undefined ? "Persistent storage is not supported in your browser" : "Try again later"
+                description: "Try again later"
             })
+            return;
+        }
+        if (persistResult === undefined) {
+            toast("Failed to Enable Persistent Storage", {
+                description: "Persistent storage is not supported by your browser"
+            });
             return;
         }
         localStorage.setItem('persistence-status', "persisted");
@@ -69,7 +74,7 @@ const PersistenceProvider = ({
                             Persistent Storage is Unavailable
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                            The browser may delete your local projects without notifying you in case it needs to free up space for other website's data that was used more recently than ClipFusion.
+                            Browser may delete your local data to free up space for other websites
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
