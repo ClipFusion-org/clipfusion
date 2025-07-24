@@ -5,7 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ListCheckIcon, PlusIcon } from "lucide-react";
+import { CopyIcon, EllipsisIcon, InfoIcon, LetterTextIcon, ListCheckIcon, PencilIcon, PlusIcon, TextIcon, TextQuoteIcon, TrashIcon } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import Search from "@/components/search";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -20,6 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { generateUUID } from "@/lib/uuid";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const NewProjectFormSchema = z.object({
     title: z.string().nonempty("Title cannot be empty"),
@@ -33,9 +34,42 @@ const ProjectContainer = ({
 }): ReactNode => {
     return (
         <AspectRatio ratio={16 / 9}>
-            <Card className=" rounded-lg shadow-md p-4 w-full h-full overflow-hidden">
-                <h3 className="text-lg font-semibold">{project.title}</h3>
-                {project.description && <p className="text-sm text-gray-600">{project.description}</p>}
+            <Card className="relative rounded-lg shadow-md w-full h-full overflow-hidden hover:scale-[101%] hover:drop-shadow-xl duration-100">
+                <div className="absolute bottom-0 left-0 h-16 w-full bg-gradient-to-t from-black to-transparent opacity-10"/>
+                <div className="absolute bottom-0 left-0 p-2 w-full flex flex-row justify-between items-center">
+                    <div>
+                        <h3 className="text-lg font-semibold">{project.title}</h3>
+                        {project.creationDate && <p className="text-sm text-secondary-foreground">{new Date(project.creationDate).toLocaleDateString()}</p>}
+                    </div>
+                    <div className="cursor-pointer m-2">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <EllipsisIcon/> <span className="sr-only">{project.title} additional options</span>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuLabel>{project.title}</DropdownMenuLabel>
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem>
+                                        <TextIcon/> Rename
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                        <PencilIcon/> Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                        <CopyIcon/> Duplicate
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                        <TrashIcon/> Delete
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator/>
+                                    <DropdownMenuItem>
+                                        <InfoIcon/> Properties
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </div>
             </Card>
         </AspectRatio>
     )
@@ -133,7 +167,7 @@ export default function Home(): ReactNode {
                     <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)}/>
                 </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
                 {projects && projects.map((project) => <ProjectContainer key={project.uuid} project={project}/>)}
             </div>
             {(projects != undefined && projects.length == 0) && (

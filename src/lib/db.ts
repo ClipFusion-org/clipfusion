@@ -44,7 +44,7 @@ export async function showEstimatedQuota(): Promise<StorageEstimate | undefined>
     "persisted" In case this call successfully silently persisted the storage,
       or if it was already persisted.
 */
-export async function tryPersistWithoutPromtingUser() {
+export async function tryPersistWithoutPromtingUser(): Promise<"never" | "prompt" | "persisted"> {
     if (!navigator.storage || !navigator.storage.persisted) {
         return "never";
     }

@@ -87,14 +87,14 @@ export const Dashboard = (): ReactNode => {
             <SidebarFooter>
                 <SidebarGroup>
                     <SidebarGroupLabel>
-                        Socials
+                        Link
                     </SidebarGroupLabel>
                     <SidebarGroupContent className="flex flex-row items-center justify-between">
                         <div className="flex flex-row items-center gap-3 pl-2">
                             <Tooltip>
                                 <TooltipTrigger>
                                     <a href="https://github.com/ClipFusion-org/clipfusion" target="_blank">
-                                        <Image src="/github-mark.svg" width="25" height="25" alt="ClipFusion GitHub Repository" className="duration-100 dark:invert hover:opacity-95 active:scale-95"/>
+                                        <Image src="/github-mark.svg" aria-hidden width="25" height="25" alt="ClipFusion GitHub Repository" className="duration-100 dark:invert hover:opacity-95 active:scale-95"/>
                                     </a>
                                 </TooltipTrigger>
                                 <TooltipContent>
@@ -104,7 +104,7 @@ export const Dashboard = (): ReactNode => {
                             <Tooltip>
                                 <TooltipTrigger>
                                     <a href="https://git.clipfusion.org/ClipFusion-org/clipfusion" target="_blank">
-                                        <Image src="/clipfusion-git-logo.png" width="25" height="25" alt="ClipFusion Git Mirror" className="duration-100 hover:opacity-95 active:scale-95"/>
+                                        <Image src="/clipfusion-git-logo.png" aria-hidden width="25" height="25" alt="ClipFusion Git Mirror" className="duration-100 hover:opacity-95 active:scale-95"/>
                                     </a>
                                 </TooltipTrigger>
                                 <TooltipContent>

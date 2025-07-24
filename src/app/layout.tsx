@@ -33,6 +33,7 @@ export default async function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
+                <meta name="apple-mobile-web-app-title" content="ClipFusion" />
                 <Analytics/>
             </head>
             <body className={`${geist.variable} ${geistMono.variable} antialiased`}>

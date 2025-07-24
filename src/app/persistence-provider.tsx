@@ -29,7 +29,7 @@ const PersistenceProvider = ({
             const isPersistent = await isStoragePersisted();
             console.log(isPersistent);
             if (!isPersistent) {
-                if (localStorage.getItem('persistence-status') != "persisted" && localStorage.getItem('persistence-status') == undefined) {
+                if ((localStorage.getItem('persistence-status') != "persisted" && localStorage.getItem('persistence-status') == undefined) || localStorage.getItem('persistence-status') === "") {
                     const persistenceStatus = await tryPersistWithoutPromtingUser();
                     localStorage.setItem("persistence-status", persistenceStatus);
                     if (persistenceStatus == "never") {
@@ -49,7 +49,7 @@ const PersistenceProvider = ({
         const persistResult = await persist();
         if (persistResult === false) {
             toast("Failed to Enable Persistent Storage", {
-                description: "Try again later"
+                description: "Browser denied request for persistent storage"
             })
             return;
         }
