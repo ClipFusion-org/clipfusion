@@ -45,8 +45,8 @@
 
 body {
     font-family: var(--font-geist), sans-serif;
+    background-color: var(--background);
 }
-
 :root {
     --radius: 0.625rem;
     --background: oklch(1 0 0);

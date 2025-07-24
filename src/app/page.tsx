@@ -5,7 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { CopyIcon, EllipsisIcon, InfoIcon, LetterTextIcon, ListCheckIcon, PencilIcon, PlusIcon, TextIcon, TextQuoteIcon, TrashIcon } from "lucide-react";
+import { CopyIcon, EditIcon, EllipsisIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import Search from "@/components/search";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -15,59 +15,202 @@ import Project from "@/types/Project";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { generateUUID } from "@/lib/uuid";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
-const NewProjectFormSchema = z.object({
+const ProjectInfoFormSchema = z.object({
     title: z.string().nonempty("Title cannot be empty"),
     description: z.string().or(z.literal(""))
 });
+
+const ProjectInfoForm = ({ form }: { form: UseFormReturn<z.infer<typeof ProjectInfoFormSchema>>}) => (
+    <>
+        <FormField control={form.control} name="title" render={({ field }) => (
+            <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                    <Input {...field} />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        )} />
+        <FormField control={form.control} name="description" render={({ field }) => (
+            <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                    <Textarea autoComplete="off" placeholder="Tell something about your project" className="resize-y" {...field} />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        )} />
+    </>
+);
+
+const RenameProjectDialog = ({ project }: { project: Project }) => {
+    const renameForm = useForm<z.infer<typeof ProjectInfoFormSchema>>({
+        resolver: zodResolver(ProjectInfoFormSchema),
+        defaultValues: {
+            title: project.title,
+            description: project.description
+        }
+    });
+
+    const handleRenameSubmit = async (data: z.infer<typeof ProjectInfoFormSchema>) => {
+        await db.projects.update(project.uuid, { 
+            title: data.title, 
+            description: data.description, 
+            editDate: Date.now() 
+        });
+    };
+
+    return (
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Rename Project</DialogTitle>
+                <DialogDescription>Change the name of your project.</DialogDescription>
+            </DialogHeader>
+            <Form {...renameForm}>
+                <form onSubmit={renameForm.handleSubmit(handleRenameSubmit)} className="grid gap-3">
+                    <ProjectInfoForm form={renameForm}/>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                            <Button type="submit">Rename</Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </form>
+            </Form>
+        </DialogContent>
+    );
+}
+
+const DeleteProjectDialog = ({ project }: { project: Project }) => {
+    const handleDelete = async () => {
+        await db.projects.delete(project.uuid);
+    };
+
+    return (
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Delete Project</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Are you sure you want to delete the project &quot;{project.title}&quot;? This action cannot be undone.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} asChild>
+                    <Button variant="destructive">Delete</Button>
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    );
+}
+
+const ProjectDropdown = ({ project }: { project: Project }): ReactNode => {
+    const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+    const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+
+    const handleDuplicate = async () => {
+        const newProject = { 
+            ...project, 
+            uuid: generateUUID(), 
+            creationDate: Date.now(), 
+            editDate: Date.now(),
+            title: project.title.includes("Copy of") ? project.title : `Copy of ${project.title}`,
+            origin: project.origin
+        };
+        await db.projects.add(newProject);
+    };
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <EllipsisIcon/>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-48">
+                <div className="flex flex-row items-center justify-between">
+                    <DropdownMenuLabel className="font-semibold">{project.title}</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => setRenameDialogOpen(true)}>
+                        <PencilIcon/> <span className="sr-only">Rename</span>
+                    </DropdownMenuItem>
+                </div>
+                <DropdownMenuSeparator/>
+                <DropdownMenuGroup>
+                    <DropdownMenuItem onClick={() => console.log("Edit Project")}>
+                        <EditIcon className="mr-2"/> Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleDuplicate}>
+                        <CopyIcon className="mr-2"/> Duplicate
+                    </DropdownMenuItem>
+                    <DropdownMenuItem variant="destructive" onClick={() => setDeleteAlertOpen(true)}>
+                        <TrashIcon className="mr-2"/> Delete
+                    </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator/>
+                <DropdownMenuItem onClick={() => console.log("Project Info")}>
+                    <InfoIcon className="mr-2"/> Info
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+
+            <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+                <RenameProjectDialog project={project}/>
+            </Dialog>
+            <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+                <DeleteProjectDialog project={project}/> 
+            </AlertDialog>
+        </DropdownMenu>
+    );
+};
+
+const ProjectDescription = ({ project }: { project: Project }): ReactNode => {
+    if (!project.description) return <></>;
+    return (
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <InfoIcon/>
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+                <h3 className="font-semibold text-lg">Project Description</h3>
+                <p className="text-sm text-muted-foreground">
+                    {project.description}
+                </p> 
+            </PopoverContent>
+        </Popover>
+    );
+}
 
 const ProjectContainer = ({
     project
 }: {
     project: Project
 }): ReactNode => {
+    const date = new Date(project.editDate);
     return (
         <AspectRatio ratio={16 / 9}>
             <Card className="relative rounded-lg shadow-md w-full h-full overflow-hidden hover:scale-[101%] hover:drop-shadow-xl duration-100">
-                <div className="absolute bottom-0 left-0 h-16 w-full bg-gradient-to-t from-black to-transparent opacity-10"/>
+                <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50"/>
                 <div className="absolute bottom-0 left-0 p-2 w-full flex flex-row justify-between items-center">
                     <div>
-                        <h3 className="text-lg font-semibold">{project.title}</h3>
-                        {project.creationDate && <p className="text-sm text-secondary-foreground">{new Date(project.creationDate).toLocaleDateString()}</p>}
+                        <h3 className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold line-clamp-1">{project.title}</h3>
+                        {project.description && <p className="text-sm text-secondary-foreground line-clamp-1">{project.description}</p>}
+                        {project.editDate && <p className="text-sm text-secondary-foreground">Last edit date: {date.toLocaleDateString()}, {date.toLocaleTimeString()}</p>}
                     </div>
-                    <div className="cursor-pointer m-2">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger>
-                                <EllipsisIcon/> <span className="sr-only">{project.title} additional options</span>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuLabel>{project.title}</DropdownMenuLabel>
-                                <DropdownMenuGroup>
-                                    <DropdownMenuItem>
-                                        <TextIcon/> Rename
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <PencilIcon/> Edit
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <CopyIcon/> Duplicate
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <TrashIcon/> Delete
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator/>
-                                    <DropdownMenuItem>
-                                        <InfoIcon/> Properties
-                                    </DropdownMenuItem>
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                    <div className="flex flex-col lg:xl:flex-row items-center gap-1">
+                        <ProjectDescription project={project}/>
+                        <ProjectDropdown project={project}/>
                     </div>
                 </div>
             </Card>
@@ -83,15 +226,15 @@ export default function Home(): ReactNode {
         return db.projects.filter((project) => project.title.includes(search)).toArray();
     });
 
-    const newProjectForm = useForm<z.infer<typeof NewProjectFormSchema>>({
-        resolver: zodResolver(NewProjectFormSchema),
+    const newProjectForm = useForm<z.infer<typeof ProjectInfoFormSchema>>({
+        resolver: zodResolver(ProjectInfoFormSchema),
         defaultValues: {
             title: "New ClipFusion Project",
             description: ""
         }
     });
 
-    const newProjectSubmit = async (data: z.infer<typeof NewProjectFormSchema>) => {
+    const newProjectSubmit = async (data: z.infer<typeof ProjectInfoFormSchema>) => {
         const date = Date.now();
         await db.projects.add({
             uuid: generateUUID(),
@@ -105,7 +248,7 @@ export default function Home(): ReactNode {
 
     return (
         <div className="p-5 w-full h-full">
-            <div className="flex flex-row items-center gap-2">
+            <div className="flex flex-row items-center gap-2 overscroll-none">
                 <SidebarTrigger size="lg"/>
                 <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
                 {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
@@ -129,24 +272,7 @@ export default function Home(): ReactNode {
                             </DialogHeader>
                             <Form {...newProjectForm}>
                                 <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
-                                    <FormField control={newProjectForm.control} name="title" render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Title</FormLabel>
-                                            <FormControl>
-                                                <Input {...field}/>
-                                            </FormControl>
-                                            <FormMessage/>
-                                        </FormItem>
-                                    )}/>
-                                    <FormField control={newProjectForm.control} name="description" render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Description</FormLabel>
-                                            <FormControl>
-                                                <Textarea placeholder="Tell something about your project" className="resize-y" {...field}/>
-                                            </FormControl>
-                                            <FormMessage/>
-                                        </FormItem>
-                                    )}/>
+                                    <ProjectInfoForm form={newProjectForm}/>
                                     <DialogFooter>
                                         <DialogClose asChild>
                                             <Button variant="outline">Cancel</Button>

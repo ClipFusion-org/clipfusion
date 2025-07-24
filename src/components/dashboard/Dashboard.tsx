@@ -87,7 +87,7 @@ export const Dashboard = (): ReactNode => {
             <SidebarFooter>
                 <SidebarGroup>
                     <SidebarGroupLabel>
-                        Link
+                        Links
                     </SidebarGroupLabel>
                     <SidebarGroupContent className="flex flex-row items-center justify-between">
                         <div className="flex flex-row items-center gap-3 pl-2">
