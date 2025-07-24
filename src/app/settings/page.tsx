@@ -13,14 +13,14 @@ function PersistentStorageControl({
     status: string | null
 }): ReactNode {
     const { persist } = usePersistenceContext();
-    if (status == null || status == '') return <Label className="text-muted-foreground">No information</Label>;
+    if (status == null) return <Label className="text-muted-foreground">No information</Label>;
     if (status == "never") return <Label className="text-red-500">Unavailable</Label>;
     if (status == "prompt") return <Button onClick={persist}>Enable</Button>;
     return <Label className="text-green-400">Enabled</Label>;
 };
 
 export default function Settings(): ReactNode {
-    const [status, setStatus] = useState<string | null>('');
+    const [status, setStatus] = useState<string | null>(null);
 
     useEffect(() => {
         setStatus(localStorage.getItem("persistence-status"));
