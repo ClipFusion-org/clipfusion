@@ -29,7 +29,11 @@ export const viewport: Viewport = {
     width: 'device-width',
     initialScale: 1,
     maximumScale: 1,
-    viewportFit: 'cover'
+    viewportFit: 'cover',
+    themeColor: [
+        { color: 'var(--background)', media: '(prefers-color-scheme: light)' },
+        { color: 'var(--background)', media: '(prefers-color-scheme: dark)' },
+    ],
 };
 
 export default async function RootLayout({
@@ -40,7 +44,6 @@ export default async function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
-                <meta name="theme-color" content="var(--background)" />
                 <PWAHead/>
                 <Analytics/>
             </head>

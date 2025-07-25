@@ -2,7 +2,11 @@
 import { ThemeProvider as NextThemeProvider } from "next-themes";
 import { ComponentProps, ReactNode, useEffect } from "react";
 
-const useMetaTheme = () => {
+const MetaThemeProvider = ({
+    children
+}: {
+    children: ReactNode
+}) => {
     useEffect(() => {
         const updateThemeColor = () => {
             const bgColor = window.getComputedStyle(document.body).backgroundColor;
@@ -19,13 +23,16 @@ const useMetaTheme = () => {
 
         return () => observer.disconnect();
     }, []);
-};
+
+    return children;
+}
 
 const ThemeProvider = (props: ComponentProps<typeof NextThemeProvider>): ReactNode => {
-    useMetaTheme();
     return (
        <NextThemeProvider {...props} attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            {props.children}
+            <MetaThemeProvider>
+                {props.children}
+            </MetaThemeProvider>
         </NextThemeProvider>
     )
 };
