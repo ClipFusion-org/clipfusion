@@ -30,7 +30,7 @@ const ProjectInfoFormSchema = z.object({
     description: z.string().or(z.literal(""))
 });
 
-const ProjectInfoForm = ({ form }: { form: UseFormReturn<z.infer<typeof ProjectInfoFormSchema>>}) => (
+const ProjectInfoForm = ({ form }: { form: UseFormReturn<z.infer<typeof ProjectInfoFormSchema>> }) => (
     <>
         <FormField control={form.control} name="title" render={({ field }) => (
             <FormItem>
@@ -63,10 +63,10 @@ const RenameProjectDialog = ({ project }: { project: Project }) => {
     });
 
     const handleRenameSubmit = async (data: z.infer<typeof ProjectInfoFormSchema>) => {
-        await db.projects.update(project.uuid, { 
-            title: data.title, 
-            description: data.description, 
-            editDate: Date.now() 
+        await db.projects.update(project.uuid, {
+            title: data.title,
+            description: data.description,
+            editDate: Date.now()
         });
     };
 
@@ -78,7 +78,7 @@ const RenameProjectDialog = ({ project }: { project: Project }) => {
             </DialogHeader>
             <Form {...renameForm}>
                 <form onSubmit={renameForm.handleSubmit(handleRenameSubmit)} className="grid gap-3">
-                    <ProjectInfoForm form={renameForm}/>
+                    <ProjectInfoForm form={renameForm} />
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button variant="outline">Cancel</Button>
@@ -122,10 +122,10 @@ const ProjectDropdown = ({ project }: { project: Project }): ReactNode => {
     const isMobile = useIsMobile();
 
     const handleDuplicate = async () => {
-        const newProject = { 
-            ...project, 
-            uuid: generateUUID(), 
-            creationDate: Date.now(), 
+        const newProject = {
+            ...project,
+            uuid: generateUUID(),
+            creationDate: Date.now(),
             editDate: Date.now(),
             title: project.title.includes("Copy of") ? project.title : `Copy of ${project.title}`,
             origin: project.origin
@@ -137,39 +137,39 @@ const ProjectDropdown = ({ project }: { project: Project }): ReactNode => {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                    <EllipsisIcon/>
+                    <EllipsisIcon />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align={isMobile ? "end" : "start"} className="min-w-48">
                 <div className="flex flex-row items-center justify-between">
                     <DropdownMenuLabel className="font-semibold">{project.title}</DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => setRenameDialogOpen(true)}>
-                        <PencilIcon/> <span className="sr-only">Rename</span>
+                        <PencilIcon /> <span className="sr-only">Rename</span>
                     </DropdownMenuItem>
                 </div>
-                <DropdownMenuSeparator/>
+                <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                     <DropdownMenuItem onClick={() => console.log("Edit Project")}>
-                        <EditIcon className="mr-2"/> Edit
+                        <EditIcon className="mr-2" /> Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleDuplicate}>
-                        <CopyIcon className="mr-2"/> Duplicate
+                        <CopyIcon className="mr-2" /> Duplicate
                     </DropdownMenuItem>
                     <DropdownMenuItem variant="destructive" onClick={() => setDeleteAlertOpen(true)}>
-                        <TrashIcon className="mr-2"/> Delete
+                        <TrashIcon className="mr-2" /> Delete
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
-                <DropdownMenuSeparator/>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => console.log("Project Info")}>
-                    <InfoIcon className="mr-2"/> Info
+                    <InfoIcon className="mr-2" /> Info
                 </DropdownMenuItem>
             </DropdownMenuContent>
 
             <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
-                <RenameProjectDialog project={project}/>
+                <RenameProjectDialog project={project} />
             </Dialog>
             <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
-                <DeleteProjectDialog project={project}/> 
+                <DeleteProjectDialog project={project} />
             </AlertDialog>
         </DropdownMenu>
     );
@@ -181,14 +181,14 @@ const ProjectDescription = ({ project }: { project: Project }): ReactNode => {
         <Popover>
             <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon">
-                    <InfoIcon/>
+                    <InfoIcon />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80">
                 <h3 className="font-semibold text-lg">Project Description</h3>
                 <p className="text-sm text-muted-foreground">
                     {project.description}
-                </p> 
+                </p>
             </PopoverContent>
         </Popover>
     );
@@ -203,7 +203,7 @@ const ProjectContainer = ({
     return (
         <AspectRatio ratio={16 / 9}>
             <Card className="relative rounded-lg shadow-md w-full h-full overflow-hidden hover:scale-[101%] hover:drop-shadow-xl duration-100">
-                <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50"/>
+                <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50" />
                 <div className="absolute bottom-0 left-0 p-2 w-full flex flex-row justify-between items-center">
                     <div>
                         <h3 className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold line-clamp-1">{project.title}</h3>
@@ -211,8 +211,8 @@ const ProjectContainer = ({
                         {project.editDate && <p className="text-sm text-secondary-foreground">Last edit date: {date.toLocaleDateString()}, {date.toLocaleTimeString()}</p>}
                     </div>
                     <div className="flex flex-col lg:xl:flex-row items-center gap-1">
-                        <ProjectDescription project={project}/>
-                        <ProjectDropdown project={project}/>
+                        <ProjectDescription project={project} />
+                        <ProjectDropdown project={project} />
                     </div>
                 </div>
             </Card>
@@ -251,58 +251,60 @@ export default function Home(): ReactNode {
 
     return (
         <div className="p-5 w-full h-full">
-            <div className="flex flex-row items-center gap-2 overscroll-none">
-                <SidebarTrigger size="lg"/>
-                <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
-                {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
-            </div>
-            <div className="flex flex-row items-center justify-between sticky top-0 bg-background gap-2 mt-3 pb-2 pt-safe-or-2 w-full overscroll-none z-50">
-                <div className="flex flex-row items-center gap-2">
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button>
-                                <PlusIcon/> {!isMobile && "New Project"}
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>
-                                    Create New Project
-                                </DialogTitle>
-                                <DialogDescription>
-                                    Fill in the information about your project. You can change it at any time later.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <Form {...newProjectForm}>
-                                <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
-                                    <ProjectInfoForm form={newProjectForm}/>
-                                    <DialogFooter>
-                                        <DialogClose asChild>
-                                            <Button variant="outline">Cancel</Button>
-                                        </DialogClose>
-                                        <DialogClose asChild>
-                                            <Button type="submit">Create</Button>
-                                        </DialogClose>
-                                    </DialogFooter>
-                                </form>
-                            </Form>
-                        </DialogContent>
-                    </Dialog>
+            <div className="pt-safe">
+                <div className="flex flex-row items-center gap-2 overscroll-none">
+                    <SidebarTrigger size="lg" />
+                    <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
+                    {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
                 </div>
-                <div className="flex flex-row items-center gap-2">
-                    <Toggle variant="outline">
-                        <ListCheckIcon/> {!isMobile && "Select Projects"}
-                    </Toggle>
-                    <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)}/>
+                <div className="flex flex-row items-center justify-between sticky top-0 bg-background gap-2 mt-3 pb-2 pt-2 w-full overscroll-none z-50">
+                    <div className="flex flex-row items-center gap-2">
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button>
+                                    <PlusIcon /> {!isMobile && "New Project"}
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        Create New Project
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                        Fill in the information about your project. You can change it at any time later.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <Form {...newProjectForm}>
+                                    <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
+                                        <ProjectInfoForm form={newProjectForm} />
+                                        <DialogFooter>
+                                            <DialogClose asChild>
+                                                <Button variant="outline">Cancel</Button>
+                                            </DialogClose>
+                                            <DialogClose asChild>
+                                                <Button type="submit">Create</Button>
+                                            </DialogClose>
+                                        </DialogFooter>
+                                    </form>
+                                </Form>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+                    <div className="flex flex-row items-center gap-2">
+                        <Toggle variant="outline">
+                            <ListCheckIcon /> {!isMobile && "Select Projects"}
+                        </Toggle>
+                        <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} />
+                    </div>
                 </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
-                {projects && projects.map((project) => <ProjectContainer key={project.uuid} project={project}/>)}
+                {projects && projects.map((project) => <ProjectContainer key={project.uuid} project={project} />)}
             </div>
             {(projects != undefined && projects.length == 0) && (
                 <div className="w-full h-full flex justify-center items-center">
                     <Label className="text-muted-foreground">Nothing to Show</Label>
-                </div> 
+                </div>
             )}
         </div>
     );
