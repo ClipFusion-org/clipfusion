@@ -251,51 +251,49 @@ export default function Home(): ReactNode {
 
     return (
         <div className="p-5 w-full h-full">
-            <div className="pt-safe">
-                <div className="flex flex-row items-center gap-2 overscroll-none">
-                    <SidebarTrigger size="lg" />
-                    <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
-                    {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
+            <div className="flex flex-row items-center gap-2 overscroll-none">
+                <SidebarTrigger size="lg" />
+                <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
+                {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
+            </div>
+            <div className="flex flex-row items-center justify-between sticky top-safe bg-background gap-2 mt-3 pb-2 pt-2 w-full overscroll-none z-50">
+                <div className="flex flex-row items-center gap-2">
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button>
+                                <PlusIcon /> {!isMobile && "New Project"}
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>
+                                    Create New Project
+                                </DialogTitle>
+                                <DialogDescription>
+                                    Fill in the information about your project. You can change it at any time later.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <Form {...newProjectForm}>
+                                <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
+                                    <ProjectInfoForm form={newProjectForm} />
+                                    <DialogFooter>
+                                        <DialogClose asChild>
+                                            <Button variant="outline">Cancel</Button>
+                                        </DialogClose>
+                                        <DialogClose asChild>
+                                            <Button type="submit">Create</Button>
+                                        </DialogClose>
+                                    </DialogFooter>
+                                </form>
+                            </Form>
+                        </DialogContent>
+                    </Dialog>
                 </div>
-                <div className="flex flex-row items-center justify-between sticky top-0 bg-background gap-2 mt-3 pb-2 pt-2 w-full overscroll-none z-50">
-                    <div className="flex flex-row items-center gap-2">
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button>
-                                    <PlusIcon /> {!isMobile && "New Project"}
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>
-                                        Create New Project
-                                    </DialogTitle>
-                                    <DialogDescription>
-                                        Fill in the information about your project. You can change it at any time later.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <Form {...newProjectForm}>
-                                    <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
-                                        <ProjectInfoForm form={newProjectForm} />
-                                        <DialogFooter>
-                                            <DialogClose asChild>
-                                                <Button variant="outline">Cancel</Button>
-                                            </DialogClose>
-                                            <DialogClose asChild>
-                                                <Button type="submit">Create</Button>
-                                            </DialogClose>
-                                        </DialogFooter>
-                                    </form>
-                                </Form>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
-                    <div className="flex flex-row items-center gap-2">
-                        <Toggle variant="outline">
-                            <ListCheckIcon /> {!isMobile && "Select Projects"}
-                        </Toggle>
-                        <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} />
-                    </div>
+                <div className="flex flex-row items-center gap-2">
+                    <Toggle variant="outline">
+                        <ListCheckIcon /> {!isMobile && "Select Projects"}
+                    </Toggle>
+                    <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} />
                 </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
