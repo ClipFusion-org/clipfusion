@@ -1,11 +1,11 @@
 "use client";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ReactNode, useState } from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { CopyIcon, EditIcon, EllipsisIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import Search from "@/components/search";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -24,6 +24,22 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useDebounce } from "use-debounce";
+import { Checkbox } from "@/components/ui/checkbox";
+
+interface SelectContextData {
+    selecting: boolean;
+    setSelecting: Dispatch<SetStateAction<boolean>>;
+    selectedProjects: string[];
+    setSelectedProjects: Dispatch<SetStateAction<string[]>>;
+};
+
+const SelectContext = createContext<SelectContextData | null>(null);
+
+const useSelectContext = (): SelectContextData => {
+    const context = useContext(SelectContext);
+    if (!context) throw new Error("SelectContext is not provided");
+    return context;
+};
 
 const ProjectInfoFormSchema = z.object({
     title: z.string().nonempty("Title cannot be empty"),
@@ -116,7 +132,16 @@ const DeleteProjectDialog = ({ project }: { project: Project }) => {
     );
 }
 
-const ProjectDropdown = ({ project }: { project: Project }): ReactNode => {
+const ProjectDropdown = ({ 
+    project,
+    selected,
+    setSelected
+}: { 
+    project: Project,
+    selected: boolean,
+    setSelected: Dispatch<SetStateAction<boolean>>
+ }): ReactNode => {
+    const { selecting, setSelecting } = useSelectContext();
     const [renameDialogOpen, setRenameDialogOpen] = useState(false);
     const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
     const isMobile = useIsMobile();
@@ -145,6 +170,11 @@ const ProjectDropdown = ({ project }: { project: Project }): ReactNode => {
         addProject(newProject as Project);
     };
 
+    const handleSelect = () => {
+        if (!selecting) setSelecting(true);
+        setSelected(!selected);
+    };
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -161,6 +191,9 @@ const ProjectDropdown = ({ project }: { project: Project }): ReactNode => {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
+                    <DropdownMenuItem onClick={handleSelect}>
+                        <Grid2X2CheckIcon className="mr-2" /> Select
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => console.log("Edit Project")}>
                         <EditIcon className="mr-2" /> Edit
                     </DropdownMenuItem>
@@ -211,9 +244,35 @@ const ProjectContainer = ({
 }: {
     project: Project
 }): ReactNode => {
+    const { selecting, selectedProjects, setSelectedProjects } = useSelectContext();
+    const [selected, setSelected] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    if (!selecting && selected) setSelected(false);
+
     const date = new Date(project.editDate);
+    const handleClick = () => {
+        if (selecting) {
+            setSelected(!selected);
+        }
+    };
+
+    // Automatically add UUID to the selectedProjects
+    useEffect(() => {
+        if (mounted) {
+            if (selected) {
+                setSelectedProjects([...selectedProjects, project.uuid]);
+            } else {
+                const newSelectedProject = selectedProjects;
+                newSelectedProject.splice(newSelectedProject.indexOf(project.uuid), 1);
+                setSelectedProjects(newSelectedProject);
+            }
+        }
+        setMounted(true);
+    }, [selected]);
+
     return (
-        <AspectRatio ratio={16 / 9}>
+        <AspectRatio ratio={16 / 9} onClick={handleClick}>
             <Card className="relative rounded-lg shadow-md w-full h-full overflow-hidden hover:scale-[101%] hover:drop-shadow-xl duration-100">
                 <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50" />
                 <div className="absolute bottom-0 left-0 p-2 w-full flex flex-row justify-between items-center">
@@ -224,9 +283,14 @@ const ProjectContainer = ({
                     </div>
                     <div className="flex flex-col lg:xl:flex-row items-center gap-1">
                         <ProjectDescription project={project} />
-                        <ProjectDropdown project={project} />
+                        <ProjectDropdown selected={selected} setSelected={setSelected} project={project} />
                     </div>
                 </div>
+                {selecting && (
+                    <div className="absolute top-0 right-0 p-2">
+                        <Checkbox checked={selected} onCheckedChange={(checked) => setSelected(checked as boolean)}/>
+                    </div>
+                )}
             </Card>
         </AspectRatio>
     )
@@ -235,6 +299,8 @@ const ProjectContainer = ({
 export default function Home(): ReactNode {
     const isMobile = useIsMobile();
     const [search, setSearch] = useState('');
+    const [selecting, setSelecting] = useState(false);
+    const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
     const [debouncedSearch] = useDebounce(search, 300);
 
     const projects = useLiveQuery(() => (
@@ -261,15 +327,22 @@ export default function Home(): ReactNode {
         } as Project);
     };
 
+    const context: SelectContextData = {
+        selecting,
+        setSelecting,
+        selectedProjects,
+        setSelectedProjects
+    };
+
     return (
-        <>
-            <div className="p-5 w-full h-full">
+        <SelectContext.Provider value={context}>
+            <div className="p-5">
                 <div className="flex flex-row items-center gap-2">
                     <SidebarTrigger size="lg" />
                     <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
                     {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
                 </div>
-                <div className="flex flex-row items-center justify-between sticky top-safe bg-background gap-2 mt-3 pb-2 pt-2 w-full z-20">
+                <div className="flex flex-row items-center justify-between sticky top-safe bg-background gap-2 mt-3 pb-2 pt-2 w-full z-10">
                     <div className="flex flex-row items-center gap-2">
                         <Dialog>
                             <DialogTrigger asChild>
@@ -303,7 +376,7 @@ export default function Home(): ReactNode {
                         </Dialog>
                     </div>
                     <div className="flex flex-row items-center gap-2">
-                        <Toggle variant="outline">
+                        <Toggle variant="outline" pressed={selecting} onPressedChange={(pressed: boolean) => setSelecting(pressed)}>
                             <ListCheckIcon /> {!isMobile && "Select Projects"}
                         </Toggle>
                         <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -318,6 +391,6 @@ export default function Home(): ReactNode {
                     </div>
                 )}
             </div>
-        </>
+        </SelectContext.Provider>
     );
 };
