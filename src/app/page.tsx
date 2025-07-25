@@ -264,9 +264,6 @@ export default function Home(): ReactNode {
     return (
         <>
             <div className="p-5 w-full h-full">
-                <div aria-hidden className="fixed top-0 left-0 w-full z-10">
-                    <div className="sticky top-0 left-0 w-full h-safe-area-inset-top bg-background" />
-                </div>
                 <div className="flex flex-row items-center gap-2">
                     <SidebarTrigger size="lg" />
                     <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
