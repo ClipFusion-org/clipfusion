@@ -10,16 +10,16 @@ export const ThemeSwitcher = ({
 }: {
     variant?: "with-text"
 }): ReactNode => {
-    const { theme, setTheme } = useTheme();
+    const { resolvedTheme, setTheme } = useTheme();
     const [dark, setDark] = useState(false);
     
     const onThemeChange = useCallback(() => {
-        setTheme(theme == "dark" ? "light" : "dark");
-        setDark(!dark);
-    }, [theme, dark]);
+        setTheme(resolvedTheme == "dark" ? "light" : "dark");
+        setDark(resolvedTheme == "light");
+    }, [resolvedTheme, dark]);
 
     useEffect(() => {
-        setDark(theme == "dark");
+        setDark(resolvedTheme == "dark");
     }, []);
 
     return (

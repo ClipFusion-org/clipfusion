@@ -8,6 +8,7 @@ import ThemeProvider from "./theme-provider";
 import Analytics from "./analytics";
 import PersistenceProvider from "./persistence-provider";
 import { Toaster } from "@/components/ui/sonner";
+import Head from "./head";
 
 const geist = Geist({
     variable: "--font-geist",
@@ -28,11 +29,7 @@ export const viewport: Viewport = {
     width: 'device-width',
     initialScale: 1,
     maximumScale: 1,
-    viewportFit: 'cover',
-    themeColor: [
-        { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-        { media: "(prefers-color-scheme: light)", color: "#ffffff" }
-    ]
+    viewportFit: 'cover'
 };
 
 export default async function RootLayout({
@@ -43,9 +40,7 @@ export default async function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
-                <meta name="apple-mobile-web-app-title" content="ClipFusion" />
-                <meta name="apple-mobile-web-app-capable" content="yes" />
-                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+                <Head/>
                 <Analytics/>
             </head>
             <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
