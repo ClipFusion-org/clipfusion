@@ -34,12 +34,11 @@ export default async function RootLayout({
         <html lang="en" suppressHydrationWarning>
             <head>
                 <meta name="apple-mobile-web-app-title" content="ClipFusion" />
-                <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no"/>
                 <meta name="apple-mobile-web-app-capable" content="yes"/>
                 <meta name="HandheldFriendly" content="true" />
                 <Analytics/>
             </head>
-            <body style={{touchAction: "pan-x pan-y"}} className={`${geist.variable} ${geistMono.variable} antialiased`}>
+            <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
                 <ThemeProvider>
                     <SidebarProvider>
                         <Dashboard/>
