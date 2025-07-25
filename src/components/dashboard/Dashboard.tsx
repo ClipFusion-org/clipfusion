@@ -33,7 +33,7 @@ const items: DashboardItem[] = [
 export const Dashboard = (): ReactNode => {
     return (
         <Sidebar>
-            <SidebarHeader className="flex justify-center items-center mt-2">
+            <SidebarHeader className="flex justify-center items-center mt-safe-or-2 ml-safe">
                 <Link href="/">
                     <ClipFusionLogo width="30" height="30">
                         <p className="font-bold text-xl select-none">ClipFusion</p>
@@ -84,7 +84,7 @@ export const Dashboard = (): ReactNode => {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-            <SidebarFooter>
+            <SidebarFooter className="mb-safe">
                 <SidebarGroup>
                     <SidebarGroupLabel>
                         Links

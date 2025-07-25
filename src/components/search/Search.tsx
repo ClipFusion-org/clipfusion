@@ -7,7 +7,7 @@ export const Search = (props: ComponentProps<typeof Input>): ReactNode => (
         <Input
             type="text"
             placeholder="Search"
-            className="peer block w-full rounded-md border py-[9px] pl-10 text-sm"
+            className="peer block w-full rounded-md border py-[9px] pl-10"
             {...props}
         />
         <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2" />

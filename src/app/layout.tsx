@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ReactNode } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -24,6 +24,15 @@ export const metadata: Metadata = {
     description: "Desktop power right in your browser",
 };
 
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    viewportFit: 'cover',
+    themeColor: [
+        { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+        { media: "(prefers-color-scheme: light)", color: "#ffffff" }
+    ]
+};
 
 export default async function RootLayout({
     children,
@@ -35,7 +44,6 @@ export default async function RootLayout({
             <head>
                 <meta name="apple-mobile-web-app-title" content="ClipFusion" />
                 <meta name="apple-mobile-web-app-capable" content="yes"/>
-                <meta name="HandheldFriendly" content="true" />
                 <Analytics/>
             </head>
             <body className={`${geist.variable} ${geistMono.variable} antialiased`}>

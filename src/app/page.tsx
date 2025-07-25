@@ -5,7 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/lib/db";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { CopyIcon, EditIcon, EllipsisIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { CheckCheckIcon, CopyIcon, EditIcon, EllipsisIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import Search from "@/components/search";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -23,6 +23,7 @@ import { generateUUID } from "@/lib/uuid";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useDebounce } from "use-debounce";
 
 const ProjectInfoFormSchema = z.object({
     title: z.string().nonempty("Title cannot be empty"),
@@ -118,6 +119,7 @@ const DeleteProjectDialog = ({ project }: { project: Project }) => {
 const ProjectDropdown = ({ project }: { project: Project }): ReactNode => {
     const [renameDialogOpen, setRenameDialogOpen] = useState(false);
     const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+    const isMobile = useIsMobile();
 
     const handleDuplicate = async () => {
         const newProject = { 
@@ -138,7 +140,7 @@ const ProjectDropdown = ({ project }: { project: Project }): ReactNode => {
                     <EllipsisIcon/>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="min-w-48">
+            <DropdownMenuContent align={isMobile ? "end" : "start"} className="min-w-48">
                 <div className="flex flex-row items-center justify-between">
                     <DropdownMenuLabel className="font-semibold">{project.title}</DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => setRenameDialogOpen(true)}>
@@ -221,10 +223,11 @@ const ProjectContainer = ({
 export default function Home(): ReactNode {
     const isMobile = useIsMobile();
     const [search, setSearch] = useState('');
+    const [debouncedSearch] = useDebounce(search, 300);
 
-    const projects = useLiveQuery(() => {
-        return db.projects.filter((project) => project.title.includes(search)).toArray();
-    });
+    const projects = useLiveQuery(() => (
+        db.projects.filter((project) => project.title.toLowerCase().includes(debouncedSearch.toLowerCase())).toArray()
+    ), [debouncedSearch]);
 
     const newProjectForm = useForm<z.infer<typeof ProjectInfoFormSchema>>({
         resolver: zodResolver(ProjectInfoFormSchema),
