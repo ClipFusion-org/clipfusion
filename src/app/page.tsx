@@ -262,60 +262,66 @@ export default function Home(): ReactNode {
     };
 
     return (
-        <div className="p-5 w-full h-full">
-            <div className="flex flex-row items-center gap-2 overscroll-none">
-                <SidebarTrigger size="lg" />
+        <>
+            <div className="flex flex-row items-center gap-2 absolute top-0 left-0 p-5 z-40" tabIndex={1}>
+                <SidebarTrigger size="lg"/>
                 <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
                 {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
             </div>
-            <div className="flex flex-row items-center justify-between sticky top-safe bg-background gap-2 mt-3 pb-2 pt-2 w-full overscroll-none z-50">
-                <div className="flex flex-row items-center gap-2">
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button>
-                                <PlusIcon /> {!isMobile && "New Project"}
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>
-                                    Create New Project
-                                </DialogTitle>
-                                <DialogDescription>
-                                    Fill in the information about your project. You can change it at any time later.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <Form {...newProjectForm}>
-                                <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
-                                    <ProjectInfoForm form={newProjectForm} />
-                                    <DialogFooter>
-                                        <DialogClose asChild>
-                                            <Button variant="outline">Cancel</Button>
-                                        </DialogClose>
-                                        <DialogClose asChild>
-                                            <Button type="submit">Create</Button>
-                                        </DialogClose>
-                                    </DialogFooter>
-                                </form>
-                            </Form>
-                        </DialogContent>
-                    </Dialog>
+            <div className="p-5 w-full h-full">
+                <div aria-hidden className="fixed top-0 left-0 w-full z-10">
+                    <div className="sticky top-0 left-0 w-full h-safe-area-inset-top bg-[#0a0a0a]" />
                 </div>
-                <div className="flex flex-row items-center gap-2">
-                    <Toggle variant="outline">
-                        <ListCheckIcon /> {!isMobile && "Select Projects"}
-                    </Toggle>
-                    <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} />
+                <div className="h-8" />
+                <div className="flex flex-row items-center justify-between sticky top-safe bg-background gap-2 mt-3 pb-2 pt-2 w-full z-40">
+                    <div className="flex flex-row items-center gap-2">
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button>
+                                    <PlusIcon /> {!isMobile && "New Project"}
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        Create New Project
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                        Fill in the information about your project. You can change it at any time later.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <Form {...newProjectForm}>
+                                    <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
+                                        <ProjectInfoForm form={newProjectForm} />
+                                        <DialogFooter>
+                                            <DialogClose asChild>
+                                                <Button variant="outline">Cancel</Button>
+                                            </DialogClose>
+                                            <DialogClose asChild>
+                                                <Button type="submit">Create</Button>
+                                            </DialogClose>
+                                        </DialogFooter>
+                                    </form>
+                                </Form>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+                    <div className="flex flex-row items-center gap-2">
+                        <Toggle variant="outline">
+                            <ListCheckIcon /> {!isMobile && "Select Projects"}
+                        </Toggle>
+                        <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} />
+                    </div>
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
+                    {projects && projects.map((project) => <ProjectContainer key={project.uuid} project={project} />)}
+                </div>
+                {(projects != undefined && projects.length == 0) && (
+                    <div className="w-full h-full flex justify-center items-center">
+                        <Label className="text-muted-foreground">Nothing to Show</Label>
+                    </div>
+                )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
-                {projects && projects.map((project) => <ProjectContainer key={project.uuid} project={project} />)}
-            </div>
-            {(projects != undefined && projects.length == 0) && (
-                <div className="w-full h-full flex justify-center items-center">
-                    <Label className="text-muted-foreground">Nothing to Show</Label>
-                </div>
-            )}
-        </div>
+        </>
     );
 };
