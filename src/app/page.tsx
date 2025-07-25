@@ -263,17 +263,16 @@ export default function Home(): ReactNode {
 
     return (
         <>
-            <div className="flex flex-row items-center gap-2 absolute top-0 left-0 p-5 z-40" tabIndex={1}>
-                <SidebarTrigger size="lg"/>
-                <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
-                {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
-            </div>
             <div className="p-5 w-full h-full">
                 <div aria-hidden className="fixed top-0 left-0 w-full z-10">
-                    <div className="sticky top-0 left-0 w-full h-safe-area-inset-top bg-[#0a0a0a]" />
+                    <div className="sticky top-0 left-0 w-full h-safe-area-inset-top bg-background" />
                 </div>
-                <div className="h-8" />
-                <div className="flex flex-row items-center justify-between sticky top-safe bg-background gap-2 mt-3 pb-2 pt-2 w-full z-40">
+                <div className="flex flex-row items-center gap-2">
+                    <SidebarTrigger size="lg" />
+                    <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
+                    {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
+                </div>
+                <div className="flex flex-row items-center justify-between sticky top-safe bg-background gap-2 mt-3 pb-2 pt-2 w-full z-20">
                     <div className="flex flex-row items-center gap-2">
                         <Dialog>
                             <DialogTrigger asChild>

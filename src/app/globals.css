@@ -51,7 +51,11 @@ html {
 body {
     -webkit-tap-highlight-color: transparent;
     font-family: var(--font-geist), sans-serif;
-    background-color: var(--background);
+    background-color: var(--color-background);
+}
+
+.dark body {
+    background-color: var(--color-background);
 }
 
 :root {
