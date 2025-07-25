@@ -20,7 +20,7 @@ const MetaThemeProvider = ({
             document.head.appendChild(themeColorMeta);
         }
 
-        themeColorMeta.content = resolvedTheme === 'dark' ? '#171717' : '#fff';
+        themeColorMeta.content = resolvedTheme === 'dark' ? '#0a0a0a' : '#ffffff';
     }, [resolvedTheme]);
 
     return children;
