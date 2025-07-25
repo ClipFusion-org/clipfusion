@@ -1,6 +1,7 @@
 {
     "name": "ClipFusion Video Editor",
     "short_name": "ClipFusion",
+    "start_url": "/",
     "icons": [
         {
             "src": "/web-app-manifest-192x192.png",
