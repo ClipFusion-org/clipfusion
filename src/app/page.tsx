@@ -2,7 +2,7 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ReactNode, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { CopyIcon, EditIcon, EllipsisIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
@@ -95,7 +95,7 @@ const RenameProjectDialog = ({ project }: { project: Project }) => {
 
 const DeleteProjectDialog = ({ project }: { project: Project }) => {
     const handleDelete = async () => {
-        await db.projects.delete(project.uuid);
+        deleteProject(project.uuid);
     };
 
     return (
@@ -122,15 +122,27 @@ const ProjectDropdown = ({ project }: { project: Project }): ReactNode => {
     const isMobile = useIsMobile();
 
     const handleDuplicate = async () => {
+        let originProject = await db.projects.where('uuid').equals(project.origin).first();
+        if (!originProject) originProject = project;
+        let newProjectTitle = originProject.title;
+
+        const duplication = await db.duplications.where('uuid').equals(originProject.uuid).first();
+        if (!duplication) return;
+        newProjectTitle = `${originProject.title} (${duplication.count + 1})`;
+        await db.duplications.update(duplication.uuid, {
+            ...duplication,
+            count: duplication.count + 1
+        });
+
         const newProject = {
             ...project,
             uuid: generateUUID(),
             creationDate: Date.now(),
             editDate: Date.now(),
-            title: project.title.includes("Copy of") ? project.title : `Copy of ${project.title}`,
-            origin: project.origin
+            title: newProjectTitle,
+            origin: originProject.uuid
         };
-        await db.projects.add(newProject);
+        addProject(newProject as Project);
     };
 
     return (
@@ -239,14 +251,14 @@ export default function Home(): ReactNode {
 
     const newProjectSubmit = async (data: z.infer<typeof ProjectInfoFormSchema>) => {
         const date = Date.now();
-        await db.projects.add({
+        addProject({
             uuid: generateUUID(),
             creationDate: date,
             editDate: date,
             title: data.title,
             description: data.description,
             origin: ""
-        });
+        } as Project);
     };
 
     return (

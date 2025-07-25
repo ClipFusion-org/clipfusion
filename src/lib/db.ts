@@ -1,6 +1,20 @@
 import EditorDB from "@/types/EditorDB";
+import Project from "@/types/Project";
 
 export const db = new EditorDB();
+
+export function addProject(project: Project) {
+    db.projects.add(project);
+    db.duplications.add({
+        uuid: project.uuid,
+        count: 0
+    });
+}
+
+export function deleteProject(uuid: string) {
+    db.projects.delete(uuid);
+    db.duplications.delete(uuid);
+}
 
 // StorageManager code from https://dexie.org/docs/StorageManager
 

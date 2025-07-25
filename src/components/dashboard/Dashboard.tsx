@@ -94,11 +94,11 @@ export const Dashboard = (): ReactNode => {
                             <Tooltip>
                                 <TooltipTrigger>
                                     <a href="https://github.com/ClipFusion-org/clipfusion" target="_blank">
-                                        <Image src="/github-mark.svg" aria-hidden width="25" height="25" alt="ClipFusion GitHub Repository" className="duration-100 dark:invert hover:opacity-95 active:scale-95"/>
+                                        <Image src="/github-mark.svg" aria-hidden width="25" height="25" alt="ClipFusion GitHub" className="duration-100 dark:invert hover:opacity-95 active:scale-95"/>
                                     </a>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>ClipFusion GitHub Repository</p>
+                                    <p>ClipFusion GitHub</p>
                                 </TooltipContent>
                             </Tooltip>
                             <Tooltip>
