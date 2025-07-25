@@ -1,5 +1,5 @@
 "use client";
-import { ThemeProvider as NextThemeProvider } from "next-themes";
+import { ThemeProvider as NextThemeProvider, useTheme } from "next-themes";
 import { ComponentProps, ReactNode, useEffect } from "react";
 
 const MetaThemeProvider = ({
@@ -7,29 +7,28 @@ const MetaThemeProvider = ({
 }: {
     children: ReactNode
 }) => {
+    const { resolvedTheme } = useTheme();
+
     useEffect(() => {
-        const updateThemeColor = () => {
-            const bgColor = window.getComputedStyle(document.body).backgroundColor;
-            const metaThemeColor = document.querySelector("meta[name=theme-color]");
-            metaThemeColor?.setAttribute("content", bgColor);
-        };
+        let themeColorMeta = document.querySelector(
+            'meta[name="theme-color"]',
+        ) as HTMLMetaElement;
 
-        const observer = new MutationObserver(updateThemeColor);
+        if (!themeColorMeta) {
+            themeColorMeta = document.createElement('meta');
+            themeColorMeta.name = 'theme-color';
+            document.head.appendChild(themeColorMeta);
+        }
 
-        observer.observe(document.documentElement, {
-            attributes: true,
-            attributeFilter: ["class"]
-        });
-
-        return () => observer.disconnect();
-    }, []);
+        themeColorMeta.content = resolvedTheme === 'dark' ? '#171717' : '#fff';
+    }, [resolvedTheme]);
 
     return children;
 }
 
 const ThemeProvider = (props: ComponentProps<typeof NextThemeProvider>): ReactNode => {
     return (
-       <NextThemeProvider {...props} attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <NextThemeProvider {...props} attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <MetaThemeProvider>
                 {props.children}
             </MetaThemeProvider>
