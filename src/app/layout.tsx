@@ -27,6 +27,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
     width: 'device-width',
     initialScale: 1,
+    maximumScale: 1,
     viewportFit: 'cover',
     themeColor: [
         { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
@@ -43,7 +44,8 @@ export default async function RootLayout({
         <html lang="en" suppressHydrationWarning>
             <head>
                 <meta name="apple-mobile-web-app-title" content="ClipFusion" />
-                <meta name="apple-mobile-web-app-capable" content="yes"/>
+                <meta name="apple-mobile-web-app-capable" content="yes" />
+                <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
                 <Analytics/>
             </head>
             <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
