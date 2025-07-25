@@ -8,7 +8,7 @@ import ThemeProvider from "./theme-provider";
 import Analytics from "./analytics";
 import PersistenceProvider from "./persistence-provider";
 import { Toaster } from "@/components/ui/sonner";
-import Head from "./head";
+import PWAHead from "./pwa-head";
 
 const geist = Geist({
     variable: "--font-geist",
@@ -40,7 +40,8 @@ export default async function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
-                <Head/>
+                <meta name="theme-color" content="var(--background)" />
+                <PWAHead/>
                 <Analytics/>
             </head>
             <body className={`${geist.variable} ${geistMono.variable} antialiased`}>

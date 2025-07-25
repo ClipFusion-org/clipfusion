@@ -1,4 +1,4 @@
-const Head = () => (
+const PWAHead = () => (
     <>
         <meta name="apple-mobile-web-app-title" content="ClipFusion" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -45,4 +45,4 @@ const Head = () => (
     </>
 );
 
-export default Head;
+export default PWAHead;
