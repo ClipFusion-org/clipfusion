@@ -1,6 +1,6 @@
 "use client";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from "react";
+import { createContext, Dispatch, MouseEventHandler, ReactNode, SetStateAction, useContext, useEffect, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
@@ -28,7 +28,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent } from "@/components/ui/tooltip";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 
 type SortingType = "byCreationDate"
@@ -244,25 +244,35 @@ const ProjectDropdown = ({
                                 <PencilIcon /> <span className="sr-only">Rename</span>
                             </Button>
                         </div>
-                        <SheetDescription>Manage {project.title}</SheetDescription>
+                        <SheetDescription>Actions for {project.title}</SheetDescription>
                     </SheetHeader>
-                    <Separator/>
-                    <Button variant="ghost" className="justify-start w-full" onClick={handleSelect}>
-                        <Grid2X2CheckIcon /> {selected ? "Deselect" : "Select"}
-                    </Button>
-                    <Button variant="ghost" className="justify-start w-full" onClick={() => console.log("Edit Project")}>
-                        <EditIcon /> Edit
-                    </Button>
-                    <Button variant="ghost" className="justify-start w-full" onClick={handleDuplicate}>
-                        <CopyIcon /> Duplicate
-                    </Button>
-                    <Button variant="ghost" className="text-red-400 justify-start w-full" onClick={() => setDeleteAlertOpen(true)}>
-                        <TrashIcon /> Delete
-                    </Button>
-                    <Separator/>
-                    <Button variant="ghost" className="justify-start w-full" onClick={() => console.log("Project Info")}>
-                        <InfoIcon /> Info
-                    </Button>
+                    <Separator />
+                    <SheetClose asChild>
+                        <Button variant="ghost" className="justify-start w-full" onClick={handleSelect}>
+                            <Grid2X2CheckIcon /> {selected ? "Deselect" : "Select"}
+                        </Button>
+                    </SheetClose>
+                    <SheetClose asChild>
+                        <Button variant="ghost" className="justify-start w-full" onClick={() => console.log("Edit Project")}>
+                            <EditIcon /> Edit
+                        </Button>
+                    </SheetClose>
+                    <SheetClose asChild>
+                        <Button variant="ghost" className="justify-start w-full" onClick={handleDuplicate}>
+                            <CopyIcon /> Duplicate
+                        </Button>
+                    </SheetClose>
+                    <SheetClose asChild>
+                        <Button variant="ghost" className="text-red-400 justify-start w-full" onClick={() => setDeleteAlertOpen(true)}>
+                            <TrashIcon /> Delete
+                        </Button>
+                    </SheetClose>
+                    <Separator />
+                    <SheetClose asChild>
+                        <Button variant="ghost" className="justify-start w-full" onClick={() => console.log("Project Info")}>
+                            <InfoIcon /> Info
+                        </Button>
+                    </SheetClose>
                 </SheetContent>
                 <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
                     <RenameProjectDialog project={project} />
@@ -271,7 +281,7 @@ const ProjectDropdown = ({
                     <DeleteProjectDialog project={project} />
                 </AlertDialog>
             </Sheet>
-        )
+        );
     }
 
     return (
@@ -350,7 +360,11 @@ const ProjectContainer = ({
     if (!selecting && selected) setSelected(false);
 
     const date = new Date(project.editDate);
-    const handleClick = () => {
+
+    // TODO: data-selectable is a really dirty way of deciding whether to trigger selection or not should be reworked in the future
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if ((e.target as HTMLDivElement).getAttribute("data-selectable") != "true") return;
+        e.stopPropagation();
         if (selecting) {
             setSelected(!selected);
         }
@@ -374,16 +388,16 @@ const ProjectContainer = ({
     }, [selected]);
 
     return (
-        <AspectRatio ratio={16 / 9} onClick={handleClick}>
-            <Card className="relative rounded-lg shadow-md w-full h-full overflow-hidden hover:scale-[101%] hover:drop-shadow-xl duration-100">
-                <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50" />
-                <div className="absolute bottom-0 left-0 p-2 w-full flex flex-row justify-between items-center">
-                    <div>
-                        <h3 className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold line-clamp-1">{project.title}</h3>
-                        {project.description && <p className="text-sm text-secondary-foreground line-clamp-1">{project.description}</p>}
-                        {project.editDate && <p className="text-sm text-secondary-foreground">Last edit date: {date.toLocaleDateString()}, {date.toLocaleTimeString()}</p>}
+        <AspectRatio data-selectable="true" ratio={16 / 9} onClick={handleClick}>
+            <Card className="relative rounded-lg shadow-md w-full h-full overflow-hidden hover:scale-[101%] hover:drop-shadow-xl duration-100" data-selectable="true">
+                <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50" data-selectable="true"/>
+                <div className="absolute bottom-0 left-0 p-2 w-full flex flex-row justify-between items-center" data-selectable="true">
+                    <div data-selectable="true">
+                        <h3 className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold line-clamp-1" data-selectable="true">{project.title}</h3>
+                        {project.description && <p className="text-sm text-secondary-foreground line-clamp-1" data-selectable="true">{project.description}</p>}
+                        {project.editDate && <p className="text-sm text-secondary-foreground" data-selectable="true">Last Edit Date: {date.toLocaleDateString()}, {date.toLocaleTimeString()}</p>}
                     </div>
-                    <div className="flex flex-col lg:xl:flex-row items-center gap-1">
+                    <div className="flex flex-col lg:xl:flex-row items-center gap-1" data-selectable="true">
                         {!selecting && <ProjectDescription project={project} />}
                         <ProjectDropdown selected={selected} setSelected={setSelected} project={project} />
                     </div>
