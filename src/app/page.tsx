@@ -492,7 +492,7 @@ export default function Home(): ReactNode {
                     <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
                     {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
                 </div>
-                <div className="flex flex-col sticky top-safe bg-background gap-2 mt-3 pb-2 pt-2 w-full z-10">
+                <div className="flex flex-col sticky top-safe bg-background gap-2 mt-3 pb-2 pt-2 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
                     <div className={cn("flex flex-row gap-2 items-center w-full", !isMobile && "justify-between")}>
                         <Dialog>
                             <DialogTrigger asChild>
