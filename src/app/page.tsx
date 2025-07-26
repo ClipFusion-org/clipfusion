@@ -5,7 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { ALargeSmallIcon, ArrowDownAZIcon, ArrowDownIcon, ArrowUpAZIcon, ArrowUpIcon, CalendarArrowDownIcon, CalendarArrowUpIcon, CalendarIcon, ClockArrowDownIcon, ClockArrowUpIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import Search from "@/components/search";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -20,11 +20,64 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { generateUUID } from "@/lib/uuid";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useDebounce } from "use-debounce";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent } from "@/components/ui/tooltip";
+import { TooltipTrigger } from "@radix-ui/react-tooltip";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
+
+type SortingType = "byCreationDate"
+    | "byEditDate"
+    | "byTitle";
+
+const defaultSortingType: SortingType = "byCreationDate";
+
+const sortProjects = (a: Project, b: Project, sortingType: SortingType) => {
+    switch (sortingType) {
+        case "byCreationDate": return b.creationDate - a.creationDate;
+        case "byEditDate": return b.editDate - a.editDate;
+        case "byTitle": return a.title.localeCompare(b.title);
+    }
+};
+
+const sortingTypeToString = (sortingType: SortingType) => {
+    switch (sortingType) {
+        case "byCreationDate": return "By Creation Date";
+        case "byEditDate": return "By Edit Date";
+        case "byTitle": return "By Title";
+    }
+};
+
+const SortingTypeIcon = ({
+    sortingType
+}: {
+    sortingType: SortingType
+}) => {
+    switch (sortingType) {
+        case "byCreationDate": return <CalendarIcon />;
+        case "byEditDate": return <ClockIcon />;
+        case "byTitle": return <ALargeSmallIcon />;
+    }
+};
+
+const SortingTypeMenuItem = ({
+    sortingType,
+    currentSortingType,
+    setSortingType
+}: {
+    sortingType: SortingType,
+    currentSortingType: SortingType
+    setSortingType: Dispatch<SetStateAction<SortingType>>,
+}) => (
+    <DropdownMenuCheckboxItem checked={currentSortingType == sortingType} onCheckedChange={(_) => setSortingType(sortingType)}>
+        <SortingTypeIcon sortingType={sortingType} /> {sortingTypeToString(sortingType)}
+    </DropdownMenuCheckboxItem>
+);
 
 interface SelectContextData {
     selecting: boolean;
@@ -132,15 +185,15 @@ const DeleteProjectDialog = ({ project }: { project: Project }) => {
     );
 }
 
-const ProjectDropdown = ({ 
+const ProjectDropdown = ({
     project,
     selected,
     setSelected
-}: { 
+}: {
     project: Project,
     selected: boolean,
     setSelected: Dispatch<SetStateAction<boolean>>
- }): ReactNode => {
+}): ReactNode => {
     const { selecting, setSelecting } = useSelectContext();
     const [renameDialogOpen, setRenameDialogOpen] = useState(false);
     const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
@@ -175,6 +228,52 @@ const ProjectDropdown = ({
         setSelected(!selected);
     };
 
+    if (isMobile) {
+        return (
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <EllipsisIcon />
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="px-2 pb-safe-or-2 gap-1">
+                    <SheetHeader className="m-0 p-2 gap-0">
+                        <div className="flex flex-row items-center w-full">
+                            <SheetTitle className="font-semibold">{project.title}</SheetTitle>
+                            <Button variant="ghost" onClick={() => setRenameDialogOpen(true)}>
+                                <PencilIcon /> <span className="sr-only">Rename</span>
+                            </Button>
+                        </div>
+                        <SheetDescription>Manage {project.title}</SheetDescription>
+                    </SheetHeader>
+                    <Separator/>
+                    <Button variant="ghost" className="justify-start w-full" onClick={handleSelect}>
+                        <Grid2X2CheckIcon /> {selected ? "Deselect" : "Select"}
+                    </Button>
+                    <Button variant="ghost" className="justify-start w-full" onClick={() => console.log("Edit Project")}>
+                        <EditIcon /> Edit
+                    </Button>
+                    <Button variant="ghost" className="justify-start w-full" onClick={handleDuplicate}>
+                        <CopyIcon /> Duplicate
+                    </Button>
+                    <Button variant="ghost" className="text-red-400 justify-start w-full" onClick={() => setDeleteAlertOpen(true)}>
+                        <TrashIcon /> Delete
+                    </Button>
+                    <Separator/>
+                    <Button variant="ghost" className="justify-start w-full" onClick={() => console.log("Project Info")}>
+                        <InfoIcon /> Info
+                    </Button>
+                </SheetContent>
+                <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+                    <RenameProjectDialog project={project} />
+                </Dialog>
+                <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+                    <DeleteProjectDialog project={project} />
+                </AlertDialog>
+            </Sheet>
+        )
+    }
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -183,7 +282,7 @@ const ProjectDropdown = ({
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align={isMobile ? "end" : "start"} className="min-w-48">
-                <div className="flex flex-row items-center justify-between">
+                <div className="flex flex-row items-center justify-between w-full">
                     <DropdownMenuLabel className="font-semibold">{project.title}</DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => setRenameDialogOpen(true)}>
                         <PencilIcon /> <span className="sr-only">Rename</span>
@@ -192,7 +291,7 @@ const ProjectDropdown = ({
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                     <DropdownMenuItem onClick={handleSelect}>
-                        <Grid2X2CheckIcon className="mr-2" /> Select
+                        <Grid2X2CheckIcon className="mr-2" /> {selected ? "Deselect" : "Select"}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => console.log("Edit Project")}>
                         <EditIcon className="mr-2" /> Edit
@@ -291,7 +390,7 @@ const ProjectContainer = ({
                 </div>
                 {selecting && (
                     <div className="absolute top-0 right-0 p-2">
-                        <Checkbox checked={selected} onCheckedChange={(checked) => setSelected(checked as boolean)}/>
+                        <Checkbox checked={selected} onCheckedChange={(checked) => setSelected(checked as boolean)} />
                     </div>
                 )}
             </Card>
@@ -302,13 +401,20 @@ const ProjectContainer = ({
 export default function Home(): ReactNode {
     const isMobile = useIsMobile();
     const [search, setSearch] = useState('');
+    const [debouncedSearch] = useDebounce(search, 300);
     const [selecting, setSelecting] = useState(false);
     const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
-    const [debouncedSearch] = useDebounce(search, 300);
+    const [sortingType, setSortingType] = useState<SortingType>(defaultSortingType);
+    const [descendingSort, setDescendingSort] = useState(false);
 
     const projects = useLiveQuery(() => (
-        db.projects.filter((project) => project.title.toLowerCase().includes(debouncedSearch.toLowerCase())).toArray()
-    ), [debouncedSearch]);
+        db.projects.toArray()
+    ));
+
+    const filteredProjects = projects && (
+        projects.filter((project) => project.title.toLowerCase().includes(debouncedSearch.toLowerCase()))
+            .sort((a, b) => sortProjects(a, b, sortingType) * (descendingSort ? -1 : 1))
+    );
 
     const newProjectForm = useForm<z.infer<typeof ProjectInfoFormSchema>>({
         resolver: zodResolver(ProjectInfoFormSchema),
@@ -345,8 +451,8 @@ export default function Home(): ReactNode {
                     <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
                     {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
                 </div>
-                <div className="flex flex-row items-center justify-between sticky top-safe bg-background gap-2 mt-3 pb-2 pt-2 w-full z-10">
-                    <div className="flex flex-row items-center gap-2">
+                <div className="flex flex-col sticky top-safe bg-background gap-2 mt-3 pb-2 pt-2 w-full z-10">
+                    <div className={cn("flex flex-row gap-2 items-center w-full", !isMobile && "justify-between")}>
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button>
@@ -377,16 +483,45 @@ export default function Home(): ReactNode {
                                 </Form>
                             </DialogContent>
                         </Dialog>
+                        <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} className={isMobile ? "w-full" : "w-60"} />
                     </div>
-                    <div className="flex flex-row items-center gap-2">
-                        <Toggle variant="outline" pressed={selecting} onPressedChange={(pressed: boolean) => setSelecting(pressed)}>
-                            <ListCheckIcon /> {!isMobile && "Select Projects"}
+                    <div className="flex flex-row justify-between items-center w-full">
+                        <div className="flex flex-row items-center gap-1">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger>
+                                    <Button variant="ghost" asChild>
+                                        <div className="flex flex-row">
+                                            <SortingTypeIcon sortingType={sortingType} /> {isMobile ? "Sort" : sortingTypeToString(sortingType)}
+                                        </div>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start">
+                                    <DropdownMenuLabel>Sort Projects</DropdownMenuLabel>
+                                    <DropdownMenuGroup>
+                                        <SortingTypeMenuItem sortingType="byCreationDate" currentSortingType={sortingType} setSortingType={setSortingType} />
+                                        <SortingTypeMenuItem sortingType="byEditDate" currentSortingType={sortingType} setSortingType={setSortingType} />
+                                        <SortingTypeMenuItem sortingType="byTitle" currentSortingType={sortingType} setSortingType={setSortingType} />
+                                    </DropdownMenuGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Toggle pressed={descendingSort} onPressedChange={(pressed) => setDescendingSort(pressed)}>
+                                        {descendingSort ? <ArrowDownIcon /> : <ArrowUpIcon />}
+                                    </Toggle>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    {descendingSort ? "Descending" : "Ascending"}
+                                </TooltipContent>
+                            </Tooltip>
+                        </div>
+                        <Toggle variant="default" pressed={selecting} onPressedChange={(pressed: boolean) => setSelecting(pressed)}>
+                            <Grid2X2CheckIcon /> {isMobile ? "Select" : "Select Projects"}
                         </Toggle>
-                        <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} />
                     </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-5">
-                    {projects && projects.map((project) => <ProjectContainer key={project.uuid} project={project} />)}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+                    {filteredProjects && filteredProjects.map((project) => <ProjectContainer key={project.uuid} project={project} />)}
                 </div>
                 {(projects != undefined && projects.length == 0) && (
                     <div className="w-full h-full flex justify-center items-center">

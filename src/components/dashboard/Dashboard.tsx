@@ -92,7 +92,7 @@ export const Dashboard = (): ReactNode => {
                     <SidebarGroupContent className="flex flex-row items-center justify-between">
                         <div className="flex flex-row items-center gap-3 pl-2">
                             <Tooltip>
-                                <TooltipTrigger>
+                                <TooltipTrigger asChild>
                                     <a href="https://github.com/ClipFusion-org/clipfusion" target="_blank">
                                         <Image src="/github-mark.svg" aria-hidden width="25" height="25" alt="ClipFusion GitHub" className="duration-100 dark:invert hover:opacity-95 active:scale-95"/>
                                     </a>
@@ -102,7 +102,7 @@ export const Dashboard = (): ReactNode => {
                                 </TooltipContent>
                             </Tooltip>
                             <Tooltip>
-                                <TooltipTrigger>
+                                <TooltipTrigger asChild>
                                     <a href="https://git.clipfusion.org/ClipFusion-org/clipfusion" target="_blank">
                                         <Image src="/clipfusion-git-logo.png" aria-hidden width="25" height="25" alt="ClipFusion Git Mirror" className="duration-100 hover:opacity-95 active:scale-95"/>
                                     </a>
