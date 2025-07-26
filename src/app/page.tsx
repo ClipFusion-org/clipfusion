@@ -236,15 +236,17 @@ const ProjectDropdown = ({
                         <EllipsisIcon />
                     </Button>
                 </SheetTrigger>
-                <SheetContent side="bottom" className="px-2 pb-safe-or-2 gap-1">
+                <SheetContent side="bottom" className="px-safe-or-2 pb-safe-or-2 gap-1">
                     <SheetHeader className="m-0 p-2 gap-0">
                         <div className="flex flex-row items-center w-full">
                             <SheetTitle className="font-semibold">{project.title}</SheetTitle>
-                            <Button variant="ghost" onClick={() => setRenameDialogOpen(true)}>
-                                <PencilIcon /> <span className="sr-only">Rename</span>
-                            </Button>
+                            <SheetClose asChild>
+                                <Button variant="ghost" onClick={() => setRenameDialogOpen(true)}>
+                                    <PencilIcon /> <span className="sr-only">Rename</span>
+                                </Button>
+                            </SheetClose>
                         </div>
-                        <SheetDescription>Actions for {project.title}</SheetDescription>
+                        <SheetDescription>Additional Options for the Project</SheetDescription>
                     </SheetHeader>
                     <Separator />
                     <SheetClose asChild>
@@ -329,8 +331,32 @@ const ProjectDropdown = ({
     );
 };
 
-const ProjectDescription = ({ project }: { project: Project }): ReactNode => {
+const ProjectDescription = ({ project }: { project: Project}): ReactNode => {
+    const isMobile = useIsMobile();
     if (!project.description) return <></>;
+
+    if (isMobile) {
+        return (
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <InfoIcon />
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="bottom">
+                    <SheetHeader className="m-0 p-2 gap-0">
+                        <SheetTitle>{project.title} Description</SheetTitle>
+                        <SheetDescription>Additional Information About the Project</SheetDescription>
+                    </SheetHeader>
+                    <Separator/>
+                    <div className="p-2">
+                        {project.description}
+                    </div>
+                </SheetContent>
+            </Sheet>
+        );
+    }
+
     return (
         <Popover>
             <PopoverTrigger asChild>
@@ -339,7 +365,7 @@ const ProjectDescription = ({ project }: { project: Project }): ReactNode => {
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80">
-                <h3 className="font-semibold text-lg">Project Description</h3>
+                <h3 className="font-semibold text-lg">{project.title} Description</h3>
                 <p className="text-sm text-muted-foreground">
                     {project.description}
                 </p>
@@ -371,6 +397,7 @@ const ProjectContainer = ({
     };
 
     // Automatically add UUID to the selectedProjects
+    // useEffect is required here because we can't update SelectContext while rendering
     useEffect(() => {
         if (mounted) {
             if (selected) {
@@ -398,12 +425,12 @@ const ProjectContainer = ({
                         {project.editDate && <p className="text-sm text-secondary-foreground" data-selectable="true">Last Edit Date: {date.toLocaleDateString()}, {date.toLocaleTimeString()}</p>}
                     </div>
                     <div className="flex flex-col lg:xl:flex-row items-center gap-1" data-selectable="true">
-                        {!selecting && <ProjectDescription project={project} />}
+                        {!selecting && <ProjectDescription project={project}/>}
                         <ProjectDropdown selected={selected} setSelected={setSelected} project={project} />
                     </div>
                 </div>
                 {selecting && (
-                    <div className="absolute top-0 right-0 p-2">
+                    <div className="absolute top-0 right-0 p-5">
                         <Checkbox checked={selected} onCheckedChange={(checked) => setSelected(checked as boolean)} />
                     </div>
                 )}
