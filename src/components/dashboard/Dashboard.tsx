@@ -84,7 +84,7 @@ export const Dashboard = (): ReactNode => {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-            <SidebarFooter className="mb-safe">
+            <SidebarFooter>
                 <SidebarGroup>
                     <SidebarGroupLabel>
                         Links
