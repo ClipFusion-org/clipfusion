@@ -43,6 +43,18 @@
     --radius-xl: calc(var(--radius) + 4px);
 }
 
+@media (prefers-color-scheme: light) {
+    @theme inline {
+        --initial-theme-color: oklch(1 0 0);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    @theme inline {
+        --initial-theme-color: oklch(0.145 0 0);
+    }
+}
+
 html {
     min-height: calc(100% + env(safe-area-inset-top));
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);

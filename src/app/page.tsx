@@ -264,8 +264,11 @@ const ProjectContainer = ({
                 setSelectedProjects([...selectedProjects, project.uuid]);
             } else {
                 const newSelectedProject = selectedProjects;
-                newSelectedProject.splice(newSelectedProject.indexOf(project.uuid), 1);
-                setSelectedProjects(newSelectedProject);
+                const index = selectedProjects.indexOf(project.uuid);
+                if (index >= 0) {
+                    newSelectedProject.splice(newSelectedProject.indexOf(project.uuid), 1);
+                    setSelectedProjects(newSelectedProject);
+                }
             }
         }
         setMounted(true);
@@ -282,7 +285,7 @@ const ProjectContainer = ({
                         {project.editDate && <p className="text-sm text-secondary-foreground">Last edit date: {date.toLocaleDateString()}, {date.toLocaleTimeString()}</p>}
                     </div>
                     <div className="flex flex-col lg:xl:flex-row items-center gap-1">
-                        <ProjectDescription project={project} />
+                        {!selecting && <ProjectDescription project={project} />}
                         <ProjectDropdown selected={selected} setSelected={setSelected} project={project} />
                     </div>
                 </div>
