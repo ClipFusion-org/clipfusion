@@ -48,7 +48,7 @@ export default async function RootLayout({
                 <ThemeProvider>
                     <SidebarProvider>
                         <Dashboard/>
-                        <main className="w-full relative">
+                        <main className="relative">
                             <PersistenceProvider>
                                 {children}
                             </PersistenceProvider>

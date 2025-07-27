@@ -5,7 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ALargeSmallIcon, ArrowDownAZIcon, ArrowDownIcon, ArrowUpAZIcon, ArrowUpIcon, CalendarArrowDownIcon, CalendarArrowUpIcon, CalendarIcon, ClockArrowDownIcon, ClockArrowUpIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { ALargeSmallIcon, ArrowDownAZIcon, ArrowDownIcon, ArrowUpAZIcon, ArrowUpIcon, CalendarArrowDownIcon, CalendarArrowUpIcon, CalendarIcon, ClockArrowDownIcon, ClockArrowUpIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, Grid2x2X, Grid2x2XIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import Search from "@/components/search";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -33,6 +33,7 @@ import { Separator } from "@/components/ui/separator";
 import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
 import SidebarTriggerAdjustable from "@/components/sidebar-trigger-adjustable";
 import ScrollFadingTitle from "@/components/scroll-fading-title";
+import { fa } from "zod/v4/locales";
 
 type SortingType = "byCreationDate"
     | "byEditDate"
@@ -190,14 +191,12 @@ const DeleteProjectDialog = ({ project }: { project: Project }) => {
 
 const ProjectDropdown = ({
     project,
-    selected,
-    setSelected
+    selected
 }: {
     project: Project,
-    selected: boolean,
-    setSelected: Dispatch<SetStateAction<boolean>>
+    selected: boolean
 }): ReactNode => {
-    const { selecting, setSelecting } = useSelectContext();
+    const { selecting, setSelecting, selectedProjects, setSelectedProjects } = useSelectContext();
     const [renameDialogOpen, setRenameDialogOpen] = useState(false);
     const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
     const isMobile = useIsMobile();
@@ -227,8 +226,18 @@ const ProjectDropdown = ({
     };
 
     const handleSelect = () => {
-        if (!selecting) setSelecting(true);
-        setSelected(!selected);
+        if (!selecting) {
+            setSelecting(true);
+            setSelectedProjects([]);
+        }
+
+        const index = selectedProjects.indexOf(project.uuid);
+        if (index >= 0) {
+            selectedProjects.splice(index, 1);
+            setSelectedProjects([...selectedProjects]);
+        } else {
+            setSelectedProjects([...selectedProjects, project.uuid]);
+        }
     };
 
     if (isMobile) {
@@ -383,42 +392,26 @@ const ProjectContainer = ({
     project: Project
 }): ReactNode => {
     const { selecting, selectedProjects, setSelectedProjects } = useSelectContext();
-    const [selected, setSelected] = useState(false);
-    const [mounted, setMounted] = useState(false);
-
-    if (!selecting && selected) setSelected(false);
 
     const date = new Date(project.editDate);
 
     // TODO: data-selectable is a really dirty way of deciding whether to trigger selection or not should be reworked in the future
-    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const handleCheck = (e: React.MouseEvent<HTMLDivElement>) => {
         if ((e.target as HTMLDivElement).getAttribute("data-selectable") != "true") return;
         e.stopPropagation();
         if (selecting) {
-            setSelected(!selected);
+            const index = selectedProjects.indexOf(project.uuid);
+            if (index >= 0) {
+                selectedProjects.splice(index, 1);
+                setSelectedProjects([...selectedProjects]);
+            } else {
+                setSelectedProjects([...selectedProjects, project.uuid]);
+            }
         }
     };
 
-    // Automatically add UUID to the selectedProjects
-    // useEffect is required here because we can't update SelectContext while rendering
-    useEffect(() => {
-        if (mounted) {
-            if (selected) {
-                setSelectedProjects([...selectedProjects, project.uuid]);
-            } else {
-                const newSelectedProject = selectedProjects;
-                const index = selectedProjects.indexOf(project.uuid);
-                if (index >= 0) {
-                    newSelectedProject.splice(newSelectedProject.indexOf(project.uuid), 1);
-                    setSelectedProjects(newSelectedProject);
-                }
-            }
-        }
-        setMounted(true);
-    }, [selected]);
-
     return (
-        <AspectRatio data-selectable="true" ratio={16 / 9} onClick={handleClick}>
+        <AspectRatio data-selectable="true" ratio={16 / 9} onClick={handleCheck}>
             <Card className="relative rounded-lg shadow-md w-full h-full overflow-hidden hover:scale-[101%] hover:drop-shadow-xl duration-100" data-selectable="true">
                 <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50" data-selectable="true" />
                 <div className="absolute bottom-0 left-0 p-2 w-full flex flex-row justify-between items-center" data-selectable="true">
@@ -429,12 +422,12 @@ const ProjectContainer = ({
                     </div>
                     <div className="flex flex-col lg:xl:flex-row items-center gap-1" data-selectable="true">
                         {!selecting && <ProjectDescription project={project} />}
-                        <ProjectDropdown selected={selected} setSelected={setSelected} project={project} />
+                        <ProjectDropdown selected={project.uuid in selectedProjects} project={project} />
                     </div>
                 </div>
                 {selecting && (
                     <div className="absolute top-0 right-0 p-5">
-                        <Checkbox checked={selected} onCheckedChange={(checked) => setSelected(checked as boolean)} />
+                        <Checkbox checked={selectedProjects.includes(project.uuid)} onCheckedChange={(_) => handleCheck} />
                     </div>
                 )}
             </Card>
@@ -450,6 +443,7 @@ export default function Home(): ReactNode {
     const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
     const [sortingType, setSortingType] = useState<SortingType>(defaultSortingType);
     const [descendingSort, setDescendingSort] = useState(false);
+    const [showDeleteSelectedAlert, setShowDeleteSelectedAlert] = useState(false);
 
     const projects = useLiveQuery(() => (
         db.projects.toArray()
@@ -480,6 +474,12 @@ export default function Home(): ReactNode {
         } as Project);
     };
 
+    const handleDeleteSelected = () => {
+        selectedProjects.map((uuid) => deleteProject(uuid));
+        setSelectedProjects([]);
+        setSelecting(false);
+    };
+
     const context: SelectContextData = {
         selecting,
         setSelecting,
@@ -489,94 +489,148 @@ export default function Home(): ReactNode {
 
     return (
         <SelectContext.Provider value={context}>
-            <div className="p-5">
-                <div className="flex flex-row items-center gap-2">
-                    <StaticSidebarTrigger />
-                    <ScrollFadingTitle className="flex flex-row items-center gap-2">
-                        <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
-                        {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
-                    </ScrollFadingTitle>
-                </div>
-                <div className="flex flex-col sticky top-safe bg-background gap-2 mt-2 pb-2 pt-2 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
-                    <SidebarTriggerAdjustable>
-                        <div className={cn("flex flex-row gap-2 items-center w-full", !isMobile && "justify-between")}>
-                            <Dialog>
-                                <DialogTrigger asChild>
-                                    <Button>
-                                        <PlusIcon /> {!isMobile && "New Project"}
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>
-                                            Create New Project
-                                        </DialogTitle>
-                                        <DialogDescription>
-                                            Fill in the information about your project. You can change it at any time later.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <Form {...newProjectForm}>
-                                        <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
-                                            <ProjectInfoForm form={newProjectForm} />
-                                            <DialogFooter>
-                                                <DialogClose asChild>
-                                                    <Button variant="outline">Cancel</Button>
-                                                </DialogClose>
-                                                <DialogClose asChild>
-                                                    <Button type="submit">Create</Button>
-                                                </DialogClose>
-                                            </DialogFooter>
-                                        </form>
-                                    </Form>
-                                </DialogContent>
-                            </Dialog>
-                            <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} className={isMobile ? "w-full" : "w-60"} />
-                        </div>
-                    </SidebarTriggerAdjustable>
-                    <div className="flex flex-row justify-between items-center w-full">
-                        <div className="flex flex-row items-center gap-1">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger>
-                                    <Button variant="ghost" asChild>
-                                        <div className="flex flex-row">
-                                            <SortingTypeIcon sortingType={sortingType} /> {isMobile ? "Sort" : sortingTypeToString(sortingType)}
-                                        </div>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="start">
-                                    <DropdownMenuLabel>Sort Projects</DropdownMenuLabel>
-                                    <DropdownMenuGroup>
-                                        <SortingTypeMenuItem sortingType="byCreationDate" currentSortingType={sortingType} setSortingType={setSortingType} />
-                                        <SortingTypeMenuItem sortingType="byEditDate" currentSortingType={sortingType} setSortingType={setSortingType} />
-                                        <SortingTypeMenuItem sortingType="byTitle" currentSortingType={sortingType} setSortingType={setSortingType} />
-                                    </DropdownMenuGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Toggle pressed={descendingSort} onPressedChange={(pressed) => setDescendingSort(pressed)}>
-                                        {descendingSort ? <ArrowDownIcon /> : <ArrowUpIcon />}
-                                    </Toggle>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    {descendingSort ? "Descending" : "Ascending"}
-                                </TooltipContent>
-                            </Tooltip>
-                        </div>
-                        <Toggle variant="default" pressed={selecting} onPressedChange={(pressed: boolean) => setSelecting(pressed)}>
-                            <Grid2X2CheckIcon /> {isMobile ? "Select" : "Select Projects"}
-                        </Toggle>
+            <div className="flex flex-col justify-between h-screen">
+                <div className="p-5">
+                    <div className="flex flex-row items-center gap-2">
+                        <StaticSidebarTrigger />
+                        <ScrollFadingTitle className="flex flex-row items-center gap-2">
+                            <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
+                            {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
+                        </ScrollFadingTitle>
                     </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
-                    {filteredProjects && filteredProjects.map((project) => <ProjectContainer key={project.uuid} project={project} />)}
-                </div>
-                {(projects != undefined && projects.length == 0) && (
-                    <div className="w-full h-full flex justify-center items-center">
-                        <Label className="text-muted-foreground">Nothing to Show</Label>
+                    <div className="flex flex-col sticky top-safe bg-background gap-2 mt-2 pb-2 pt-2 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
+                        <SidebarTriggerAdjustable>
+                            <div className={cn("flex flex-row gap-2 items-center w-full", !isMobile && "justify-between")}>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button>
+                                            <PlusIcon /> {!isMobile && "New Project"}
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>
+                                                Create New Project
+                                            </DialogTitle>
+                                            <DialogDescription>
+                                                Fill in the information about your project. You can change it at any time later.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <Form {...newProjectForm}>
+                                            <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
+                                                <ProjectInfoForm form={newProjectForm} />
+                                                <DialogFooter>
+                                                    <DialogClose asChild>
+                                                        <Button variant="outline">Cancel</Button>
+                                                    </DialogClose>
+                                                    <DialogClose asChild>
+                                                        <Button type="submit">Create</Button>
+                                                    </DialogClose>
+                                                </DialogFooter>
+                                            </form>
+                                        </Form>
+                                    </DialogContent>
+                                </Dialog>
+                                <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} className={isMobile ? "w-full" : "w-60"} />
+                            </div>
+                        </SidebarTriggerAdjustable>
+                        <div className="flex flex-row justify-between items-center w-full">
+                            <div className="flex flex-row items-center gap-1">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger>
+                                        <Button variant="ghost" asChild>
+                                            <div className="flex flex-row">
+                                                <SortingTypeIcon sortingType={sortingType} /> {isMobile ? "Sort" : sortingTypeToString(sortingType)}
+                                            </div>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="start">
+                                        <DropdownMenuLabel>Sort Projects</DropdownMenuLabel>
+                                        <DropdownMenuGroup>
+                                            <SortingTypeMenuItem sortingType="byCreationDate" currentSortingType={sortingType} setSortingType={setSortingType} />
+                                            <SortingTypeMenuItem sortingType="byEditDate" currentSortingType={sortingType} setSortingType={setSortingType} />
+                                            <SortingTypeMenuItem sortingType="byTitle" currentSortingType={sortingType} setSortingType={setSortingType} />
+                                        </DropdownMenuGroup>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Toggle pressed={descendingSort} onPressedChange={(pressed) => setDescendingSort(pressed)}>
+                                            {descendingSort ? <ArrowDownIcon /> : <ArrowUpIcon />}
+                                        </Toggle>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        {descendingSort ? "Descending" : "Ascending"}
+                                    </TooltipContent>
+                                </Tooltip>
+                            </div>
+                            <Toggle variant="default" pressed={selecting} onPressedChange={(pressed: boolean) => setSelecting(pressed)}>
+                                <Grid2X2CheckIcon /> {isMobile ? "Select" : "Select Projects"}
+                            </Toggle>
+                        </div>
                     </div>
+                    <div className={cn("grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2")}>
+                        {filteredProjects && filteredProjects.map((project) => <ProjectContainer key={project.uuid} project={project} />)}
+                    </div>
+                    {(projects != undefined && projects.length == 0) && (
+                        <div className="w-full h-full flex justify-center items-center">
+                            <Label className="text-muted-foreground">Nothing to Show</Label>
+                        </div>
+                    )}
+                </div>
+                {selecting && (
+                    <>
+                        <div className="sticky bottom-0 left-0 w-full">
+                            <div className=" m-auto bg-background flex flex-row justify-between p-safe-or-2 z-20">
+                                <div className="flex justify-begin text-red-400 grow basis-0">
+                                    <Button disabled={selectedProjects.length == 0} variant="ghost" onClick={() => setShowDeleteSelectedAlert(true)}>
+                                        <TrashIcon /> {!isMobile && "Delete All"}
+                                    </Button>
+                                </div>
+                                <Label className="flex items-center">{selectedProjects.length} Projects Selected</Label>
+                                <div className="flex justify-end grow basis-0 mr-3">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost">
+                                                <EllipsisIcon /> {!isMobile && "More Options"}
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuGroup>
+                                                <DropdownMenuItem onClick={() => filteredProjects && (selectedProjects.length == 0 ? setSelectedProjects(filteredProjects.map((project) => project.uuid)) : setSelectedProjects([]))}>
+                                                    <Grid2x2XIcon /> {selectedProjects.length == 0 ? "Select All" : "Deselect All"}
+                                                </DropdownMenuItem>
+                                            </DropdownMenuGroup>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>
+                            </div>
+                        </div>
+                    </>
                 )}
             </div>
+            <AlertDialog open={showDeleteSelectedAlert} onOpenChange={setShowDeleteSelectedAlert}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete {selectedProjects.length} Projects</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel asChild>
+                            <Button variant="outline">
+                                Cancel
+                            </Button>
+                        </AlertDialogCancel>
+                        <AlertDialogAction asChild>
+                            <Button variant="destructive" onClick={handleDeleteSelected}>
+                                Delete
+                            </Button>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </SelectContext.Provider>
     );
 };

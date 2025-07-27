@@ -7,6 +7,7 @@ import { InfoIcon } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
 import { usePersistenceContext } from "../persistence-provider";
 import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
+import ScrollFadingTitle from "@/components/scroll-fading-title";
 
 function PersistentStorageControl({
     status
@@ -31,7 +32,9 @@ export default function Settings(): ReactNode {
         <div className="p-5 w-full">
             <div className="flex flex-row items-center gap-2">
                 <StaticSidebarTrigger/>
-                <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Settings</h2>
+                <ScrollFadingTitle>
+                    <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Settings</h2>
+                </ScrollFadingTitle>
             </div>
             <div className="flex flex-col gap-1 md:lg:gap-2 mt-2 md:mt-4 lg:mt-5">
                 <h3 className="font-semibold break-keep text-lg sm:text-xl md:text-2xl lg:text-3xl leading-none">Storage</h3>
