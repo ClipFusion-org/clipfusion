@@ -18,10 +18,10 @@ export const ScrollFadingTitle = (props: ComponentProps<"div">) => {
         };
 
         handleScroll();
-        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', handleScroll, {passive: true});
 
         return () => window.removeEventListener('scroll', handleScroll);
     }, [elementRef]);
 
-    return <div style={{opacity: 1}} ref={elementRef} {...props} className={cn("will-change-auto", props.className)}/>
+    return <div style={{opacity: 1}} ref={elementRef} {...props} className={props.className}/>
 };
