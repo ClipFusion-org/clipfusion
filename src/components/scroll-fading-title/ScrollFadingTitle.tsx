@@ -11,7 +11,9 @@ export const ScrollFadingTitle = (props: ComponentProps<"div">) => {
     useEffect(() => {
         const handleScroll = () => {
             if (!elementRef.current) return;
-            const opacity = easeFade(1 - (window.scrollY / ( window.innerHeight / 20)));
+            const opacity = easeFade(
+                Math.max(0, Math.min(1, 1 - (window.scrollY / (window.innerHeight / 20))))
+            );
             elementRef.current.style.opacity = `${opacity}`;
         };
 

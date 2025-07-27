@@ -19,12 +19,14 @@ export const SidebarTriggerAdjustable = (props: ComponentProps<"div">) => {
                 return;
             }
             const triggerDiv = triggerElement as HTMLDivElement;
-            const slideAmount = easeSlide(Math.max(0, Math.min(1, window.scrollY / (window.innerHeight / 20))));
+            const slideAmount = easeSlide(
+                Math.max(0, Math.min(1, window.scrollY / (window.innerHeight / 20)))
+            );
             triggerDiv.style.marginLeft = `calc(var(--spacing) *  ${12 * slideAmount})`;
             triggerDiv.style.paddingTop = `calc(var(--spacing) * ${(isMobile ? 1 : 3) * slideAmount})`;
         };
 
-        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', handleScroll, {passive: true});
 
         return () => {
             window.removeEventListener('scroll', handleScroll);
