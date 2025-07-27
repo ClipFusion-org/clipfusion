@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { ComponentProps, useEffect, useRef, useState } from "react";
 
 const easeFade = (x: number) => (
@@ -20,5 +21,5 @@ export const ScrollFadingTitle = (props: ComponentProps<"div">) => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [elementRef]);
 
-    return <div style={{opacity: 1}} ref={elementRef} {...props}/>
+    return <div style={{opacity: 1}} ref={elementRef} {...props} className={cn("will-change-auto", props.className)}/>
 };

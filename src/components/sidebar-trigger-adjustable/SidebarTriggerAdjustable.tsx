@@ -31,5 +31,5 @@ export const SidebarTriggerAdjustable = (props: ComponentProps<"div">) => {
         };
     }, [isMobile]);
 
-    return <div data-sidebar-trigger="true" {...props}></div>;
+    return <div data-sidebar-trigger="true" {...props} className={cn("will-change-auto", props.className)}></div>;
 }
