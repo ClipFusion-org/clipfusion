@@ -32,6 +32,7 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTi
 import { Separator } from "@/components/ui/separator";
 import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
 import SidebarTriggerAdjustable from "@/components/sidebar-trigger-adjustable";
+import ScrollFadingTitle from "@/components/scroll-fading-title";
 
 type SortingType = "byCreationDate"
     | "byEditDate"
@@ -491,8 +492,10 @@ export default function Home(): ReactNode {
             <div className="p-5">
                 <div className="flex flex-row items-center gap-2">
                     <StaticSidebarTrigger />
-                    <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
-                    {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
+                    <ScrollFadingTitle className="flex flex-row items-center gap-2">
+                        <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
+                        {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
+                    </ScrollFadingTitle>
                 </div>
                 <div className="flex flex-col sticky top-safe bg-background gap-2 mt-2 pb-2 pt-2 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
                     <SidebarTriggerAdjustable>
