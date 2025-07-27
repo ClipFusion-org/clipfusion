@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { InfoIcon } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
 import { usePersistenceContext } from "../persistence-provider";
+import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
 
 function PersistentStorageControl({
     status
@@ -29,7 +30,7 @@ export default function Settings(): ReactNode {
     return (
         <div className="p-5 w-full">
             <div className="flex flex-row items-center gap-2">
-                <SidebarTrigger/>
+                <StaticSidebarTrigger/>
                 <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Settings</h2>
             </div>
             <div className="flex flex-col gap-1 md:lg:gap-2 mt-2 md:mt-4 lg:mt-5">

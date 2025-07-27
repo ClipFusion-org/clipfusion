@@ -30,6 +30,8 @@ import { Tooltip, TooltipContent } from "@/components/ui/tooltip";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
+import SidebarTriggerAdjustable from "@/components/sidebar-trigger-adjustable";
 
 type SortingType = "byCreationDate"
     | "byEditDate"
@@ -331,7 +333,7 @@ const ProjectDropdown = ({
     );
 };
 
-const ProjectDescription = ({ project }: { project: Project}): ReactNode => {
+const ProjectDescription = ({ project }: { project: Project }): ReactNode => {
     const isMobile = useIsMobile();
     if (!project.description) return <></>;
 
@@ -348,7 +350,7 @@ const ProjectDescription = ({ project }: { project: Project}): ReactNode => {
                         <SheetTitle>{project.title} Description</SheetTitle>
                         <SheetDescription>Additional Information About the Project</SheetDescription>
                     </SheetHeader>
-                    <Separator/>
+                    <Separator />
                     <div className="p-2">
                         {project.description}
                     </div>
@@ -417,7 +419,7 @@ const ProjectContainer = ({
     return (
         <AspectRatio data-selectable="true" ratio={16 / 9} onClick={handleClick}>
             <Card className="relative rounded-lg shadow-md w-full h-full overflow-hidden hover:scale-[101%] hover:drop-shadow-xl duration-100" data-selectable="true">
-                <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50" data-selectable="true"/>
+                <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50" data-selectable="true" />
                 <div className="absolute bottom-0 left-0 p-2 w-full flex flex-row justify-between items-center" data-selectable="true">
                     <div data-selectable="true">
                         <h3 className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold line-clamp-1" data-selectable="true">{project.title}</h3>
@@ -425,7 +427,7 @@ const ProjectContainer = ({
                         {project.editDate && <p className="text-sm text-secondary-foreground" data-selectable="true">Last Edit Date: {date.toLocaleDateString()}, {date.toLocaleTimeString()}</p>}
                     </div>
                     <div className="flex flex-col lg:xl:flex-row items-center gap-1" data-selectable="true">
-                        {!selecting && <ProjectDescription project={project}/>}
+                        {!selecting && <ProjectDescription project={project} />}
                         <ProjectDropdown selected={selected} setSelected={setSelected} project={project} />
                     </div>
                 </div>
@@ -488,44 +490,46 @@ export default function Home(): ReactNode {
         <SelectContext.Provider value={context}>
             <div className="p-5">
                 <div className="flex flex-row items-center gap-2">
-                    <SidebarTrigger size="lg" />
+                    <StaticSidebarTrigger />
                     <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Project Library</h2>
                     {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
                 </div>
-                <div className="flex flex-col sticky top-safe bg-background gap-2 mt-3 pb-2 pt-2 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
-                    <div className={cn("flex flex-row gap-2 items-center w-full", !isMobile && "justify-between")}>
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button>
-                                    <PlusIcon /> {!isMobile && "New Project"}
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>
-                                        Create New Project
-                                    </DialogTitle>
-                                    <DialogDescription>
-                                        Fill in the information about your project. You can change it at any time later.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <Form {...newProjectForm}>
-                                    <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
-                                        <ProjectInfoForm form={newProjectForm} />
-                                        <DialogFooter>
-                                            <DialogClose asChild>
-                                                <Button variant="outline">Cancel</Button>
-                                            </DialogClose>
-                                            <DialogClose asChild>
-                                                <Button type="submit">Create</Button>
-                                            </DialogClose>
-                                        </DialogFooter>
-                                    </form>
-                                </Form>
-                            </DialogContent>
-                        </Dialog>
-                        <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} className={isMobile ? "w-full" : "w-60"} />
-                    </div>
+                <div className="flex flex-col sticky top-safe bg-background gap-2 mt-2 pb-2 pt-2 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
+                    <SidebarTriggerAdjustable>
+                        <div className={cn("flex flex-row gap-2 items-center w-full", !isMobile && "justify-between")}>
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button>
+                                        <PlusIcon /> {!isMobile && "New Project"}
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>
+                                            Create New Project
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            Fill in the information about your project. You can change it at any time later.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <Form {...newProjectForm}>
+                                        <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
+                                            <ProjectInfoForm form={newProjectForm} />
+                                            <DialogFooter>
+                                                <DialogClose asChild>
+                                                    <Button variant="outline">Cancel</Button>
+                                                </DialogClose>
+                                                <DialogClose asChild>
+                                                    <Button type="submit">Create</Button>
+                                                </DialogClose>
+                                            </DialogFooter>
+                                        </form>
+                                    </Form>
+                                </DialogContent>
+                            </Dialog>
+                            <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} className={isMobile ? "w-full" : "w-60"} />
+                        </div>
+                    </SidebarTriggerAdjustable>
                     <div className="flex flex-row justify-between items-center w-full">
                         <div className="flex flex-row items-center gap-1">
                             <DropdownMenu>
