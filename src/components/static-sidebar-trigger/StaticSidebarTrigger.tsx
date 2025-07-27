@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { SidebarTrigger, useSidebar } from "../ui/sidebar";
 
 export const StaticSidebarTrigger = () => {
-
+    const { open } = useSidebar();
     return (
         <>
             <div className="ml-10"/>

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { ComponentProps, useEffect, useState } from "react";
 
 const easeSlide = (x: number) => (
-    1 - Math.pow(1 - x, 2)
+    x
 );
 
 export const SidebarTriggerAdjustable = (props: ComponentProps<"div">) => {
@@ -12,8 +12,17 @@ export const SidebarTriggerAdjustable = (props: ComponentProps<"div">) => {
     const [windowHeight, setWindowHeight] = useState(1);
     const isMobile = useIsMobile();
 
+    let ticking = false;
+
     useEffect(() => {
-        const handleScroll = () => setScrollY(window.scrollY);
+        const handleScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    setScrollY(window.scrollY);
+                    ticking = false;
+                });
+            }
+        };
         const handleResize = () => setWindowHeight(window.innerHeight);
         
         setWindowHeight(window.innerHeight);
@@ -31,7 +40,7 @@ export const SidebarTriggerAdjustable = (props: ComponentProps<"div">) => {
     slideAmount = easeSlide(slideAmount);
 
     return <div {...props} style={{
-        paddingLeft: `calc(var(--spacing) * 12 * ${slideAmount})`,
-        paddingTop:  `calc(var(--spacing) * ${isMobile ? 1 : 3} * ${slideAmount})`
+        marginLeft: `calc(var(--spacing) *  ${12 * slideAmount})`,
+        marginTop:  `calc(var(--spacing) * ${(isMobile ? 1 : 3) * slideAmount})`
     }}></div>;
 }
