@@ -34,6 +34,7 @@ import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
 import SidebarTriggerAdjustable from "@/components/sidebar-trigger-adjustable";
 import ScrollFadingTitle from "@/components/scroll-fading-title";
 import { fa } from "zod/v4/locales";
+import AscendingCard from "@/components/ascending-card";
 
 type SortingType = "byCreationDate"
     | "byEditDate"
@@ -412,7 +413,7 @@ const ProjectContainer = ({
 
     return (
         <AspectRatio data-selectable="true" ratio={16 / 9} onClick={handleCheck}>
-            <Card className="relative rounded-lg shadow-md w-full h-full overflow-hidden hover:scale-[101%] hover:drop-shadow-xl duration-100" data-selectable="true">
+            <AscendingCard className="relative rounded-lg w-full h-full overflow-hidden" data-selectable="true">
                 <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50" data-selectable="true" />
                 <div className="absolute bottom-0 left-0 p-2 w-full flex flex-row justify-between items-center" data-selectable="true">
                     <div data-selectable="true">
@@ -430,7 +431,7 @@ const ProjectContainer = ({
                         <Checkbox checked={selectedProjects.includes(project.uuid)} onCheckedChange={(_) => handleCheck} />
                     </div>
                 )}
-            </Card>
+            </AscendingCard>
         </AspectRatio>
     )
 };

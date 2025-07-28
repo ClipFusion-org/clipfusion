@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 export const Search = (props: ComponentProps<typeof Input>): ReactNode => (
     <div className={cn("relative", props.className)}>
         <Input
+            placeholder="Search"
             {...props}
             type="text"
             className="peer block w-full rounded-md border py-[9px] pl-10"

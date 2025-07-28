@@ -1,7 +1,5 @@
 "use client";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
-import { sign } from "crypto";
 import { ComponentProps, useEffect, useState } from "react";
 
 const easeSlide = (x: number) => (
@@ -11,41 +9,32 @@ const easeSlide = (x: number) => (
 const lerp = (a: number, b: number, t: number) => (
     a * t + b * (1 - t)
 );
-const cssLerp = (a: string, b: string, t: string) => (
-    `${a} * ${t} + ${b} * (1 - ${t})`
-);
 
 
 export const SidebarTriggerAdjustable = (props: ComponentProps<"div"> & {
-    adjustWidth?: number | `${number}`;
+    adjustWidth?: number | `${number}`
 }) => {
-    const adjustWidth = props.adjustWidth ? +props.adjustWidth : 12;
+    const adjustWidth = props.adjustWidth === undefined ? 12 : +props.adjustWidth;
     const isMobile = useIsMobile();
+    const [slideAmount, setSlideAmount] = useState(0);
 
     useEffect(() => {
-        const triggerElement = document.querySelector('div[data-sidebar-trigger="true"]');
-
-        const handleScroll = () => {
-            if (!triggerElement) {
-                console.log("triggerElement is null");
-                return;
-            }
-            const triggerDiv = triggerElement as HTMLDivElement;
-            const slideAmount = easeSlide(
+        const handleScroll = () =>
+            setSlideAmount(easeSlide(
                 Math.max(0, Math.min(1, window.scrollY / (window.innerHeight / 20)))
-            );
-            triggerDiv.style.transform = `translateX(calc(var(--spacing) * ${adjustWidth * slideAmount}))`;
-            triggerDiv.style.paddingTop = `calc(var(--spacing) * ${(isMobile ? 1 : 3) * slideAmount})`;
-            triggerDiv.style.width = `calc(100% - var(--spacing) * ${lerp(0, adjustWidth, 1 - slideAmount)})`;
-        };
+            ));
 
         handleScroll();
-        window.addEventListener('scroll', handleScroll, {passive: true});
+        window.addEventListener('scroll', handleScroll, { passive: true });
 
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
     }, [isMobile]);
 
-    return <div data-sidebar-trigger="true" className={props.className}>{props.children}</div>;
+    return <div style={{
+        transform: `translateX(calc(var(--spacing) * ${adjustWidth * slideAmount}))`,
+        marginTop: `calc(var(--spacing) * ${(isMobile ? 1 : 3) * slideAmount})`,
+        width: `calc(100% - var(--spacing) * ${lerp(0, adjustWidth, 1 - slideAmount)})`
+    }} className={props.className}>{props.children}</div>;
 }

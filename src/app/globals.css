@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "tailwindcss-safe-area";
 @custom-variant dark (&:is(.dark *));
+@custom-variant adjust (&:where([data-adjust="true"] *));
 
 @theme inline {
     --color-background: var(--background);

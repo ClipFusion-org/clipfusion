@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ChartPieIcon, InfoIcon } from "lucide-react";
+import { ChartPieIcon, ChevronRightIcon, InfoIcon } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
 import { usePersistenceContext } from "../persistence-provider";
 import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
@@ -14,11 +14,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import AscendingCard from "@/components/ascending-card";
 import Link from "next/link";
+import WideAscendingCard from "@/components/wide-container";
+import WideContainer from "@/components/wide-container";
 
 export default function Settings(): ReactNode {
     const isMobile = useIsMobile();
-
-    const cardWidth = isMobile ? "w-full" : "w-2xl";
 
     return (
         <div className="p-5 w-full h-full">
@@ -29,22 +29,29 @@ export default function Settings(): ReactNode {
                 </ScrollFadingTitle>
             </div>
             <div className="flex flex-col sticky top-safe bg-background gap-2 mt-2 pb-2 pt-2 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
-                <SidebarTriggerAdjustable className={cn("flex justify-center",)}>
-                    <Search placeholder="Search Settings" className={cardWidth} />
+                <SidebarTriggerAdjustable adjustWidth={!isMobile ? 0 : 12} className="flex items-center justify-center">
+                    <WideContainer>
+                        <Search />
+                    </WideContainer>
                 </SidebarTriggerAdjustable>
             </div>
-            <div className="flex flex-col justify-center items-center w-full gap-1 md:lg:gap-2 mt-2">
-                <Link href="/settings/storage" className="w-full flex items-center justify-center">
-                    <AscendingCard className={`flex flex-row gap-3 p-3 ${cardWidth}`}>
-                        <div className="flex items-center justify-center">
-                            <ChartPieIcon />
-                        </div>
-                        <div className="flex flex-col items-start">
-                            <h3 className="font-semibold break-keep text-lg sm:text-xl">Storage</h3>
-                            <p className="text-sm text-secondary-foreground">Memory usage, media, cache etc.</p>
-                        </div>
-                    </AscendingCard>
-                </Link>
+            <div className="flex flex-col items-center gap-1 md:lg:gap-2 mt-2 h-screen">
+                <WideContainer>
+                    <Link href="/settings/storage">
+                        <AscendingCard className="flex flex-row justify-between items-center gap-2 p-4">
+                            <div className="flex flex-row justify-between items-center gap-3">
+                                <div className="flex items-center justify-center">
+                                    <ChartPieIcon />
+                                </div>
+                                <div className="flex flex-col items-start">
+                                    <h3 className="font-semibold break-keep text-lg sm:text-xl">Storage</h3>
+                                    <p className="text-sm text-secondary-foreground">Memory usage, media, cache etc.</p>
+                                </div>
+                            </div>
+                            <ChevronRightIcon />
+                        </AscendingCard>
+                    </Link>
+                </WideContainer>
             </div>
         </div>
     );
