@@ -9,6 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import AscendingCard from "@/components/ascending-card";
 import Link from "next/link";
 import WideContainer from "@/components/wide-container";
+import getBuildID from "@/lib/build";
 
 
 export default function Settings(): ReactNode {
@@ -46,7 +47,7 @@ export default function Settings(): ReactNode {
                                 <ChevronRightIcon />
                             </AscendingCard>
                         </Link>
-                        <p className="text-sm text-muted-foreground">Build ID: {process.env.BUILD_ID_ENV}</p>
+                        <p className="text-sm text-muted-foreground">Build ID: {getBuildID()}</p>
                     </div>
                 </WideContainer>
             </div>
