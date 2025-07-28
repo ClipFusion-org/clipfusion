@@ -10,7 +10,6 @@ import { Toggle } from "@/components/ui/toggle";
 import Search from "@/components/search";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Card } from "@/components/ui/card";
 import Project from "@/types/Project";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -427,8 +426,8 @@ const ProjectContainer = ({
                     </div>
                 </div>
                 {selecting && (
-                    <div className="absolute top-0 right-0 p-5">
-                        <Checkbox checked={selectedProjects.includes(project.uuid)} onCheckedChange={(_) => handleCheck} />
+                    <div className="absolute top-0 right-0 p-5" data-selectable="true">
+                        <Checkbox checked={selectedProjects.includes(project.uuid)} data-selectable="true"/>
                     </div>
                 )}
             </AscendingCard>
