@@ -1,20 +1,13 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChartPieIcon, ChevronRightIcon, InfoIcon } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
-import { usePersistenceContext } from "../persistence-provider";
 import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
 import ScrollFadingTitle from "@/components/scroll-fading-title";
 import SidebarTriggerAdjustable from "@/components/sidebar-trigger-adjustable";
 import Search from "@/components/search";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
 import AscendingCard from "@/components/ascending-card";
 import Link from "next/link";
-import WideAscendingCard from "@/components/wide-container";
 import WideContainer from "@/components/wide-container";
 
 export default function Settings(): ReactNode {
@@ -35,23 +28,27 @@ export default function Settings(): ReactNode {
                     </WideContainer>
                 </SidebarTriggerAdjustable>
             </div>
-            <div className="flex flex-col items-center gap-1 md:lg:gap-2 mt-2">
-                <WideContainer>
-                    <Link href="/settings/storage">
-                        <AscendingCard className="flex flex-row justify-between items-center gap-2 p-4">
-                            <div className="flex flex-row justify-between items-center gap-3">
-                                <div className="flex items-center justify-center">
-                                    <ChartPieIcon />
+            <div className="flex flex-col items-center w-full">
+                <div className="flex flex-col gap-1 md:gap-2 mt-1 md:mt-2">
+                    <WideContainer>
+                        <Link href="/settings/storage">
+                            <AscendingCard className="flex flex-row justify-between gap-2 p-4">
+                                <div className="flex flex-row justify-between items-center gap-3">
+                                    <div className="flex items-center justify-center">
+                                        <ChartPieIcon />
+                                    </div>
+                                    <div className="flex flex-col items-start">
+                                        <h3 className="font-semibold break-keep text-lg sm:text-xl">Storage</h3>
+                                        <p className="text-sm text-muted-foreground">Memory usage, media, cache etc.</p>
+                                    </div>
                                 </div>
-                                <div className="flex flex-col items-start">
-                                    <h3 className="font-semibold break-keep text-lg sm:text-xl">Storage</h3>
-                                    <p className="text-sm text-secondary-foreground">Memory usage, media, cache etc.</p>
-                                </div>
-                            </div>
-                            <ChevronRightIcon />
-                        </AscendingCard>
-                    </Link>
-                </WideContainer>
+                                <ChevronRightIcon />
+                            </AscendingCard>
+                        </Link>
+                    </WideContainer>
+                    <p className="text-sm text-muted-foreground">Build ID: {process.env.BUILD_ID_ENV}</p>
+                </div>
+
             </div>
         </div>
     );
