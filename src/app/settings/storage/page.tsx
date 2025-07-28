@@ -49,7 +49,7 @@ export default function Storage() {
                 </ScrollFadingTitle>
             </div>
             <div className="flex flex-col sticky top-safe bg-background gap-2 mt-2 pb-2 pt-2 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
-                <SidebarTriggerAdjustable adjustWidth={!isMobile ? 0 : 12} className="flex items-center justify-center">
+                <SidebarTriggerAdjustable adjustWidth={!isMobile ? 0 : 22} className="flex items-center justify-center">
                     <WideContainer>
                         <Search />
                     </WideContainer>
