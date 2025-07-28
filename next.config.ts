@@ -13,8 +13,13 @@ const gitCommitHash = generateGitCommitHash();
 const nextConfig: NextConfig = {
     output: "standalone",
     generateBuildId: () => gitCommitHash,
-    env: {
-        BUILD_ID_ENV: gitCommitHash
+    webpack: (config, { webpack, buildId, isServer }) => {
+        config.plugins.push(
+            new webpack.DefinePlugin({
+                'process.env.BUILD_ID_ENV': JSON.stringify(buildId)
+            })
+        );
+        return config;
     }
 };
 

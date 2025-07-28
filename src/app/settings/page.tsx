@@ -10,6 +10,7 @@ import AscendingCard from "@/components/ascending-card";
 import Link from "next/link";
 import WideContainer from "@/components/wide-container";
 
+
 export default function Settings(): ReactNode {
     const isMobile = useIsMobile();
 
@@ -28,9 +29,9 @@ export default function Settings(): ReactNode {
                     </WideContainer>
                 </SidebarTriggerAdjustable>
             </div>
-            <div className="flex flex-col items-center w-full">
-                <div className="flex flex-col gap-1 md:gap-2 mt-1 md:mt-2">
-                    <WideContainer>
+            <div className="flex flex-col justify-center items-center">
+                <WideContainer>
+                    <div className="flex flex-col gap-1 md:gap-2 mt-1 md:mt-2 justify-center">
                         <Link href="/settings/storage">
                             <AscendingCard className="flex flex-row justify-between gap-2 p-4">
                                 <div className="flex flex-row justify-between items-center gap-3">
@@ -45,10 +46,9 @@ export default function Settings(): ReactNode {
                                 <ChevronRightIcon />
                             </AscendingCard>
                         </Link>
-                    </WideContainer>
-                    <p className="text-sm text-muted-foreground">Build ID: {process.env.BUILD_ID_ENV}</p>
-                </div>
-
+                        <p className="text-sm text-muted-foreground">Build ID: {process.env.BUILD_ID_ENV}</p>
+                    </div>
+                </WideContainer>
             </div>
         </div>
     );
