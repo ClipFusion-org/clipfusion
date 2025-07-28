@@ -16,7 +16,10 @@ const cssLerp = (a: string, b: string, t: string) => (
 );
 
 
-export const SidebarTriggerAdjustable = (props: ComponentProps<"div">) => {
+export const SidebarTriggerAdjustable = (props: ComponentProps<"div"> & {
+    adjustWidth?: number | `${number}`;
+}) => {
+    const adjustWidth = props.adjustWidth ? +props.adjustWidth : 12;
     const isMobile = useIsMobile();
 
     useEffect(() => {
@@ -31,9 +34,9 @@ export const SidebarTriggerAdjustable = (props: ComponentProps<"div">) => {
             const slideAmount = easeSlide(
                 Math.max(0, Math.min(1, window.scrollY / (window.innerHeight / 20)))
             );
-            triggerDiv.style.transform = `translateX(calc(var(--spacing) * ${12 * slideAmount}))`;
+            triggerDiv.style.transform = `translateX(calc(var(--spacing) * ${adjustWidth * slideAmount}))`;
             triggerDiv.style.paddingTop = `calc(var(--spacing) * ${(isMobile ? 1 : 3) * slideAmount})`;
-            triggerDiv.style.width = `calc(100% - var(--spacing) * ${lerp(0, 12, 1 - slideAmount)})`;
+            triggerDiv.style.width = `calc(100% - var(--spacing) * ${lerp(0, adjustWidth, 1 - slideAmount)})`;
         };
 
         handleScroll();
@@ -44,5 +47,5 @@ export const SidebarTriggerAdjustable = (props: ComponentProps<"div">) => {
         };
     }, [isMobile]);
 
-    return <div data-sidebar-trigger="true" {...props} className={props.className}></div>;
+    return <div data-sidebar-trigger="true" className={props.className}>{props.children}</div>;
 }

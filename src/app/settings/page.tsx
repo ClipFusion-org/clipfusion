@@ -18,23 +18,20 @@ import Link from "next/link";
 export default function Settings(): ReactNode {
     const isMobile = useIsMobile();
 
-    const SearchContainer = isMobile ? "div" : SidebarTriggerAdjustable;
     const cardWidth = isMobile ? "w-full" : "w-2xl";
 
     return (
         <div className="p-5 w-full h-full">
-            <div className="flex flex-col gap-2">
-                <div className="flex flex-row items-center gap-2">
-                    <StaticSidebarTrigger />
-                    <ScrollFadingTitle>
-                        <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Settings</h2>
-                    </ScrollFadingTitle>
-                </div>
-                <div className="flex flex-col sticky top-safe bg-background gap-2 mt-2 pb-2 pt-2 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
-                    <SearchContainer className={cn("flex justify-center",)}>
-                        <Search placeholder="Search Settings" className={cardWidth} />
-                    </SearchContainer>
-                </div>
+            <div className="flex flex-row items-center gap-2">
+                <StaticSidebarTrigger />
+                <ScrollFadingTitle>
+                    <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Settings</h2>
+                </ScrollFadingTitle>
+            </div>
+            <div className="flex flex-col sticky top-safe bg-background gap-2 mt-2 pb-2 pt-2 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
+                <SidebarTriggerAdjustable className={cn("flex justify-center",)}>
+                    <Search placeholder="Search Settings" className={cardWidth} />
+                </SidebarTriggerAdjustable>
             </div>
             <div className="flex flex-col justify-center items-center w-full gap-1 md:lg:gap-2 mt-2">
                 <Link href="/settings/storage" className="w-full flex items-center justify-center">
