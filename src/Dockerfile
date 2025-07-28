@@ -38,12 +38,9 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-ARG GIT_COMMIT
-ENV GIT_COMMIT=$GIT_COMMIT
-
-RUN echo ${GIT_COMMIT}
-
 RUN \
+    GIT_COMMIT=$(git rev-parse HEAD); \
+    echo $GIT_COMMIT; \
     if [ -f yarn.lock ]; then yarn run build; \
     elif [ -f package-lock.json ]; then npm run build; \
     elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \

@@ -1,15 +1,12 @@
 import type { NextConfig } from "next";
-import build from "next/dist/build";
-import { describe } from "node:test";
-const nextBuildId = require('next-build-id');
-
-const buildId = nextBuildId({ dir: __dirname, describe: true })
+import { version } from "./package.json";
 
 const nextConfig: NextConfig = {
     output: "standalone",
-    generateBuildId: () => buildId,
+    generateBuildId: () => (process.env.GIT_COMMIT || null),
     env: {
-        BUILD_ID: buildId
+        BUILD_ID: process.env.GIT_COMMIT,
+        VERSION: version
     }
     
 };

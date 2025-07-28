@@ -9,7 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import AscendingCard from "@/components/ascending-card";
 import Link from "next/link";
 import WideContainer from "@/components/wide-container";
-import getBuildID from "@/lib/build";
+import { getBuildID, getVersion } from "@/lib/build";
 
 
 export default function Settings(): ReactNode {
@@ -47,7 +47,12 @@ export default function Settings(): ReactNode {
                                 <ChevronRightIcon />
                             </AscendingCard>
                         </Link>
-                        <p className="text-sm text-muted-foreground">Build ID: {getBuildID()}</p>
+                        <Link className="text-sm text-muted-foreground flex justify-center" target="_blank" href={
+                            process.env.NODE_ENV == "development"
+                                ? "https://github.com/ClipFusion-org/clipfusion/commit/main"
+                                : `https://github.com/ClipFusion-org/clipfusion/commit/${process.env.BUILD_ID}`}>
+                            {getVersion()} ({getBuildID()})
+                        </Link>
                     </div>
                 </WideContainer>
             </div>

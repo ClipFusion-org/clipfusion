@@ -1,5 +1,7 @@
-const getBuildID = () => (
-    process.env.NODE_ENV == "development" ? "development build" : process.env.BUILD_ID
+export const getBuildID = () => (
+    process.env.NODE_ENV == "development" ? "latest commit" : process.env.BUILD_ID
 );
 
-export default getBuildID;
+export const getVersion = () => (
+    process.env.NODE_ENV == "development" ? "development" : process.env.VERSION
+);
