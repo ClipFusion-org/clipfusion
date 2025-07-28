@@ -35,7 +35,7 @@ export default function Settings(): ReactNode {
                     </WideContainer>
                 </SidebarTriggerAdjustable>
             </div>
-            <div className="flex flex-col items-center gap-1 md:lg:gap-2 mt-2 h-screen">
+            <div className="flex flex-col items-center gap-1 md:lg:gap-2 mt-2">
                 <WideContainer>
                     <Link href="/settings/storage">
                         <AscendingCard className="flex flex-row justify-between items-center gap-2 p-4">

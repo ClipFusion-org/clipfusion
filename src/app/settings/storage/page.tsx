@@ -55,7 +55,7 @@ export default function Storage() {
                     </WideContainer>
                 </SidebarTriggerAdjustable>
             </div>
-            <div className="flex flex-col items-center justify-start gap-1 md:lg:gap-2 mt-2 h-screen">
+            <div className="flex flex-col items-center justify-start gap-1 md:lg:gap-2 mt-2">
                 <WideContainer>
                     <AscendingCard className="flex flex-row justify-between items-center p-4">
                         <div className="flex flex-row gap-2 ">
