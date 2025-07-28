@@ -48,7 +48,7 @@ export default async function RootLayout({
                 <ThemeProvider>
                     <SidebarProvider>
                         <Dashboard/>
-                        <main className="relative mb-safe">
+                        <main className="relative mt-safe">
                             <PersistenceProvider>
                                 {children}
                             </PersistenceProvider>
