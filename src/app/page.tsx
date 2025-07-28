@@ -5,7 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ALargeSmallIcon, ArrowDownAZIcon, ArrowDownIcon, ArrowUpAZIcon, ArrowUpIcon, CalendarArrowDownIcon, CalendarArrowUpIcon, CalendarIcon, ClockArrowDownIcon, ClockArrowUpIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, Grid2x2X, Grid2x2XIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { ALargeSmallIcon, ArrowDownAZIcon, ArrowDownIcon, ArrowUpAZIcon, ArrowUpIcon, CalendarArrowDownIcon, CalendarArrowUpIcon, CalendarIcon, ClockArrowDownIcon, ClockArrowUpIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2, Grid2X2CheckIcon, Grid2x2X, Grid2X2XIcon, Grid2x2XIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import Search from "@/components/search";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -598,7 +598,7 @@ export default function Home(): ReactNode {
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuGroup>
                                                 <DropdownMenuItem onClick={() => filteredProjects && (selectedProjects.length == 0 ? setSelectedProjects(filteredProjects.map((project) => project.uuid)) : setSelectedProjects([]))}>
-                                                    <Grid2x2XIcon /> {selectedProjects.length == 0 ? "Select All" : "Deselect All"}
+                                                    {selectedProjects.length == 0 ? <Grid2X2CheckIcon /> : <Grid2X2XIcon />} {selectedProjects.length == 0 ? "Select All" : "Deselect All"}
                                                 </DropdownMenuItem>
                                             </DropdownMenuGroup>
                                         </DropdownMenuContent>
