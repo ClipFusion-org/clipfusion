@@ -422,7 +422,7 @@ const ProjectContainer = ({
                     </div>
                     <div className="flex flex-col lg:xl:flex-row items-center gap-1" data-selectable="true">
                         {!selecting && <ProjectDescription project={project} />}
-                        <ProjectDropdown selected={project.uuid in selectedProjects} project={project} />
+                        <ProjectDropdown selected={selectedProjects.includes(project.uuid)} project={project} />
                     </div>
                 </div>
                 {selecting && (

@@ -32,7 +32,7 @@ export default function Settings(): ReactNode {
                     </WideContainer>
                 </SidebarTriggerAdjustable>
             </div>
-            <div className="flex flex-col justify-start items-center h-screen">
+            <div className="flex flex-col justify-start items-center">
                 <WideContainer>
                     <div className="flex flex-col gap-2 mt-2 justify-center">
                         <Link href="/settings/storage">
