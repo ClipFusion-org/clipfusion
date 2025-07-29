@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ReactNode } from "react";
-import "./globals.css";
-import ThemeProvider from "./theme-provider";
-import Analytics from "./analytics";
-import PersistenceProvider from "./persistence-provider";
+import "@/app/globals.css";
+import ThemeProvider from "@/app/theme-provider";
+import Analytics from "@/app/analytics";
+import PersistenceProvider from "@/app/persistence-provider";
 import { Toaster } from "@/components/ui/sonner";
-import PWAHead from "./pwa-head";
+import PWAHead from "@/app/pwa-head";
 
 const geist = Geist({
     variable: "--font-geist",
@@ -39,17 +39,17 @@ export default async function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
-                <PWAHead/>
-                <Analytics/>
+                <PWAHead />
+                <Analytics />
             </head>
             <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
                 <ThemeProvider>
-                        <main className="relative h-screen">
-                            <PersistenceProvider>
-                                {children}
-                            </PersistenceProvider>
-                        </main>
-                    <Toaster/>
+                    <main className="relative h-screen">
+                        <PersistenceProvider>
+                            {children}
+                        </PersistenceProvider>
+                    </main>
+                    <Toaster />
                 </ThemeProvider>
             </body>
         </html>

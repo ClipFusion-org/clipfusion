@@ -32,6 +32,7 @@ import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
 import SidebarTriggerAdjustable from "@/components/sidebar-trigger-adjustable";
 import ScrollFadingTitle from "@/components/scroll-fading-title";
 import AscendingCard from "@/components/ascending-card";
+import Link from "next/link";
 
 type SortingType = "byCreationDate"
     | "byEditDate"
@@ -408,7 +409,7 @@ const ProjectContainer = ({
         }
     };
 
-    return (
+    const projectComponent = (
         <AspectRatio data-selectable="true" ratio={16 / 9} onClick={handleCheck}>
             <AscendingCard className="relative rounded-lg w-full h-full overflow-hidden" data-selectable="true">
                 <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50" data-selectable="true" />
@@ -430,7 +431,11 @@ const ProjectContainer = ({
                 )}
             </AscendingCard>
         </AspectRatio>
-    )
+    );
+
+    return selecting
+        ? projectComponent
+        : (<Link href={`/editor/${project.uuid}`}>{projectComponent}</Link>);
 };
 
 export default function Home(): ReactNode {

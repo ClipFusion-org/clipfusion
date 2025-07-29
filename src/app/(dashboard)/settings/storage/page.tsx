@@ -7,6 +7,7 @@ import SidebarTriggerAdjustable from "@/components/sidebar-trigger-adjustable";
 import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useSidebar } from "@/components/ui/sidebar";
 import WideContainer from "@/components/wide-container";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ArrowLeftIcon } from "lucide-react";
