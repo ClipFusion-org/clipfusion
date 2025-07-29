@@ -25,14 +25,14 @@ export default function Settings(): ReactNode {
                     <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Settings</h2>
                 </ScrollFadingTitle>
             </div>
-            <div className="flex flex-col sticky top-safe bg-background gap-2 mt-2 pb-2 pt-2 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
+            <div className="flex flex-col sticky top-safe bg-background gap-2 pb-2 pt-4 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
                 <SidebarTriggerAdjustable adjustWidth={!isMobile ? 0 : 12} className="flex items-center justify-center">
                     <WideContainer>
                         <Search />
                     </WideContainer>
                 </SidebarTriggerAdjustable>
             </div>
-            <div className="flex flex-col justify-center items-center">
+            <div className="flex flex-col justify-start items-center h-screen">
                 <WideContainer>
                     <div className="flex flex-col gap-2 mt-2 justify-center">
                         <Link href="/settings/storage">

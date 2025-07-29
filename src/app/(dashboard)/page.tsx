@@ -33,6 +33,7 @@ import SidebarTriggerAdjustable from "@/components/sidebar-trigger-adjustable";
 import ScrollFadingTitle from "@/components/scroll-fading-title";
 import AscendingCard from "@/components/ascending-card";
 import Link from "next/link";
+import StickyTopContainer from "@/components/sticky-top-container";
 
 type SortingType = "byCreationDate"
     | "byEditDate"
@@ -503,7 +504,7 @@ export default function Home(): ReactNode {
                             {projects && <Label className="text-muted-foreground text-sm">(Found {projects.length} projects)</Label>}
                         </ScrollFadingTitle>
                     </div>
-                    <div className="flex flex-col sticky top-safe bg-background gap-2 mt-2 pb-2 pt-2 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
+                    <StickyTopContainer>
                         <SidebarTriggerAdjustable>
                             <div className={cn("flex flex-row gap-2 items-center w-full", !isMobile && "justify-between")}>
                                 <Dialog>
@@ -573,7 +574,7 @@ export default function Home(): ReactNode {
                                 <Grid2X2CheckIcon /> {isMobile ? "Select" : "Select Projects"}
                             </Toggle>
                         </div>
-                    </div>
+                    </StickyTopContainer>
                     <div className={cn("grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2")}>
                         {filteredProjects && filteredProjects.map((project) => <ProjectContainer key={project.uuid} project={project} />)}
                     </div>

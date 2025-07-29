@@ -10,7 +10,6 @@ const lerp = (a: number, b: number, t: number) => (
     a * t + b * (1 - t)
 );
 
-
 export const SidebarTriggerAdjustable = (props: ComponentProps<"div"> & {
     adjustWidth?: number | `${number}`
 }) => {
@@ -28,7 +27,6 @@ export const SidebarTriggerAdjustable = (props: ComponentProps<"div"> & {
                 Math.max(0, Math.min(1, scrollPos / (window.innerHeight / 20))));
 
             ref.current.style.transform = `translateX(calc(var(--spacing) * ${adjustWidth * slideAmount}))`;
-            ref.current.style.marginTop = `calc(var(--spacing) * ${(isMobile ? 1 : 3) * slideAmount})`;
             ref.current.style.width = `calc(100% - var(--spacing) * ${lerp(0, adjustWidth, 1 - slideAmount)})`;
         };
 

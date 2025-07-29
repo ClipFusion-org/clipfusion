@@ -2,6 +2,9 @@
 import { ReactNode, useEffect, useRef } from "react";
 import { SidebarTrigger } from "../ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "../ui/button";
+import { ArrowLeftIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const easeSlide = (x: number) => (
     1 - Math.pow(1 - x, 3)
@@ -11,8 +14,9 @@ const lerp = (a: number, b: number, t: number) => (
     a * t + b * (1 - t)
 );
 
-export const StaticSidebarTrigger = () => {
+export const StaticBackButton = () => {
     const isMobile = useIsMobile();
+    const router = useRouter();
     const adjustHeight = isMobile ? -1 : 1;
     const ref = useRef<HTMLButtonElement>(null);
 
@@ -53,7 +57,9 @@ export const StaticSidebarTrigger = () => {
         <>
             <div className="w-10 h-full" />
             <div className="absolute top-0 left-0 pl-6 pt-4 md:p-6 overscroll-auto">
-                <SidebarTrigger ref={ref} className={`fixed mr-2 z-40 transition-colors`} size="lg" tabIndex={0} />
+                <Button ref={ref} className="fixed size-7 ml-10 z-40 transition-colors" variant="ghost" size="icon" onClick={() => router.back()} tabIndex={1}>
+                    <ArrowLeftIcon />
+                </Button>
             </div>
         </>
     );
