@@ -1,6 +1,6 @@
 "use client";
-import { ChartPieIcon, ChevronRightIcon, InfoIcon } from "lucide-react";
-import { ReactNode, useEffect, useState } from "react";
+import { ChartPieIcon, ChevronRightIcon } from "lucide-react";
+import { ReactNode,  } from "react";
 import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
 import ScrollFadingTitle from "@/components/scroll-fading-title";
 import SidebarTriggerAdjustable from "@/components/sidebar-trigger-adjustable";
@@ -32,25 +32,24 @@ export default function Settings(): ReactNode {
             </div>
             <div className="flex flex-col justify-center items-center">
                 <WideContainer>
-                    <div className="flex flex-col gap-1 md:gap-2 mt-1 md:mt-2 justify-center">
+                    <div className="flex flex-col gap-2 mt-2 justify-center">
                         <Link href="/settings/storage">
-                            <AscendingCard className="flex flex-row justify-between gap-2 p-4">
+                            <AscendingCard className="flex flex-row justify-between items-center gap-2 p-4">
                                 <div className="flex flex-row justify-between items-center gap-3">
                                     <div className="flex items-center justify-center">
                                         <ChartPieIcon />
                                     </div>
                                     <div className="flex flex-col items-start">
                                         <h3 className="font-semibold break-keep text-lg sm:text-xl">Storage</h3>
-                                        <p className="text-sm text-muted-foreground">Memory usage, media, cache etc.</p>
+                                        <p className="text-sm text-muted-foreground leading-none">Memory usage, media, cache etc.</p>
                                     </div>
                                 </div>
                                 <ChevronRightIcon />
                             </AscendingCard>
                         </Link>
                         <Link className="text-sm text-muted-foreground flex justify-center" target="_blank" href={
-                            process.env.NODE_ENV == "development"
-                                ? "https://github.com/ClipFusion-org/clipfusion/commit/main"
-                                : `https://github.com/ClipFusion-org/clipfusion/commit/${process.env.BUILD_ID}`}>
+                            `https://github.com/ClipFusion-org/clipfusion/commit/${getBuildID()}`
+                        }>
                             {getVersion()} ({getBuildID()})
                         </Link>
                     </div>

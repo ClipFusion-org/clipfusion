@@ -1,11 +1,10 @@
 "use client";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { createContext, Dispatch, MouseEventHandler, ReactNode, SetStateAction, useContext, useEffect, useState } from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ALargeSmallIcon, ArrowDownAZIcon, ArrowDownIcon, ArrowUpAZIcon, ArrowUpIcon, CalendarArrowDownIcon, CalendarArrowUpIcon, CalendarIcon, ClockArrowDownIcon, ClockArrowUpIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2, Grid2X2CheckIcon, Grid2x2X, Grid2X2XIcon, Grid2x2XIcon, InfoIcon, ListCheckIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { ALargeSmallIcon, ArrowDownIcon, ArrowUpIcon, CalendarIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, Grid2X2XIcon, InfoIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import Search from "@/components/search";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -32,7 +31,6 @@ import { Separator } from "@/components/ui/separator";
 import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
 import SidebarTriggerAdjustable from "@/components/sidebar-trigger-adjustable";
 import ScrollFadingTitle from "@/components/scroll-fading-title";
-import { fa } from "zod/v4/locales";
 import AscendingCard from "@/components/ascending-card";
 
 type SortingType = "byCreationDate"
@@ -78,7 +76,7 @@ const SortingTypeMenuItem = ({
     currentSortingType: SortingType
     setSortingType: Dispatch<SetStateAction<SortingType>>,
 }) => (
-    <DropdownMenuCheckboxItem checked={currentSortingType == sortingType} onCheckedChange={(_) => setSortingType(sortingType)}>
+    <DropdownMenuCheckboxItem checked={currentSortingType == sortingType} onCheckedChange={() => setSortingType(sortingType)}>
         <SortingTypeIcon sortingType={sortingType} /> {sortingTypeToString(sortingType)}
     </DropdownMenuCheckboxItem>
 );

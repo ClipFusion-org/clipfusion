@@ -1,6 +1,6 @@
 "use client";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ComponentProps, useEffect, useState } from "react";
+import { ComponentProps, useEffect, useRef } from "react";
 
 const easeSlide = (x: number) => (
     1 - Math.pow(1 - x, 3)
@@ -16,13 +16,34 @@ export const SidebarTriggerAdjustable = (props: ComponentProps<"div"> & {
 }) => {
     const adjustWidth = props.adjustWidth === undefined ? 12 : +props.adjustWidth;
     const isMobile = useIsMobile();
-    const [slideAmount, setSlideAmount] = useState(0);
+    const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const handleScroll = () =>
-            setSlideAmount(easeSlide(
-                Math.max(0, Math.min(1, window.scrollY / (window.innerHeight / 20)))
-            ));
+        let lastKnownScrollPosition = 0;
+        let ticking = false;
+
+        const updateAdjustable = (scrollPos: number) => {
+            if (!ref.current) return;
+            const slideAmount = easeSlide(
+                Math.max(0, Math.min(1, scrollPos / (window.innerHeight / 20))));
+
+            ref.current.style.transform = `translateX(calc(var(--spacing) * ${adjustWidth * slideAmount}))`;
+            ref.current.style.marginTop = `calc(var(--spacing) * ${(isMobile ? 1 : 3) * slideAmount})`;
+            ref.current.style.width = `calc(100% - var(--spacing) * ${lerp(0, adjustWidth, 1 - slideAmount)})`;
+        };
+
+        const handleScroll = () => {
+            lastKnownScrollPosition = window.scrollY;
+
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    updateAdjustable(lastKnownScrollPosition);
+                    ticking = false;
+                });
+
+                ticking = true;
+            }
+        }
 
         handleScroll();
         window.addEventListener('scroll', handleScroll, { passive: true });
@@ -30,11 +51,7 @@ export const SidebarTriggerAdjustable = (props: ComponentProps<"div"> & {
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
-    }, [isMobile]);
+    }, [isMobile, ref]);
 
-    return <div style={{
-        transform: `translateX(calc(var(--spacing) * ${adjustWidth * slideAmount}))`,
-        marginTop: `calc(var(--spacing) * ${(isMobile ? 1 : 3) * slideAmount})`,
-        width: `calc(100% - var(--spacing) * ${lerp(0, adjustWidth, 1 - slideAmount)})`
-    }} className={props.className}>{props.children}</div>;
+    return <div ref={ref} className={props.className}>{props.children}</div>;
 }

@@ -39,8 +39,12 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN \
-    GIT_COMMIT=$(git rev-parse HEAD); \
-    echo $GIT_COMMIT; \
+    NEXT_PUBLIC_GIT_COMMIT=$(git log --pretty=format:"%H" -n 1); \
+    echo GIT_COMMIT: $NEXT_PUBLIC_GIT_COMMIT; \
+    echo "NEXT_PUBLIC_GIT_COMMIT=${NEXT_PUBLIC_GIT_COMMIT}" >> .env; \
+    NEXT_PUBLIC_PACKAGE_VERSION="$(node -pe "require('./package.json')['version']")"; \
+    echo PACKAGE_VERSION: $NEXT_PUBLIC_PACKAGE_VERSION; \
+    echo "NEXT_PUBLIC_PACKAGE_VERSION=${NEXT_PUBLIC_PACKAGE_VERSION}" >> .env; \
     if [ -f yarn.lock ]; then yarn run build; \
     elif [ -f package-lock.json ]; then npm run build; \
     elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \

@@ -1,5 +1,4 @@
-import { cn } from "@/lib/utils";
-import { ComponentProps, useEffect, useRef, useState } from "react";
+import { ComponentProps, useEffect, useRef } from "react";
 
 const easeFade = (x: number) => (
     x === 0 ? 0 : Math.pow(2, 10 * x - 10)
