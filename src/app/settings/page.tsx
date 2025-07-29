@@ -14,6 +14,8 @@ import { getBuildID, getVersion } from "@/lib/build";
 
 export default function Settings(): ReactNode {
     const isMobile = useIsMobile();
+    const shortBuildId = useIsMobile(1024);
+    const buildID = getBuildID();
 
     return (
         <div className="p-5 w-full h-full">
@@ -48,9 +50,9 @@ export default function Settings(): ReactNode {
                             </AscendingCard>
                         </Link>
                         <Link className="text-sm text-muted-foreground flex justify-center" target="_blank" href={
-                            `https://github.com/ClipFusion-org/clipfusion/commit/${getBuildID()}`
+                            `https://github.com/ClipFusion-org/clipfusion/commit/${buildID}`
                         }>
-                            {getVersion()} ({getBuildID()})
+                            {getVersion()} ({shortBuildId ? buildID?.slice(0, 7) : buildID})
                         </Link>
                     </div>
                 </WideContainer>
