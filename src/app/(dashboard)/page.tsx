@@ -1,5 +1,5 @@
 "use client";
-import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react";
+import { createContext, Dispatch, forwardRef, ReactNode, SetStateAction, useContext, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
@@ -435,7 +435,9 @@ const ProjectContainer = ({
 
     return selecting
         ? projectComponent
-        : (<Link href={`/editor/${project.uuid}`}>{projectComponent}</Link>);
+        : (<Link href={`/editor/${project.uuid}`} onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+            if ((e.target as HTMLDivElement).getAttribute("data-selectable") != "true") e.preventDefault();
+        }}>{projectComponent}</Link>);
 };
 
 export default function Home(): ReactNode {

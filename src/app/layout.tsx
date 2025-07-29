@@ -44,11 +44,7 @@ export default async function RootLayout({
             </head>
             <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
                 <ThemeProvider>
-                        <main className="relative h-screen">
-                            <PersistenceProvider>
-                                {children}
-                            </PersistenceProvider>
-                        </main>
+                    {children}
                     <Toaster/>
                 </ThemeProvider>
             </body>

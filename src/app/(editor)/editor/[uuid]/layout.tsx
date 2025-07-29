@@ -34,24 +34,13 @@ export const viewport: Viewport = {
 export default async function RootLayout({
     children,
 }: Readonly<{
-    children: ReactNode;
+    children: ReactNode
 }>) {
     return (
-        <html lang="en" suppressHydrationWarning>
-            <head>
-                <PWAHead />
-                <Analytics />
-            </head>
-            <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
-                <ThemeProvider>
-                    <main className="relative h-screen">
-                        <PersistenceProvider>
-                            {children}
-                        </PersistenceProvider>
-                    </main>
-                    <Toaster />
-                </ThemeProvider>
-            </body>
-        </html>
+        <main className="relative h-screen">
+            <PersistenceProvider>
+                {children}
+            </PersistenceProvider>
+        </main>
     );
 }
