@@ -254,7 +254,7 @@ const ProjectDropdown = ({
                             <SheetTitle className="font-semibold">{project.title}</SheetTitle>
                             <SheetClose asChild>
                                 <Button variant="ghost" onClick={() => setRenameDialogOpen(true)}>
-                                    <PencilIcon /> <span className="sr-only">Rename</span>
+                                    <PencilIcon /><span className="sr-only">Rename</span>
                                 </Button>
                             </SheetClose>
                         </div>
@@ -309,7 +309,7 @@ const ProjectDropdown = ({
                 <div className="flex flex-row items-center justify-between w-full">
                     <DropdownMenuLabel className="font-semibold">{project.title}</DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => setRenameDialogOpen(true)}>
-                        <PencilIcon /> <span className="sr-only">Rename</span>
+                        <PencilIcon /><span className="sr-only">Rename</span>
                     </DropdownMenuItem>
                 </div>
                 <DropdownMenuSeparator />
@@ -509,8 +509,8 @@ export default function Home(): ReactNode {
                             <div className={cn("flex flex-row gap-2 items-center w-full", !isMobile && "justify-between")}>
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button size={isMobile ? "icon" : "default"}>
-                                            <PlusIcon /> {!isMobile && "New Project"} <span className="sr-only">New Project</span>
+                                        <Button>
+                                            <PlusIcon /> {!isMobile && "New Project"}<span className="sr-only">New Project</span>
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent>
@@ -562,8 +562,7 @@ export default function Home(): ReactNode {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Toggle pressed={descendingSort} onPressedChange={(pressed) => setDescendingSort(pressed)}>
-                                            {descendingSort ? <ArrowDownIcon /> : <ArrowUpIcon />}
-                                            <span className="sr-only">{descendingSort ? "Switch to Ascending Sorting" : "Switch to Descending Sorting"}</span>
+                                            {descendingSort ? <ArrowDownIcon /> : <ArrowUpIcon />}<span className="sr-only">{descendingSort ? "Switch to Ascending Sorting" : "Switch to Descending Sorting"}</span>
                                         </Toggle>
                                     </TooltipTrigger>
                                     <TooltipContent>
