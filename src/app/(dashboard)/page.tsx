@@ -451,7 +451,7 @@ export default function Home(): ReactNode {
     const [descendingSort, setDescendingSort] = useState(false);
     const [showDeleteSelectedAlert, setShowDeleteSelectedAlert] = useState(false);
 
-    const projects = useLiveQuery(() => (
+    const projects = useLiveQuery(async () => (
         db.projects.toArray()
     ));
 
@@ -510,7 +510,7 @@ export default function Home(): ReactNode {
                                 <Dialog>
                                     <DialogTrigger asChild>
                                         <Button>
-                                            <PlusIcon /> {!isMobile && "New Project"}
+                                            <PlusIcon /> {!isMobile && "New Project"} <span className="sr-only">New Project</span>
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent>
@@ -563,6 +563,7 @@ export default function Home(): ReactNode {
                                     <TooltipTrigger asChild>
                                         <Toggle pressed={descendingSort} onPressedChange={(pressed) => setDescendingSort(pressed)}>
                                             {descendingSort ? <ArrowDownIcon /> : <ArrowUpIcon />}
+                                            <span className="sr-only">{descendingSort ? "Switch to Ascending Sorting" : "Switch to Descending Sorting"}</span>
                                         </Toggle>
                                     </TooltipTrigger>
                                     <TooltipContent>
