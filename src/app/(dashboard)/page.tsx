@@ -263,7 +263,7 @@ const ProjectDropdown = ({
                     <Separator />
                     <SheetClose asChild>
                         <Button variant="ghost" className="justify-start w-full" onClick={handleSelect}>
-                            <Grid2X2CheckIcon /> {selected ? "Deselect" : "Select"}
+                            {selected ? <Grid2X2XIcon /> : <Grid2X2CheckIcon /> }{selected ? "Deselect" : "Select"}
                         </Button>
                     </SheetClose>
                     <SheetClose asChild>
@@ -315,7 +315,7 @@ const ProjectDropdown = ({
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                     <DropdownMenuItem onClick={handleSelect}>
-                        <Grid2X2CheckIcon className="mr-2" /> {selected ? "Deselect" : "Select"}
+                        {selected ? <Grid2X2XIcon className="mr-2" /> : <Grid2X2CheckIcon className="mr-2" /> } {selected ? "Deselect" : "Select"}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => console.log("Edit Project")}>
                         <EditIcon className="mr-2" /> Edit
@@ -509,7 +509,7 @@ export default function Home(): ReactNode {
                             <div className={cn("flex flex-row gap-2 items-center w-full", !isMobile && "justify-between")}>
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button>
+                                        <Button size={isMobile ? "icon" : "default"}>
                                             <PlusIcon /> {!isMobile && "New Project"} <span className="sr-only">New Project</span>
                                         </Button>
                                     </DialogTrigger>
