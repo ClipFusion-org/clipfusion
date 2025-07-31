@@ -37,7 +37,7 @@ export default async function RootLayout({
     children: ReactNode
 }>) {
     return (
-        <main className="relative h-screen">
+        <main className="relative w-screen h-screen isolate">
             <PersistenceProvider>
                 {children}
             </PersistenceProvider>

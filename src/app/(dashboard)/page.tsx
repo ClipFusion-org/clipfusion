@@ -1,5 +1,5 @@
 "use client";
-import { createContext, Dispatch, forwardRef, ReactNode, SetStateAction, useContext, useState } from "react";
+import React, { createContext, Dispatch, forwardRef, ReactNode, SetStateAction, useContext, useId, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
@@ -24,8 +24,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useDebounce } from "use-debounce";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent } from "@/components/ui/tooltip";
-import { TooltipTrigger } from "@radix-ui/react-tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
@@ -103,7 +102,9 @@ const ProjectInfoFormSchema = z.object({
     description: z.string().or(z.literal(""))
 });
 
-const ProjectInfoForm = ({ form }: { form: UseFormReturn<z.infer<typeof ProjectInfoFormSchema>> }) => (
+type ProjectInfoForm = z.infer<typeof ProjectInfoFormSchema>;
+
+const ProjectInfoFormControls = ({ form }: { form: UseFormReturn<ProjectInfoForm> }) => (
     <>
         <FormField control={form.control} name="title" render={({ field }) => (
             <FormItem>
@@ -118,7 +119,7 @@ const ProjectInfoForm = ({ form }: { form: UseFormReturn<z.infer<typeof ProjectI
             <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                    <Textarea autoComplete="off" placeholder="Tell something about your project" className="resize-y" {...field} />
+                    <Textarea {...field} autoComplete="off" placeholder="Tell something about your project" className="resize-y" />
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -127,16 +128,21 @@ const ProjectInfoForm = ({ form }: { form: UseFormReturn<z.infer<typeof ProjectI
 );
 
 const RenameProjectDialog = ({ project }: { project: Project }) => {
-    const renameForm = useForm<z.infer<typeof ProjectInfoFormSchema>>({
+    const formId = useId();
+    const renameForm = useForm<ProjectInfoForm>({
         resolver: zodResolver(ProjectInfoFormSchema),
         defaultValues: {
             title: project.title,
             description: project.description
-        }
+        },
+        mode: "onChange"
     });
 
-    const handleRenameSubmit = async (data: z.infer<typeof ProjectInfoFormSchema>) => {
-        await db.projects.update(project.uuid, {
+    const handleRenameSubmit = async (data: ProjectInfoForm) => {
+        console.log(data);
+        console.log(project.uuid);
+        console.log(data.title);
+        db.projects.update(project.uuid, {
             title: data.title,
             description: data.description,
             editDate: Date.now()
@@ -147,17 +153,19 @@ const RenameProjectDialog = ({ project }: { project: Project }) => {
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>Rename Project</DialogTitle>
-                <DialogDescription>Change the name of your project.</DialogDescription>
+                <DialogDescription>Change information of your project.</DialogDescription>
             </DialogHeader>
             <Form {...renameForm}>
-                <form onSubmit={renameForm.handleSubmit(handleRenameSubmit)} className="grid gap-3">
-                    <ProjectInfoForm form={renameForm} />
+                <form id={formId} onSubmit={renameForm.handleSubmit(handleRenameSubmit)} className="grid gap-3">
+                    <ProjectInfoFormControls form={renameForm} />
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
+                            <Button type="button" variant="outline">Cancel</Button>
                         </DialogClose>
-                        <DialogClose asChild>
-                            <Button type="submit">Rename</Button>
+                        <DialogClose onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                            if (renameForm.formState.errors.title) e.preventDefault();
+                        }} asChild>
+                            <Button type="submit" form={formId}>Rename</Button>
                         </DialogClose>
                     </DialogFooter>
                 </form>
@@ -263,7 +271,7 @@ const ProjectDropdown = ({
                     <Separator />
                     <SheetClose asChild>
                         <Button variant="ghost" className="justify-start w-full" onClick={handleSelect}>
-                            {selected ? <Grid2X2XIcon /> : <Grid2X2CheckIcon /> }{selected ? "Deselect" : "Select"}
+                            {selected ? <Grid2X2XIcon /> : <Grid2X2CheckIcon />}{selected ? "Deselect" : "Select"}
                         </Button>
                     </SheetClose>
                     <SheetClose asChild>
@@ -308,14 +316,17 @@ const ProjectDropdown = ({
             <DropdownMenuContent align={isMobile ? "end" : "start"} className="min-w-48">
                 <div className="flex flex-row items-center justify-between w-full">
                     <DropdownMenuLabel className="font-semibold">{project.title}</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => setRenameDialogOpen(true)}>
+                    <DropdownMenuItem onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+                        e.preventDefault();
+                        setRenameDialogOpen(true)
+                    }}>
                         <PencilIcon /><span className="sr-only">Rename</span>
                     </DropdownMenuItem>
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                     <DropdownMenuItem onClick={handleSelect}>
-                        {selected ? <Grid2X2XIcon className="mr-2" /> : <Grid2X2CheckIcon className="mr-2" /> } {selected ? "Deselect" : "Select"}
+                        {selected ? <Grid2X2XIcon className="mr-2" /> : <Grid2X2CheckIcon className="mr-2" />} {selected ? "Deselect" : "Select"}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => console.log("Edit Project")}>
                         <EditIcon className="mr-2" /> Edit
@@ -398,7 +409,7 @@ const ProjectContainer = ({
     // TODO: data-selectable is a really dirty way of deciding whether to trigger selection or not should be reworked in the future
     const handleCheck = (e: React.MouseEvent<HTMLDivElement>) => {
         if ((e.target as HTMLDivElement).getAttribute("data-selectable") != "true") return;
-        e.stopPropagation();
+        e.preventDefault();
         if (selecting) {
             const index = selectedProjects.indexOf(project.uuid);
             if (index >= 0) {
@@ -418,7 +429,7 @@ const ProjectContainer = ({
                     <div data-selectable="true">
                         <h3 className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold line-clamp-1" data-selectable="true">{project.title}</h3>
                         {project.description && <p className="text-sm text-secondary-foreground line-clamp-1" data-selectable="true">{project.description}</p>}
-                        {project.editDate && <p className="text-sm text-secondary-foreground" data-selectable="true">Last Edit Date: {date.toLocaleDateString()}, {date.toLocaleTimeString()}</p>}
+                        {project.editDate && <p className="text-sm text-secondary-foreground" data-selectable="true">Last Edit Date: {date.toLocaleDateString()}, {date.toLocaleTimeString([], { timeStyle: "short" })}</p>}
                     </div>
                     <div className="flex flex-col lg:xl:flex-row items-center gap-1" data-selectable="true">
                         {!selecting && <ProjectDescription project={project} />}
@@ -427,14 +438,14 @@ const ProjectContainer = ({
                 </div>
                 {selecting && (
                     <div className="absolute top-0 right-0 p-5" data-selectable="true">
-                        <Checkbox checked={selectedProjects.includes(project.uuid)} data-selectable="true"/>
+                        <Checkbox checked={selectedProjects.includes(project.uuid)} data-selectable="true" />
                     </div>
                 )}
             </AscendingCard>
         </AspectRatio>
     );
 
-    return selecting
+    return true
         ? projectComponent
         : (<Link href={`/editor/${project.uuid}`} onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
             if ((e.target as HTMLDivElement).getAttribute("data-selectable") != "true") e.preventDefault();
@@ -456,11 +467,12 @@ export default function Home(): ReactNode {
     ));
 
     const filteredProjects = projects && (
-        projects.filter((project) => project.title.toLowerCase().includes(debouncedSearch.toLowerCase()))
+        projects
+            .filter((project) => project.title.toLowerCase().includes(debouncedSearch.toLowerCase()))
             .sort((a, b) => sortProjects(a, b, sortingType) * (descendingSort ? -1 : 1))
     );
 
-    const newProjectForm = useForm<z.infer<typeof ProjectInfoFormSchema>>({
+    const newProjectForm = useForm<ProjectInfoForm>({
         resolver: zodResolver(ProjectInfoFormSchema),
         defaultValues: {
             title: "New ClipFusion Project",
@@ -468,7 +480,7 @@ export default function Home(): ReactNode {
         }
     });
 
-    const newProjectSubmit = async (data: z.infer<typeof ProjectInfoFormSchema>) => {
+    const newProjectSubmit = async (data: ProjectInfoForm) => {
         const date = Date.now();
         addProject({
             uuid: generateUUID(),
@@ -524,12 +536,14 @@ export default function Home(): ReactNode {
                                         </DialogHeader>
                                         <Form {...newProjectForm}>
                                             <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
-                                                <ProjectInfoForm form={newProjectForm} />
+                                                <ProjectInfoFormControls form={newProjectForm} />
                                                 <DialogFooter>
                                                     <DialogClose asChild>
-                                                        <Button variant="outline">Cancel</Button>
+                                                        <Button type="button" variant="outline">Cancel</Button>
                                                     </DialogClose>
-                                                    <DialogClose asChild>
+                                                    <DialogClose onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                                        if (newProjectForm.formState.errors.title) e.preventDefault();
+                                                    }} asChild>
                                                         <Button type="submit">Create</Button>
                                                     </DialogClose>
                                                 </DialogFooter>
@@ -578,7 +592,7 @@ export default function Home(): ReactNode {
                     <div className={cn("grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2")}>
                         {filteredProjects && filteredProjects.map((project) => <ProjectContainer key={project.uuid} project={project} />)}
                     </div>
-                    {(projects != undefined && projects.length == 0) && (
+                    {(filteredProjects != undefined && filteredProjects.length == 0) && (
                         <div className="w-full h-full flex justify-center items-center">
                             <Label className="text-muted-foreground">Nothing to Show</Label>
                         </div>

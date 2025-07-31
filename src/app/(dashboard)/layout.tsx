@@ -11,7 +11,7 @@ export default async function RootLayout({
     return (
         <SidebarProvider>
             <Dashboard />
-            <main className="relative h-screen">
+            <main className="relative h-screen isolate">
                 <PersistenceProvider>
                     {children}
                 </PersistenceProvider>
