@@ -616,7 +616,7 @@ export default function Home(): ReactNode {
                 {selecting && (
                     <>
                         <div className="sticky bottom-0 left-0 w-full">
-                            <div className=" m-auto bg-background flex flex-row justify-between p-safe-or-2 z-20">
+                            <div className="m-auto bg-background flex flex-row justify-between p-safe-or-2 z-20">
                                 <div className="flex justify-begin text-red-400 grow basis-0">
                                     <Button disabled={selectedProjects.length == 0} variant="ghost" onClick={() => setShowDeleteSelectedAlert(true)}>
                                         <TrashIcon /> {!isMobile && "Delete All"}
