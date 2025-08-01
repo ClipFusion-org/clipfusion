@@ -4,7 +4,6 @@ import { ReactNode } from "react";
 import "./globals.css";
 import ThemeProvider from "./theme-provider";
 import Analytics from "./analytics";
-import PersistenceProvider from "./persistence-provider";
 import { Toaster } from "@/components/ui/sonner";
 import PWAHead from "./pwa-head";
 

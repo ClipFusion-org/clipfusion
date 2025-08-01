@@ -1,4 +1,5 @@
 "use client";
+
 import React, { createContext, Dispatch, forwardRef, ReactNode, SetStateAction, useContext, useId, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
@@ -33,6 +34,8 @@ import ScrollFadingTitle from "@/components/scroll-fading-title";
 import AscendingCard from "@/components/ascending-card";
 import Link from "next/link";
 import StickyTopContainer from "@/components/sticky-top-container";
+import { useRouter } from "next/navigation";
+import truncate from "@/lib/truncate";
 
 type SortingType = "byCreationDate"
     | "byEditDate"
@@ -104,29 +107,6 @@ const ProjectInfoFormSchema = z.object({
 
 type ProjectInfoForm = z.infer<typeof ProjectInfoFormSchema>;
 
-const ProjectInfoFormControls = ({ form }: { form: UseFormReturn<ProjectInfoForm> }) => (
-    <>
-        <FormField control={form.control} name="title" render={({ field }) => (
-            <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                    <Input {...field} />
-                </FormControl>
-                <FormMessage />
-            </FormItem>
-        )} />
-        <FormField control={form.control} name="description" render={({ field }) => (
-            <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                    <Textarea {...field} autoComplete="off" placeholder="Tell something about your project" className="resize-y" />
-                </FormControl>
-                <FormMessage />
-            </FormItem>
-        )} />
-    </>
-);
-
 const RenameProjectDialog = ({ project }: { project: Project }) => {
     const formId = useId();
     const renameForm = useForm<ProjectInfoForm>({
@@ -157,7 +137,24 @@ const RenameProjectDialog = ({ project }: { project: Project }) => {
             </DialogHeader>
             <Form {...renameForm}>
                 <form id={formId} onSubmit={renameForm.handleSubmit(handleRenameSubmit)} className="grid gap-3">
-                    <ProjectInfoFormControls form={renameForm} />
+                    <FormField control={renameForm.control} name="title" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Title</FormLabel>
+                            <FormControl>
+                                <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    <FormField control={renameForm.control} name="description" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                                <Textarea {...field} autoComplete="off" placeholder="Tell something about your project" className="resize-y" />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button type="button" variant="outline">Cancel</Button>
@@ -184,7 +181,7 @@ const DeleteProjectDialog = ({ project }: { project: Project }) => {
             <AlertDialogHeader>
                 <AlertDialogTitle>Delete Project</AlertDialogTitle>
                 <AlertDialogDescription>
-                    Are you sure you want to delete the project &quot;{project.title}&quot;? This action cannot be undone.
+                    Are you sure you want to delete the project &quot;{truncate(project.title, 25)}&quot;? This action cannot be undone.
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -204,10 +201,28 @@ const ProjectDropdown = ({
     project: Project,
     selected: boolean
 }): ReactNode => {
+    const router = useRouter();
     const { selecting, setSelecting, selectedProjects, setSelectedProjects } = useSelectContext();
     const [renameDialogOpen, setRenameDialogOpen] = useState(false);
     const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
     const isMobile = useIsMobile();
+
+    const handleSelect = () => {
+        if (!selecting) {
+            setSelecting(true);
+            setSelectedProjects([]);
+        }
+
+        const index = selectedProjects.indexOf(project.uuid);
+        if (index >= 0) {
+            selectedProjects.splice(index, 1);
+            setSelectedProjects([...selectedProjects]);
+        } else {
+            setSelectedProjects([...selectedProjects, project.uuid]);
+        }
+    };
+
+    const handleEdit = () => router.push(`/editor/${project.uuid}`);
 
     const handleDuplicate = async () => {
         let originProject = await db.projects.where('uuid').equals(project.origin).first();
@@ -233,21 +248,6 @@ const ProjectDropdown = ({
         addProject(newProject as Project);
     };
 
-    const handleSelect = () => {
-        if (!selecting) {
-            setSelecting(true);
-            setSelectedProjects([]);
-        }
-
-        const index = selectedProjects.indexOf(project.uuid);
-        if (index >= 0) {
-            selectedProjects.splice(index, 1);
-            setSelectedProjects([...selectedProjects]);
-        } else {
-            setSelectedProjects([...selectedProjects, project.uuid]);
-        }
-    };
-
     if (isMobile) {
         return (
             <Sheet>
@@ -258,8 +258,8 @@ const ProjectDropdown = ({
                 </SheetTrigger>
                 <SheetContent side="bottom" className="px-safe-or-2 pb-safe-or-2 gap-1">
                     <SheetHeader className="m-0 p-2 gap-0">
-                        <div className="flex flex-row items-center w-full">
-                            <SheetTitle className="font-semibold">{project.title}</SheetTitle>
+                        <div className="flex flex-row items-center w-[95%]">
+                            <SheetTitle className="font-semibold line-clamp-1">{project.title}</SheetTitle>
                             <SheetClose asChild>
                                 <Button variant="ghost" onClick={() => setRenameDialogOpen(true)}>
                                     <PencilIcon /><span className="sr-only">Rename</span>
@@ -274,21 +274,17 @@ const ProjectDropdown = ({
                             {selected ? <Grid2X2XIcon /> : <Grid2X2CheckIcon />}{selected ? "Deselect" : "Select"}
                         </Button>
                     </SheetClose>
-                    <SheetClose asChild>
-                        <Button variant="ghost" className="justify-start w-full" onClick={() => console.log("Edit Project")}>
+                        <Button variant="ghost" className="justify-start w-full" onClick={handleEdit}>
                             <EditIcon /> Edit
                         </Button>
-                    </SheetClose>
                     <SheetClose asChild>
                         <Button variant="ghost" className="justify-start w-full" onClick={handleDuplicate}>
                             <CopyIcon /> Duplicate
                         </Button>
                     </SheetClose>
-                    <SheetClose asChild>
-                        <Button variant="ghost" className="text-red-400 justify-start w-full" onClick={() => setDeleteAlertOpen(true)}>
-                            <TrashIcon /> Delete
-                        </Button>
-                    </SheetClose>
+                    <Button variant="ghost" className="text-red-400 justify-start w-full" onClick={() => setDeleteAlertOpen(true)}>
+                        <TrashIcon /> Delete
+                    </Button>
                     <Separator />
                     <SheetClose asChild>
                         <Button variant="ghost" className="justify-start w-full" onClick={() => console.log("Project Info")}>
@@ -328,13 +324,16 @@ const ProjectDropdown = ({
                     <DropdownMenuItem onClick={handleSelect}>
                         {selected ? <Grid2X2XIcon className="mr-2" /> : <Grid2X2CheckIcon className="mr-2" />} {selected ? "Deselect" : "Select"}
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => console.log("Edit Project")}>
+                    <DropdownMenuItem onClick={handleEdit}>
                         <EditIcon className="mr-2" /> Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleDuplicate}>
                         <CopyIcon className="mr-2" /> Duplicate
                     </DropdownMenuItem>
-                    <DropdownMenuItem variant="destructive" onClick={() => setDeleteAlertOpen(true)}>
+                    <DropdownMenuItem variant="destructive" onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+                        e.preventDefault();
+                        setDeleteAlertOpen(true);
+                    }}>
                         <TrashIcon className="mr-2" /> Delete
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
@@ -367,8 +366,8 @@ const ProjectDescription = ({ project }: { project: Project }): ReactNode => {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="bottom">
-                    <SheetHeader className="m-0 p-2 gap-0">
-                        <SheetTitle>{project.title} Description</SheetTitle>
+                    <SheetHeader className="m-0 p-2 gap-0 w-[95%]">
+                        <SheetTitle className="line-clamp-1">{project.title} Description</SheetTitle>
                         <SheetDescription>Additional Information About the Project</SheetDescription>
                     </SheetHeader>
                     <Separator />
@@ -407,37 +406,37 @@ const ProjectContainer = ({
     const date = new Date(project.editDate);
 
     // TODO: data-selectable is a really dirty way of deciding whether to trigger selection or not should be reworked in the future
-    const handleCheck = (e: React.MouseEvent<HTMLDivElement>) => {
-        if ((e.target as HTMLDivElement).getAttribute("data-selectable") != "true") return;
-        e.preventDefault();
-        if (selecting) {
-            const index = selectedProjects.indexOf(project.uuid);
-            if (index >= 0) {
-                selectedProjects.splice(index, 1);
-                setSelectedProjects([...selectedProjects]);
-            } else {
-                setSelectedProjects([...selectedProjects, project.uuid]);
-            }
+    const handleCheck = (e: React.MouseEvent<HTMLDivElement | HTMLAnchorElement>) => {
+        const index = selectedProjects.indexOf(project.uuid);
+        if (index >= 0) {
+            selectedProjects.splice(index, 1);
+            setSelectedProjects([...selectedProjects]);
+        } else {
+            setSelectedProjects([...selectedProjects, project.uuid]);
         }
     };
 
+    const LinkComponent = selecting ? "div" : Link;
+
     const projectComponent = (
-        <AspectRatio data-selectable="true" ratio={16 / 9} onClick={handleCheck}>
-            <AscendingCard className="relative rounded-lg w-full h-full overflow-hidden" data-selectable="true">
-                <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50" data-selectable="true" />
-                <div className="absolute bottom-0 left-0 p-2 w-full flex flex-row justify-between items-center" data-selectable="true">
-                    <div data-selectable="true">
-                        <h3 className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold line-clamp-1" data-selectable="true">{project.title}</h3>
-                        {project.description && <p className="text-sm text-secondary-foreground line-clamp-1" data-selectable="true">{project.description}</p>}
-                        {project.editDate && <p className="text-sm text-secondary-foreground" data-selectable="true">Last Edit Date: {date.toLocaleDateString()}, {date.toLocaleTimeString([], { timeStyle: "short" })}</p>}
+        <AspectRatio className="relative" data-selectable="true" ratio={16 / 9}>
+            <AscendingCard className="absolute top-0 left-0 w-full h-full overflow-hidden p-0">
+                <LinkComponent href={`/editor/${project.uuid}`} className="absolute top-0 left-0 w-full h-full overflow-hidden">
+                    <div className="relative w-full h-full rounded-lg overflow-hidden" data-selectable="true" onClick={handleCheck}>
+                        <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50" data-selectable="true" />
+                        <div className="absolute bottom-0 left-0 p-2 w-[85%] flex flex-col" data-selectable="true" >
+                            <h3 className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold line-clamp-1" data-selectable="true">{project.title}</h3>
+                            {project.description && <p className="text-sm text-secondary-foreground line-clamp-1" data-selectable="true">{project.description}</p>}
+                            {project.editDate && <p className="text-sm text-secondary-foreground" data-selectable="true">Last Edit Date: {date.toLocaleDateString()}, {date.toLocaleTimeString([], { timeStyle: "short" })}</p>}
+                        </div>
                     </div>
-                    <div className="flex flex-col lg:xl:flex-row items-center gap-1" data-selectable="true">
-                        {!selecting && <ProjectDescription project={project} />}
-                        <ProjectDropdown selected={selectedProjects.includes(project.uuid)} project={project} />
-                    </div>
+                </LinkComponent>
+                <div className="absolute bottom-0 right-0 pr-3 pb-3 flex flex-col lg:xl:flex-row items-center gap-1" data-selectable="true">
+                    {!selecting && <ProjectDescription project={project} />}
+                    <ProjectDropdown selected={selectedProjects.includes(project.uuid)} project={project} />
                 </div>
                 {selecting && (
-                    <div className="absolute top-0 right-0 p-5" data-selectable="true">
+                    <div className="absolute top-0 right-0 pt-5 pr-5" data-selectable="true">
                         <Checkbox checked={selectedProjects.includes(project.uuid)} data-selectable="true" />
                     </div>
                 )}
@@ -445,11 +444,7 @@ const ProjectContainer = ({
         </AspectRatio>
     );
 
-    return true
-        ? projectComponent
-        : (<Link href={`/editor/${project.uuid}`} onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-            if ((e.target as HTMLDivElement).getAttribute("data-selectable") != "true") e.preventDefault();
-        }}>{projectComponent}</Link>);
+    return projectComponent;
 };
 
 export default function Home(): ReactNode {
@@ -536,7 +531,24 @@ export default function Home(): ReactNode {
                                         </DialogHeader>
                                         <Form {...newProjectForm}>
                                             <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
-                                                <ProjectInfoFormControls form={newProjectForm} />
+                                                <FormField control={newProjectForm.control} name="title" render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Title</FormLabel>
+                                                        <FormControl>
+                                                            <Input {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )} />
+                                                <FormField control={newProjectForm.control} name="description" render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Description</FormLabel>
+                                                        <FormControl>
+                                                            <Textarea {...field} autoComplete="off" placeholder="Tell something about your project" className="resize-y" />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )} />
                                                 <DialogFooter>
                                                     <DialogClose asChild>
                                                         <Button type="button" variant="outline">Cancel</Button>
@@ -584,7 +596,10 @@ export default function Home(): ReactNode {
                                     </TooltipContent>
                                 </Tooltip>
                             </div>
-                            <Toggle variant="default" pressed={selecting} onPressedChange={(pressed: boolean) => setSelecting(pressed)}>
+                            <Toggle variant="default" pressed={selecting} onPressedChange={(pressed: boolean) => { 
+                                setSelecting(pressed);
+                                setSelectedProjects([]);
+                            }}>
                                 <Grid2X2CheckIcon /> {isMobile ? "Select" : "Select Projects"}
                             </Toggle>
                         </div>
