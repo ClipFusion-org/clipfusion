@@ -90,10 +90,14 @@ export const SwipeToDelete = ({
             startTouchPosition.current = cursorPosition(event);
             initTranslate.current = translate;
             setTouching(true);
-            if (!deleting) setDeleting(true);
+            setDeleting(true);
         },
         [disabled, touching, translate, deleting, setDeleting]
     );
+
+    useEffect(() => {
+        // setDeleting(touching);
+    }, [touching]);
 
     useEffect(() => {
         const root = container.current;
@@ -122,9 +126,8 @@ export const SwipeToDelete = ({
             if (rtl && cursorPosition(event) < startTouchPosition.current - initTranslate.current)
                 return setTranslate(0);
             setTranslate(cursorPosition(event) - startTouchPosition.current + initTranslate.current);
-            if (!deleting) setDeleting(true);
         },
-        [rtl, touching, deleting, setDeleting]
+        [rtl, touching]
     );
 
 
@@ -181,7 +184,7 @@ export const SwipeToDelete = ({
                 setTranslate(() => (rtl ? 1 : -1) * deleteWidth);
             }
             setTouching(() => false);
-            if (deleting) setDeleting(false);
+            setDeleting(false);
             if (deleteWithoutConfirm) onDeleteClick();
         },
         [containerWidth, deleteWidth, deleteWithoutConfirmThreshold, onDeleteClick, rtl, translate, deleting, setDeleting]
@@ -206,22 +209,6 @@ export const SwipeToDelete = ({
             window.removeEventListener("touchend", onMouseUp);
         };
     }, [onMouseMove, onMouseUp, onTouchMove, touching]);
-
-    // disabling scrolling when swiping to delete
-    useEffect(() => {
-        const handleScroll = (e: Event) => {
-            if (deleting) {
-                e.preventDefault();
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = 'auto';
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll);
-
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [deleting]);
 
     return (
         <div id={id} className={`rstdi${internalDeleting ? " deleting" : ""} ${className}`} ref={container}>

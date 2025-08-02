@@ -451,9 +451,9 @@ const ProjectContainer = ({
     );
 
     return isMobile ? (
-        <div className="h-full w-[100% + 5 * var(--spacing)] -mx-5 origin-center">
-            <SwipeToDelete onDelete={() => deleteProject(project.uuid)} transitionDuration={200} height={210.38} deleteThreshold={45}>
-                <div className="w-screen bg-background px-5">
+        <div className=" w-[100% + 5 * var(--spacing)] -mx-5 origin-center overflow-hidden">
+            <SwipeToDelete onDelete={() => deleteProject(project.uuid)} transitionDuration={200} deleteThreshold={50}>
+                <div className="w-screen bg-background px-5 py-2 -mt-[1px] h-[calc(100% + 2px)]">
                     {projectComponent}
                 </div>
             </SwipeToDelete>
@@ -517,7 +517,7 @@ export default function Home(): ReactNode {
 
     return (
         <SelectContext.Provider value={context}>
-            <div className="flex flex-col justify-between h-screen overscroll-x-none overflow-x-hidden" style={{ touchAction: deleting ? "none" : "pan-y pinch-zoom" }}>
+            <div className="flex flex-col justify-between h-screen">
                 <div className="p-5">
                     <div className="flex flex-row items-center gap-2">
                         <StaticSidebarTrigger />
@@ -602,7 +602,7 @@ export default function Home(): ReactNode {
                             </Toggle>
                         </div>
                     </StickyTopContainer>
-                    <div className={cn("grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2")}>
+                    <div className={cn("grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-0 sm:gap-4 mt-2")}>
                         {filteredProjects && filteredProjects.map((project) => <ProjectContainer key={project.uuid} project={project} />)}
                     </div>
                     {(filteredProjects != undefined && filteredProjects.length == 0) && (

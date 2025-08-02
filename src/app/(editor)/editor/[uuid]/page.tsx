@@ -73,5 +73,5 @@ export default function Editor() {
                 <div className="flex flex-row justify-end grow basis-0" />
             </Menubar>
         </>
-    ) : <></>;
+    ) : <>Project is invalid (or is it?)</>;
 }
