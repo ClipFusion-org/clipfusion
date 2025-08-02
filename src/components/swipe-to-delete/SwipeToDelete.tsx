@@ -114,7 +114,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                 }
                 setForceTransparentBackground(true);
                 transparencyTimeout = setTimeout(() => setForceTransparentBackground(false), 150);
-            }
+            } else setDragX(0);
             return;
         }
 
@@ -214,6 +214,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                 transition: isCollapsing
                     ? 'height 300ms cubic-bezier(0.24, 1.04, 0.56, 1)'
                     : undefined,
+                willChange: 'height'
             }}
         >
             {/* Fixed red background + delete text */}
@@ -250,7 +251,8 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                     transform: `translateX(${Math.floor(dragX)}px)`,
                     transition: dragging
                         ? ''
-                        : 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1)'
+                        : 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1)',
+                    willChange: 'transform'
                 }}
             >
                 {children}
