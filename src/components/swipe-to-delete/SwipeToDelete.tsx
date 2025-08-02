@@ -245,13 +245,10 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                 style={{
                     position: 'relative',
                     inset: 0,
-                    transform: `translateX(calc(${dragX}px - 0.5px))`,
+                    transform: `translateX(${Math.floor(dragX)}px)`,
                     transition: dragging
                         ? ''
-                        : 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1)',
-                    willChange: 'transform',
-                    backfaceVisibility: 'hidden',
-                    transformStyle: 'preserve-3d'
+                        : 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1)'
                 }}
             >
                 {children}
