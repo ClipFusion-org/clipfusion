@@ -36,6 +36,7 @@ import Link from "next/link";
 import StickyTopContainer from "@/components/sticky-top-container";
 import { useRouter } from "next/navigation";
 import truncate from "@/lib/truncate";
+import SwipeToDelete, { useSwipeToDeleteContext } from "@/components/swipe-to-delete";
 
 type SortingType = "byCreationDate"
     | "byEditDate"
@@ -274,9 +275,9 @@ const ProjectDropdown = ({
                             {selected ? <Grid2X2XIcon /> : <Grid2X2CheckIcon />}{selected ? "Deselect" : "Select"}
                         </Button>
                     </SheetClose>
-                        <Button variant="ghost" className="justify-start w-full" onClick={handleEdit}>
-                            <EditIcon /> Edit
-                        </Button>
+                    <Button variant="ghost" className="justify-start w-full" onClick={handleEdit}>
+                        <EditIcon /> Edit
+                    </Button>
                     <SheetClose asChild>
                         <Button variant="ghost" className="justify-start w-full" onClick={handleDuplicate}>
                             <CopyIcon /> Duplicate
@@ -402,10 +403,10 @@ const ProjectContainer = ({
     project: Project
 }): ReactNode => {
     const { selecting, selectedProjects, setSelectedProjects } = useSelectContext();
+    const isMobile = useIsMobile();
 
     const date = new Date(project.editDate);
 
-    // TODO: data-selectable is a really dirty way of deciding whether to trigger selection or not should be reworked in the future
     const handleCheck = (e: React.MouseEvent<HTMLDivElement | HTMLAnchorElement>) => {
         const index = selectedProjects.indexOf(project.uuid);
         if (index >= 0) {
@@ -444,11 +445,20 @@ const ProjectContainer = ({
         </AspectRatio>
     );
 
-    return projectComponent;
+    return isMobile ? (
+        <div className="h-full w-[100% + 5 * var(--spacing)] -mx-5 origin-center">
+            <SwipeToDelete onDelete={() => deleteProject(project.uuid)} transitionDuration={200} height={210.38} deleteThreshold={45}>
+                <div className="w-screen bg-background px-5">
+                    {projectComponent}
+                </div>
+            </SwipeToDelete>
+        </div>
+    ) : projectComponent;
 };
 
 export default function Home(): ReactNode {
     const isMobile = useIsMobile();
+    const { deleting } = useSwipeToDeleteContext();
     const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounce(search, 300);
     const [selecting, setSelecting] = useState(false);
@@ -502,7 +512,7 @@ export default function Home(): ReactNode {
 
     return (
         <SelectContext.Provider value={context}>
-            <div className="flex flex-col justify-between h-screen">
+            <div className="flex flex-col justify-between h-screen overscroll-x-none overflow-x-hidden" style={{ touchAction: deleting ? "none" : "pan-y pinch-zoom" }}>
                 <div className="p-5">
                     <div className="flex flex-row items-center gap-2">
                         <StaticSidebarTrigger />
@@ -596,7 +606,7 @@ export default function Home(): ReactNode {
                                     </TooltipContent>
                                 </Tooltip>
                             </div>
-                            <Toggle variant="default" pressed={selecting} onPressedChange={(pressed: boolean) => { 
+                            <Toggle variant="default" pressed={selecting} onPressedChange={(pressed: boolean) => {
                                 setSelecting(pressed);
                                 setSelectedProjects([]);
                             }}>

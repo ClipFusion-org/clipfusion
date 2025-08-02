@@ -1,0 +1,77 @@
+/* rstdi = react-swipe-to-delete-ios */
+
+.rstdi {
+    --rstdiHeight: 30px;
+    --rstdiTransitionDuration: 250ms;
+    --rstdiTranslate: 0px;
+    --rstdiIsRtl: 0;
+    --rstdiDeleteColor: rgba(252, 58, 48, 1);
+    --rstdiDeleteWidth: 75px;
+    --rstdiButtonMarginRight: 0px;
+    --rstdiButtonMarginLeft: 0px;
+
+    width: auto;
+    position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
+    height: 100%;
+    max-height: 100%;
+}
+
+.rstdi *,
+.rstdi *:before,
+.rstdi *:after {
+    box-sizing: border-box;
+}
+
+.rstdi.deleting {
+    transition: all var(--rstdiTransitionDuration) ease-out;
+    opacity: 0;
+    max-height: 0;
+}
+
+.rstdi .content {
+    height: 100%;
+    width: auto;
+    position: relative;
+    transform: translateX(var(--rstdiTranslate));
+}
+
+.rstdi .content.transition {
+    transition: all var(--rstdiTransitionDuration) ease-out;
+}
+
+.rstdi .content.deleting {
+    height: 0%;
+    width: auto;
+    position: relative;
+    transform: translateX(-100%);
+    transition: all var(--rstdiTransitionDuration) ease-out;
+}
+
+.rstdi .delete {
+    position: absolute;
+    right: 0;
+    margin-top: 1px;
+    height: calc(100% - 3px);
+    width: 100%;
+    top: 0;
+    background: var(--rstdiDeleteColor);
+    font-weight: 400;
+    display: inline-flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.rstdi .delete button {
+    width: var(--rstdiDeleteWidth);
+    transition: transform var(--rstdiTransitionDuration) ease-out;
+    transform: translateX(var(--rstdiButtonMarginLeft));
+    text-align: center;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+}

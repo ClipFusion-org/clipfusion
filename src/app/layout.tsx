@@ -6,6 +6,7 @@ import ThemeProvider from "./theme-provider";
 import Analytics from "./analytics";
 import { Toaster } from "@/components/ui/sonner";
 import PWAHead from "./pwa-head";
+import { SwipeToDeleteContextProvider } from "@/components/swipe-to-delete";
 
 const geist = Geist({
     variable: "--font-geist",
@@ -43,7 +44,9 @@ export default async function RootLayout({
             </head>
             <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
                 <ThemeProvider>
-                    {children}
+                    <SwipeToDeleteContextProvider>
+                        {children}
+                    </SwipeToDeleteContextProvider>
                     <Toaster/>
                 </ThemeProvider>
             </body>
