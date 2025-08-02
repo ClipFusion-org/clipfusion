@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react";
+import React, { createContext, Dispatch, ReactNode, SetStateAction, useContext, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
@@ -408,6 +408,10 @@ const ProjectContainer = ({
     project: Project
 }): ReactNode => {
     const { selecting, selectedProjects, setSelectedProjects } = useSelectContext();
+    const [container, setContainer] = useState<HTMLDivElement | undefined>();
+    const containerRef = (node: HTMLDivElement) => {
+        setContainer(node);
+    };
     const isMobile = useIsMobile();
 
     const date = new Date(project.editDate);
@@ -451,14 +455,20 @@ const ProjectContainer = ({
     );
 
     return isMobile && !selecting ? (
-        <div className=" w-[100% + 5 * var(--spacing)] -mx-5 overflow-hidden">
-            <SwipeToDelete onDelete={() => deleteProject(project.uuid)}>
-                <div className="w-screen bg-background px-5 py-2">
+        <div className="w-[100% + 5 * var(--spacing)] -mx-5 overflow-hidden">
+            <SwipeToDelete height={container ? Math.floor(container.getBoundingClientRect().height) : 210} onDelete={() => deleteProject(project.uuid)}>
+                <div ref={containerRef} className="w-full bg-background px-5 py-2">
                     {projectComponent}
                 </div>
             </SwipeToDelete>
         </div>
-    ) : projectComponent;
+    ) : (
+        <div className="w-[100% + 5 * var(--spacing)] -mx-5 overflow-hidden">
+            <div ref={containerRef} className="w-full bg-background px-5 py-2">
+                {projectComponent}
+            </div>
+        </div>
+    );
 };
 
 export default function Home(): ReactNode {

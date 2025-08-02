@@ -1,8 +1,14 @@
 /* iOS-style timing */
 .ios-ease {
-  transition-timing-function: cubic-bezier(0.24, 1.04, 0.56, 1);
+    transition-timing-function: cubic-bezier(0.24, 1.04, 0.56, 1);
 }
+
 /* Rubber-band “resistance”: smaller drag as you pull harder */
 [data-rubber] {
-  touch-action: none;
+    touch-action: none;
+}
+
+.font-sharpen {
+-webkit-transform: translateZ(0);
+transform: translateZ(0);
 }

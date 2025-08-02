@@ -1,13 +1,15 @@
 'use client'
-import { useRef, useState, useEffect, FC, ReactNode } from 'react'
+import React, { useRef, useState, useEffect, FC, ReactNode } from 'react'
 
 type SwipeToDeleteProps = {
     children: ReactNode;
     onDelete: () => void;
-    height?: number ;
+    height?: number | string;
     backgroundClass?: string;
     deleteText?: string;
-    fadeOnDeletion?: boolean;
+    fadeOnDeletion?: boolean | `${boolean}`;
+    useBoldDeleteFont?: boolean | `${boolean}`;
+    threshold?: number;
 }
 
 const SwipeToDelete: FC<SwipeToDeleteProps> = ({
@@ -16,7 +18,9 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
     height = 60,
     backgroundClass = 'oklch(63.7% 0.237 25.331)',
     deleteText = 'Delete',
-    fadeOnDeletion = true
+    fadeOnDeletion = true,
+    useBoldDeleteFont = true,
+    threshold = 70
 }) => {
     const container = useRef<HTMLDivElement>(null);
     const content = useRef<HTMLDivElement>(null);
@@ -27,16 +31,17 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
     const [dragging, setDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [velocity, setVelocity] = useState(0);
+    const [allowOverscroll, setAllowOverscroll] = useState(false);
+    const [isCollapsing, setIsCollapsing] = useState(false);
+    const [forceTransparentBackground, setForceTransparentBackground] = useState(false);
     const lastTimeRef = useRef<number>(0);
     const lastXRef = useRef<number>(0);
+    const lastYRef = useRef<number>(0);
 
-    // collapse state
-    const [isCollapsing, setIsCollapsing] = useState(false);
 
     // measure width and thresholds
     const width = container.current?.offsetWidth ?? window.innerWidth;
-    const threshold = width / 2;
-    const rubberMax = width * 0.7;
+    const rubberMax = width * threshold / 100;
 
     // rubber-band effect
     const rubber = (delta: number, customRubberMax?: number) => {
@@ -47,10 +52,8 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         return sign * (max + Math.sqrt(abs - max));
     }
 
-    // do we show the sticky delete inside content?
     const isSticky = dragX < -rubberMax;
 
-    // pointer start
     const handleStart = (pageX: number) => {
         if (isCollapsing) return;
         setDragging(true);
@@ -60,19 +63,24 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         content.current?.classList.remove('ios-ease');
     };
 
-    // pointer move
-    const handleMove = (pageX: number) => {
+    const handleMove = (pageX: number, pageY: number) => {
         if (!dragging) return;
         const now = performance.now();
         const dt = now - lastTimeRef.current;
         const dx = pageX - lastXRef.current;
+        const dy = pageY - lastYRef.current;
         setVelocity(dx / dt * 1000);
         lastTimeRef.current = now;
         lastXRef.current = pageX;
+        lastYRef.current = pageY;
+        if (Math.abs(dy) > 5 && dragX == 0) {
+            return;
+        }
 
         const raw = pageX - startX;
         const x = dragX < 0 ? rubber(raw) : rubber(raw, width * 0.1);
-        setDragX(x);
+        if (x < 0) setAllowOverscroll(true);
+        if (x <= 0 || (allowOverscroll && x >= 0)) setDragX(x);
     };
 
     const handleDelete = () => {
@@ -80,25 +88,34 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         content.current?.classList.add('ios-ease');
         setDragX(-width);
 
-        // collapse after a slight delay (via CSS)
         setIsCollapsing(true);
         setTimeout(onDelete, 300); // matches the CSS timings below
     };
 
-    // pointer end
+    let transparencyTimeout: NodeJS.Timeout | null = null;
+
     const handleEnd = () => {
         if (!dragging) return;
         setDragging(false);
 
         const shouldDelete =
-            Math.abs(dragX) > threshold ||
+            isSticky ||
             velocity < -1000;
+        setAllowOverscroll(false);
         if (!shouldDelete) {
             content.current?.classList.add('ios-ease');
             text.current?.classList.add('ios-ease');
             const textWidth = text.current ? text.current.getBoundingClientRect().width : 0;
-            if (dragX < -50 && text.current) setDragX(-textWidth * 1.5);
-            else setDragX(0);
+            if ((velocity < 0 || dragX < -textWidth * 1.5 && velocity > 0) && text.current) {
+                setDragX(-textWidth * 1.5);
+            } else if (allowOverscroll && dragX > 0) {
+                setDragX(0);
+                if (transparencyTimeout) {
+                    clearTimeout(transparencyTimeout);
+                }
+                setForceTransparentBackground(true);
+                transparencyTimeout = setTimeout(() => setForceTransparentBackground(false), 150);
+            }
             return;
         }
 
@@ -106,42 +123,92 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
     }
 
     useEffect(() => {
-        const node = container.current
-        if (!node) return
-        const onDown = (e: PointerEvent) => {
-            node.setPointerCapture(e.pointerId)
-            handleStart(e.pageX)
-        }
-        const onMove = (e: PointerEvent) => handleMove(e.pageX)
-        const onUp = (e: PointerEvent) => {
-            handleEnd()
-            node.releasePointerCapture(e.pointerId)
-        }
-        node.addEventListener('pointerdown', onDown)
-        node.addEventListener('pointermove', onMove)
-        node.addEventListener('pointerup', onUp)
+        const node = window;
+        if (!node || !container.current) return;
+
+        const eventOutsideOfContainer = (e: Event) => {
+            return !(container.current?.contains(e.target as Node));
+        };
+
+        const handleTouchStart = (e: TouchEvent) => {
+            if (eventOutsideOfContainer(e)) {
+                setDragX(0);
+                return;
+            }
+            // e.preventDefault();
+            handleStart(e.touches[0].pageX);
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            if (eventOutsideOfContainer(e)) {
+                setDragX(0);
+                return;
+            }
+            // e.preventDefault();
+            handleMove(e.touches[0].pageX, e.touches[0].pageY);
+        };
+
+        const handleMouseStart = (e: MouseEvent) => {
+            if (eventOutsideOfContainer(e)) {
+                setDragX(0);
+                return;
+            }
+            // e.preventDefault();
+            handleStart(e.pageX);
+        };
+
+        const handleMouseMove = (e: MouseEvent) => {
+            if (eventOutsideOfContainer(e)) {
+                setDragX(0);
+                return;
+            }
+            // e.preventDefault();
+            handleMove(e.pageX, e.pageY);
+        };
+
+        node.addEventListener("touchstart", handleTouchStart);
+        node.addEventListener("touchmove", handleTouchMove);
+        node.addEventListener("touchend", handleEnd);
+
+        node.addEventListener("mousedown", handleMouseStart);
+        node.addEventListener("mousemove", handleMouseMove);
+        node.addEventListener("mouseup", handleEnd);
+
         return () => {
-            node.removeEventListener('pointerdown', onDown)
-            node.removeEventListener('pointermove', onMove)
-            node.removeEventListener('pointerup', onUp)
+            node.removeEventListener("touchstart", handleTouchStart);
+            node.removeEventListener("touchmove", handleTouchMove);
+            node.removeEventListener("touchend", handleEnd);
+
+            node.removeEventListener("mousedown", handleMouseStart);
+            node.removeEventListener("mousemove", handleMouseMove);
+            node.removeEventListener("mouseup", handleEnd);
         }
-    }, [dragging, dragX, velocity])
+    }, [dragging, dragX, velocity, container]);
 
     const deleteTransform = isCollapsing
         ? `translateX(calc(${dragX}px + 5rem))`
         : (isSticky ? `translateX(calc(${dragX}px + 5rem))` : `translateX(max(0rem, calc(${dragX}px + 5rem)))`);
 
     const opacityTransparent = fadeOnDeletion ? 0 : 1;
+    const backgroundTransparent = opacityTransparent == 0 ? 'transparent' : backgroundClass;
 
-    const background = dragX < 0
-        ? isCollapsing ? (opacityTransparent == 0 ? 'transparent' : backgroundClass) : backgroundClass 
-        : 'transparent';
+    let background = backgroundClass;
+
+    if (isCollapsing) {
+        background = isCollapsing ? backgroundTransparent : backgroundClass;
+    }
+
+    if (allowOverscroll && dragX > 1 || forceTransparentBackground) {
+        background = 'transparent';
+    }
 
     return (
         <div
             ref={container}
-            className="relative overflow-hidden select-none"
             style={{
+                position: 'relative',
+                overflow: 'hidden',
+                userSelect: 'none',
                 height: isCollapsing ? 0 : height,
                 transition: isCollapsing
                     ? 'height 300ms cubic-bezier(0.24, 1.04, 0.56, 1)'
@@ -150,15 +217,22 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         >
             {/* Fixed red background + delete text */}
             <div
-                className={`absolute inset-0 flex items-center justify-end pr-4`}
+                className={`inset-0 flex items-center justify-end`}
                 style={{
                     background: background,
+                    position: 'absolute',
+                    marginTop: '1px',
+                    marginBottom: '1px',
+                    paddingRight: '1rem',
                     transition: dragX > 1 ? '' : 'background 300ms'
                 }}
             >
-                <button className="text-white font-semibold h-full" style={{
+                <button style={{
                     transform: deleteTransform,
                     transition: 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1), opacity 300ms',
+                    color: 'white',
+                    fontWeight: useBoldDeleteFont ? 600 : '',
+                    height: '100%',
                     opacity: isCollapsing ? opacityTransparent : 1
                 }} onClick={handleDelete} ref={text}>
                     {deleteText}
@@ -168,11 +242,11 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             {/* Swipeable content */}
             <div
                 ref={content}
-                className="relative ios-ease"
+                className="ios-ease"
                 style={{
-                    position: 'absolute',
+                    position: 'relative',
                     inset: 0,
-                    transform: `translateX(${dragX}px)`,
+                    transform: `translateX(calc(${dragX}px - 0.5px))`,
                     transition: dragging
                         ? ''
                         : 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1)',
