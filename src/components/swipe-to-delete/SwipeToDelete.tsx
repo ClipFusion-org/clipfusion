@@ -207,6 +207,22 @@ export const SwipeToDelete = ({
         };
     }, [onMouseMove, onMouseUp, onTouchMove, touching]);
 
+    // disabling scrolling when swiping to delete
+    useEffect(() => {
+        const handleScroll = (e: Event) => {
+            if (deleting) {
+                e.preventDefault();
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'auto';
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [deleting]);
+
     return (
         <div id={id} className={`rstdi${internalDeleting ? " deleting" : ""} ${className}`} ref={container}>
             <div className={`delete${internalDeleting ? " deleting" : ""}`}>
