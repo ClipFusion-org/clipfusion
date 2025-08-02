@@ -1,14 +1,10 @@
 "use client";
-import { ReactNode, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { SidebarTrigger } from "../ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const easeSlide = (x: number) => (
     1 - Math.pow(1 - x, 3)
-);
-
-const lerp = (a: number, b: number, t: number) => (
-    a * t + b * (1 - t)
 );
 
 export const StaticSidebarTrigger = () => {

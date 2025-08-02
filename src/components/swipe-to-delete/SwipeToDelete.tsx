@@ -3,8 +3,8 @@ import React, { createContext, Dispatch, ReactNode, SetStateAction, useCallback,
 import "./styles.css";
 
 export interface Props {
-    onDelete: Function;
-    onDeleteConfirm?: Function;
+    onDelete: () => void;
+    onDeleteConfirm?: (onSuccess: () => void, onCancel: () => void) => void;
     deleteComponent?: React.ReactNode;
     disabled?: boolean;
     height?: number;
@@ -20,6 +20,7 @@ export interface Props {
     children?: React.ReactNode;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const cursorPosition = (event: any) => {
     if (event?.touches?.[0]?.clientX) return event.touches[0].clientX;
     if (event?.clientX) return event?.clientX;
@@ -46,9 +47,9 @@ export const SwipeToDeleteContextProvider = ({
     children: ReactNode
 }) => {
     const [deleting, setDeleting] = useState(false);
-    
+
     return (
-        <SwipeToDeleteContext.Provider value={{deleting: deleting, setDeleting: setDeleting}}>
+        <SwipeToDeleteContext.Provider value={{ deleting: deleting, setDeleting: setDeleting }}>
             {children}
         </SwipeToDeleteContext.Provider>
     );
@@ -126,14 +127,18 @@ export const SwipeToDelete = ({
         [rtl, touching, deleting, setDeleting]
     );
 
+
     const onMouseMove = useCallback(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         function (event: MouseEvent): any {
             onMove(event);
         },
         [onMove]
     );
 
+
     const onTouchMove = useCallback(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         function (event: TouchEvent): any {
             onMove(event);
         },

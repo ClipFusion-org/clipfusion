@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, Dispatch, forwardRef, ReactNode, SetStateAction, useContext, useId, useState } from "react";
+import React, { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
@@ -108,8 +108,30 @@ const ProjectInfoFormSchema = z.object({
 
 type ProjectInfoForm = z.infer<typeof ProjectInfoFormSchema>;
 
+const ProjectInfoFormFields = ({ form }: { form: UseFormReturn<ProjectInfoForm> }) => (
+    <>
+        <FormField control={form.control} name="title" render={({ field }) => (
+            <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                    <Input {...field} />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        )} />
+        <FormField control={form.control} name="description" render={({ field }) => (
+            <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                    <Textarea {...field} autoComplete="off" placeholder="Tell something about your project" className="resize-y" />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        )} />
+    </>
+);
+
 const RenameProjectDialog = ({ project }: { project: Project }) => {
-    const formId = useId();
     const renameForm = useForm<ProjectInfoForm>({
         resolver: zodResolver(ProjectInfoFormSchema),
         defaultValues: {
@@ -137,25 +159,8 @@ const RenameProjectDialog = ({ project }: { project: Project }) => {
                 <DialogDescription>Change information of your project.</DialogDescription>
             </DialogHeader>
             <Form {...renameForm}>
-                <form id={formId} onSubmit={renameForm.handleSubmit(handleRenameSubmit)} className="grid gap-3">
-                    <FormField control={renameForm.control} name="title" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Title</FormLabel>
-                            <FormControl>
-                                <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
-                    <FormField control={renameForm.control} name="description" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Description</FormLabel>
-                            <FormControl>
-                                <Textarea {...field} autoComplete="off" placeholder="Tell something about your project" className="resize-y" />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
+                <form onSubmit={renameForm.handleSubmit(handleRenameSubmit)} className="grid gap-3">
+                    <ProjectInfoFormFields form={renameForm}/>
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button type="button" variant="outline">Cancel</Button>
@@ -163,7 +168,7 @@ const RenameProjectDialog = ({ project }: { project: Project }) => {
                         <DialogClose onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                             if (renameForm.formState.errors.title) e.preventDefault();
                         }} asChild>
-                            <Button type="submit" form={formId}>Rename</Button>
+                            <Button type="submit" >Rename</Button>
                         </DialogClose>
                     </DialogFooter>
                 </form>
@@ -407,7 +412,7 @@ const ProjectContainer = ({
 
     const date = new Date(project.editDate);
 
-    const handleCheck = (e: React.MouseEvent<HTMLDivElement | HTMLAnchorElement>) => {
+    const handleCheck = () => {
         const index = selectedProjects.indexOf(project.uuid);
         if (index >= 0) {
             selectedProjects.splice(index, 1);
@@ -541,24 +546,7 @@ export default function Home(): ReactNode {
                                         </DialogHeader>
                                         <Form {...newProjectForm}>
                                             <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
-                                                <FormField control={newProjectForm.control} name="title" render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>Title</FormLabel>
-                                                        <FormControl>
-                                                            <Input {...field} />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )} />
-                                                <FormField control={newProjectForm.control} name="description" render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>Description</FormLabel>
-                                                        <FormControl>
-                                                            <Textarea {...field} autoComplete="off" placeholder="Tell something about your project" className="resize-y" />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )} />
+                                                <ProjectInfoFormFields form={newProjectForm} />
                                                 <DialogFooter>
                                                     <DialogClose asChild>
                                                         <Button type="button" variant="outline">Cancel</Button>

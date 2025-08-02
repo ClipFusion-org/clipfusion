@@ -1,6 +1,5 @@
 "use client";
-import { ReactNode, useEffect, useRef } from "react";
-import { SidebarTrigger } from "../ui/sidebar";
+import { useEffect, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "../ui/button";
 import { ArrowLeftIcon } from "lucide-react";
@@ -8,10 +7,6 @@ import { useRouter } from "next/navigation";
 
 const easeSlide = (x: number) => (
     1 - Math.pow(1 - x, 3)
-);
-
-const lerp = (a: number, b: number, t: number) => (
-    a * t + b * (1 - t)
 );
 
 export const StaticBackButton = () => {
