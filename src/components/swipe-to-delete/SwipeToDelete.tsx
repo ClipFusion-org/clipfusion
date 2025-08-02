@@ -134,16 +134,16 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                 setDragX(0);
                 return;
             }
-            // e.preventDefault();
+            e.preventDefault();
             handleStart(e.touches[0].pageX);
         };
 
         const handleTouchMove = (e: TouchEvent) => {
+            e.preventDefault();
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
                 return;
             }
-            // e.preventDefault();
             handleMove(e.touches[0].pageX, e.touches[0].pageY);
         };
 
@@ -152,16 +152,16 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                 setDragX(0);
                 return;
             }
-            // e.preventDefault();
             handleStart(e.pageX);
         };
 
         const handleMouseMove = (e: MouseEvent) => {
+            e.preventDefault();
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
                 return;
             }
-            // e.preventDefault();
+
             handleMove(e.pageX, e.pageY);
         };
 
