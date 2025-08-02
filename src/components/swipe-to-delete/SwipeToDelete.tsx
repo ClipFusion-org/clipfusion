@@ -38,7 +38,6 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
     const lastXRef = useRef<number>(0);
     const lastYRef = useRef<number>(0);
 
-
     // measure width and thresholds
     const width = container.current?.offsetWidth ?? window.innerWidth;
     const rubberMax = width * threshold / 100;
@@ -250,8 +249,6 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                     transition: dragging
                         ? ''
                         : 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1)',
-                    touchAction: 'none',
-                    pointerEvents: 'none',
                     willChange: 'transform',
                     backfaceVisibility: 'hidden',
                     transformStyle: 'preserve-3d'
