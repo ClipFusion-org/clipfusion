@@ -1,7 +1,3 @@
-import { SwipeToDelete, SwipeToDeleteContextProvider, useSwipeToDeleteContext } from "./SwipeToDelete";
+import SwipeToDelete from "./SwipeToDelete";
 
 export default SwipeToDelete;
-export {
-    SwipeToDeleteContextProvider,
-    useSwipeToDeleteContext
-};

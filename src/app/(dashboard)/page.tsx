@@ -36,7 +36,7 @@ import Link from "next/link";
 import StickyTopContainer from "@/components/sticky-top-container";
 import { useRouter } from "next/navigation";
 import truncate from "@/lib/truncate";
-import SwipeToDelete, { useSwipeToDeleteContext } from "@/components/swipe-to-delete";
+import SwipeToDelete from "@/components/swipe-to-delete";
 
 type SortingType = "byCreationDate"
     | "byEditDate"
@@ -450,10 +450,10 @@ const ProjectContainer = ({
         </AspectRatio>
     );
 
-    return isMobile ? (
-        <div className=" w-[100% + 5 * var(--spacing)] -mx-5 origin-center overflow-hidden">
-            <SwipeToDelete onDelete={() => deleteProject(project.uuid)} transitionDuration={200} deleteThreshold={50}>
-                <div className="w-screen bg-background px-5 py-2 -mt-[1px] h-[calc(100% + 2px)]">
+    return isMobile && !selecting ? (
+        <div className=" w-[100% + 5 * var(--spacing)] -mx-5 overflow-hidden">
+            <SwipeToDelete onDelete={() => deleteProject(project.uuid)}>
+                <div className="w-screen bg-background px-5 py-2">
                     {projectComponent}
                 </div>
             </SwipeToDelete>
@@ -463,7 +463,6 @@ const ProjectContainer = ({
 
 export default function Home(): ReactNode {
     const isMobile = useIsMobile();
-    const { deleting } = useSwipeToDeleteContext();
     const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounce(search, 300);
     const [selecting, setSelecting] = useState(false);

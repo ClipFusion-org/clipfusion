@@ -1,226 +1,192 @@
-'use client';
-import React, { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useRef, useState } from "react";
-import "./styles.css";
+'use client'
+import { useRef, useState, useEffect, FC, ReactNode } from 'react'
 
-export interface Props {
+type SwipeToDeleteProps = {
+    children: ReactNode;
     onDelete: () => void;
-    onDeleteConfirm?: (onSuccess: () => void, onCancel: () => void) => void;
-    deleteComponent?: React.ReactNode;
-    disabled?: boolean;
-    height?: number;
-    transitionDuration?: number;
-    deleteWidth?: number;
-    deleteThreshold?: number;
-    showDeleteAction?: boolean;
-    deleteColor?: string;
+    height?: number ;
+    backgroundClass?: string;
     deleteText?: string;
-    className?: string;
-    id?: string;
-    rtl?: boolean;
-    children?: React.ReactNode;
+    fadeOnDeletion?: boolean;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const cursorPosition = (event: any) => {
-    if (event?.touches?.[0]?.clientX) return event.touches[0].clientX;
-    if (event?.clientX) return event?.clientX;
-    if (event?.nativeEvent?.touches?.[0]?.clientX) return event.nativeEvent.touches[0].clientX;
-    return event?.nativeEvent?.clientX;
-};
-
-interface SwipeToDeleteContextProps {
-    deleting: boolean;
-    setDeleting: Dispatch<SetStateAction<boolean>>;
-}
-
-const SwipeToDeleteContext = createContext<SwipeToDeleteContextProps | undefined>(undefined);
-
-export const useSwipeToDeleteContext = (): SwipeToDeleteContextProps => {
-    const data = useContext(SwipeToDeleteContext);
-    if (!data) throw new Error("SwipeToDeleteContext is not defined");
-    return data;
-};
-
-export const SwipeToDeleteContextProvider = ({
-    children
-}: {
-    children: ReactNode
-}) => {
-    const [deleting, setDeleting] = useState(false);
-
-    return (
-        <SwipeToDeleteContext.Provider value={{ deleting: deleting, setDeleting: setDeleting }}>
-            {children}
-        </SwipeToDeleteContext.Provider>
-    );
-};
-
-export const SwipeToDelete = ({
-    onDelete,
-    onDeleteConfirm,
-    deleteComponent,
-    disabled = false,
-    height = 50,
-    transitionDuration = 250,
-    deleteWidth = 75,
-    deleteThreshold = 75,
-    showDeleteAction = true,
-    deleteColor = "rgba(252, 58, 48, 1.00)",
-    deleteText = "Delete",
-    className = "",
-    id = "",
-    rtl = false,
+const SwipeToDelete: FC<SwipeToDeleteProps> = ({
     children,
-}: Props) => {
-    const { deleting, setDeleting } = useSwipeToDeleteContext();
-    const [touching, setTouching] = useState(false);
-    const [translate, setTranslate] = useState(0);
-    const [internalDeleting, setInternalDeleting] = useState(false);
-
-    const startTouchPosition = useRef(0);
-    const initTranslate = useRef(0);
+    onDelete,
+    height = 60,
+    backgroundClass = 'oklch(63.7% 0.237 25.331)',
+    deleteText = 'Delete',
+    fadeOnDeletion = true
+}) => {
     const container = useRef<HTMLDivElement>(null);
-    const containerWidth: number = container.current?.getBoundingClientRect().width || 0;
-    const deleteWithoutConfirmThreshold: number = containerWidth * (deleteThreshold / 100);
+    const content = useRef<HTMLDivElement>(null);
+    const text = useRef<HTMLButtonElement>(null);
 
-    const onStart = useCallback(
-        (event: React.TouchEvent | React.MouseEvent) => {
-            if (disabled) return;
-            if (touching) return;
-            startTouchPosition.current = cursorPosition(event);
-            initTranslate.current = translate;
-            setTouching(true);
-            setDeleting(true);
-        },
-        [disabled, touching, translate, deleting, setDeleting]
-    );
+    // drag state
+    const [dragX, setDragX] = useState(0);
+    const [dragging, setDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [velocity, setVelocity] = useState(0);
+    const lastTimeRef = useRef<number>(0);
+    const lastXRef = useRef<number>(0);
 
-    useEffect(() => {
-        // setDeleting(touching);
-    }, [touching]);
+    // collapse state
+    const [isCollapsing, setIsCollapsing] = useState(false);
 
-    useEffect(() => {
-        const root = container.current;
-        root?.style.setProperty("--rstdiHeight", height + "px");
-        root?.style.setProperty("--rstdiTransitionDuration", transitionDuration + "ms");
-        root?.style.setProperty("--rstdiIsRtl", rtl ? "1" : "-1");
-        root?.style.setProperty("--rstdiDeleteColor", deleteColor);
-        root?.style.setProperty("--rstdiDeleteWidth", deleteWidth + "px");
-    }, [deleteColor, deleteWidth, height, rtl, transitionDuration, deleting]);
+    // measure width and thresholds
+    const width = container.current?.offsetWidth ?? window.innerWidth;
+    const threshold = width / 2;
+    const rubberMax = width * 0.7;
 
-    useEffect(() => {
-        const root = container.current;
-        root?.style.setProperty("--rstdiTranslate", translate * (rtl ? -1 : 1) + "px");
-        const shiftDelete = -translate >= deleteWithoutConfirmThreshold;
-        root?.style.setProperty(
-            `--rstdiButtonMargin${rtl ? "Right" : "Left"}`,
-            (shiftDelete ? containerWidth + translate : containerWidth - deleteWidth) + "px"
-        );
-    }, [translate, deleteWidth, containerWidth, rtl, deleteWithoutConfirmThreshold]);
+    // rubber-band effect
+    const rubber = (delta: number, customRubberMax?: number) => {
+        const max = customRubberMax ?? rubberMax;
+        const sign = delta < 0 ? -1 : 1;
+        const abs = Math.abs(delta);
+        if (abs <= max) return delta;
+        return sign * (max + Math.sqrt(abs - max));
+    }
 
-    const onMove = useCallback(
-        function (event: TouchEvent | MouseEvent) {
-            if (!touching) return;
-            if (!rtl && cursorPosition(event) > startTouchPosition.current - initTranslate.current)
-                return setTranslate(0);
-            if (rtl && cursorPosition(event) < startTouchPosition.current - initTranslate.current)
-                return setTranslate(0);
-            setTranslate(cursorPosition(event) - startTouchPosition.current + initTranslate.current);
-        },
-        [rtl, touching]
-    );
+    // do we show the sticky delete inside content?
+    const isSticky = dragX < -rubberMax;
 
+    // pointer start
+    const handleStart = (pageX: number) => {
+        if (isCollapsing) return;
+        setDragging(true);
+        setStartX(pageX - dragX);
+        lastTimeRef.current = performance.now();
+        lastXRef.current = pageX;
+        content.current?.classList.remove('ios-ease');
+    };
 
-    const onMouseMove = useCallback(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function (event: MouseEvent): any {
-            onMove(event);
-        },
-        [onMove]
-    );
+    // pointer move
+    const handleMove = (pageX: number) => {
+        if (!dragging) return;
+        const now = performance.now();
+        const dt = now - lastTimeRef.current;
+        const dx = pageX - lastXRef.current;
+        setVelocity(dx / dt * 1000);
+        lastTimeRef.current = now;
+        lastXRef.current = pageX;
 
+        const raw = pageX - startX;
+        const x = dragX < 0 ? rubber(raw) : rubber(raw, width * 0.1);
+        setDragX(x);
+    };
 
-    const onTouchMove = useCallback(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function (event: TouchEvent): any {
-            onMove(event);
-        },
-        [onMove]
-    );
+    const handleDelete = () => {
+        // slide away
+        content.current?.classList.add('ios-ease');
+        setDragX(-width);
 
-    const onDeleteConfirmed = useCallback(() => {
-        setInternalDeleting(() => true);
-        window.setTimeout(onDelete, transitionDuration);
-    }, [onDelete, transitionDuration]);
+        // collapse after a slight delay (via CSS)
+        setIsCollapsing(true);
+        setTimeout(onDelete, 300); // matches the CSS timings below
+    };
 
-    const onDeleteCancel = useCallback(() => {
-        setTouching(() => false);
-        setTranslate(() => 0);
-        setInternalDeleting(() => false);
-        startTouchPosition.current = 0;
-        initTranslate.current = 0;
-    }, [onDelete, transitionDuration]);
+    // pointer end
+    const handleEnd = () => {
+        if (!dragging) return;
+        setDragging(false);
 
-    const onDeleteClick = useCallback(() => {
-        if (onDeleteConfirm) {
-            onDeleteConfirm(onDeleteConfirmed, onDeleteCancel);
-        } else {
-            onDeleteConfirmed();
+        const shouldDelete =
+            Math.abs(dragX) > threshold ||
+            velocity < -1000;
+        if (!shouldDelete) {
+            content.current?.classList.add('ios-ease');
+            text.current?.classList.add('ios-ease');
+            const textWidth = text.current ? text.current.getBoundingClientRect().width : 0;
+            if (dragX < -50 && text.current) setDragX(-textWidth * 1.5);
+            else setDragX(0);
+            return;
         }
-    }, [onDeleteConfirm, onDeleteConfirmed]);
 
-    const onMouseUp = useCallback(
-        function () {
-            startTouchPosition.current = 0;
-            const acceptableMove = -deleteWidth * 0.7;
-            const showDelete = showDeleteAction ? (rtl ? -1 : 1) * translate < acceptableMove : false;
-            const notShowDelete = showDeleteAction ? (rtl ? -1 : 1) * translate >= acceptableMove : true;
-            const deleteWithoutConfirm = (rtl ? 1 : -1) * translate >= deleteWithoutConfirmThreshold;
-            if (deleteWithoutConfirm) {
-                setTranslate(() => -containerWidth);
-            } else if (notShowDelete) {
-                setTranslate(() => 0);
-            } else if (showDelete && !deleteWithoutConfirm) {
-                setTranslate(() => (rtl ? 1 : -1) * deleteWidth);
-            }
-            setTouching(() => false);
-            setDeleting(false);
-            if (deleteWithoutConfirm) onDeleteClick();
-        },
-        [containerWidth, deleteWidth, deleteWithoutConfirmThreshold, onDeleteClick, rtl, translate, deleting, setDeleting]
-    );
+        handleDelete();
+    }
 
     useEffect(() => {
-        if (touching) {
-            window.addEventListener("mousemove", onMouseMove);
-            window.addEventListener("touchmove", onTouchMove);
-            window.addEventListener("mouseup", onMouseUp);
-            window.addEventListener("touchend", onMouseUp);
-        } else {
-            window.removeEventListener("mousemove", onMouseMove);
-            window.removeEventListener("touchmove", onTouchMove);
-            window.removeEventListener("mouseup", onMouseUp);
-            window.removeEventListener("touchend", onMouseUp);
+        const node = container.current
+        if (!node) return
+        const onDown = (e: PointerEvent) => {
+            node.setPointerCapture(e.pointerId)
+            handleStart(e.pageX)
         }
+        const onMove = (e: PointerEvent) => handleMove(e.pageX)
+        const onUp = (e: PointerEvent) => {
+            handleEnd()
+            node.releasePointerCapture(e.pointerId)
+        }
+        node.addEventListener('pointerdown', onDown)
+        node.addEventListener('pointermove', onMove)
+        node.addEventListener('pointerup', onUp)
         return () => {
-            window.removeEventListener("mousemove", onMouseMove);
-            window.removeEventListener("touchmove", onTouchMove);
-            window.removeEventListener("mouseup", onMouseUp);
-            window.removeEventListener("touchend", onMouseUp);
-        };
-    }, [onMouseMove, onMouseUp, onTouchMove, touching]);
+            node.removeEventListener('pointerdown', onDown)
+            node.removeEventListener('pointermove', onMove)
+            node.removeEventListener('pointerup', onUp)
+        }
+    }, [dragging, dragX, velocity])
+
+    const deleteTransform = isCollapsing
+        ? `translateX(calc(${dragX}px + 5rem))`
+        : (isSticky ? `translateX(calc(${dragX}px + 5rem))` : `translateX(max(0rem, calc(${dragX}px + 5rem)))`);
+
+    const opacityTransparent = fadeOnDeletion ? 0 : 1;
+
+    const background = dragX < 0
+        ? isCollapsing ? (opacityTransparent == 0 ? 'transparent' : backgroundClass) : backgroundClass 
+        : 'transparent';
 
     return (
-        <div id={id} className={`rstdi${internalDeleting ? " deleting" : ""} ${className}`} ref={container}>
-            <div className={`delete${internalDeleting ? " deleting" : ""}`}>
-                <button onClick={onDeleteClick}>{deleteComponent ? deleteComponent : deleteText}</button>
-            </div>
+        <div
+            ref={container}
+            className="relative overflow-hidden select-none"
+            style={{
+                height: isCollapsing ? 0 : height,
+                transition: isCollapsing
+                    ? 'height 300ms cubic-bezier(0.24, 1.04, 0.56, 1)'
+                    : undefined,
+            }}
+        >
+            {/* Fixed red background + delete text */}
             <div
-                className={`content${internalDeleting ? " deleting" : ""}${!touching ? " transition" : ""}`}
-                onMouseDown={onStart}
-                onTouchStart={onStart}>
+                className={`absolute inset-0 flex items-center justify-end pr-4`}
+                style={{
+                    background: background,
+                    transition: dragX > 1 ? '' : 'background 300ms'
+                }}
+            >
+                <button className="text-white font-semibold h-full" style={{
+                    transform: deleteTransform,
+                    transition: 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1), opacity 300ms',
+                    opacity: isCollapsing ? opacityTransparent : 1
+                }} onClick={handleDelete} ref={text}>
+                    {deleteText}
+                </button>
+            </div>
+
+            {/* Swipeable content */}
+            <div
+                ref={content}
+                className="relative ios-ease"
+                style={{
+                    position: 'absolute',
+                    inset: 0,
+                    transform: `translateX(${dragX}px)`,
+                    transition: dragging
+                        ? ''
+                        : 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1)',
+                    touchAction: 'none',
+                    pointerEvents: 'none',
+                    willChange: 'transform',
+                    backfaceVisibility: 'hidden',
+                    transformStyle: 'preserve-3d'
+                }}
+            >
                 {children}
             </div>
         </div>
     );
 };
+
+export default SwipeToDelete;

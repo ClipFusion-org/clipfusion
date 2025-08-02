@@ -1,78 +1,8 @@
-/* rstdi = react-swipe-to-delete-ios */
-
-.rstdi {
-    --rstdiHeight: 30px;
-    --rstdiTransitionDuration: 250ms;
-    --rstdiTranslate: 0px;
-    --rstdiIsRtl: 0;
-    --rstdiDeleteColor: rgba(252, 58, 48, 1);
-    --rstdiDeleteWidth: 75px;
-    --rstdiButtonMarginRight: 0px;
-    --rstdiButtonMarginLeft: 0px;
-
-    width: auto;
-    position: relative;
-    box-sizing: border-box;
-    height: 100%;
-    max-height: 100%;
-    overscroll-behavior: none;
-    overflow: hidden;
+/* iOS-style timing */
+.ios-ease {
+  transition-timing-function: cubic-bezier(0.24, 1.04, 0.56, 1);
 }
-
-.rstdi *,
-.rstdi *:before,
-.rstdi *:after {
-    box-sizing: border-box;
-}
-
-.rstdi.deleting {
-    transition: all var(--rstdiTransitionDuration) cubic-bezier(0.33, 1, 0.68, 1);
-    opacity: 0;
-    max-height: 0;
-}
-
-.rstdi .content {
-    height: 100%;
-    width: auto;
-    position: relative;
-    transform: translateX(var(--rstdiTranslate));
-}
-
-.rstdi .content.transition {
-    transition: all var(--rstdiTransitionDuration) cubic-bezier(0.33, 1, 0.68, 1);
-}
-
-.rstdi .content.deleting {
-    height: 0%;
-    width: auto;
-    position: relative;
-    transform: translateX(-100%);
-    transition: all var(--rstdiTransitionDuration) cubic-bezier(0.33, 1, 0.68, 1);
-}
-
-.rstdi .delete {
-    position: absolute;
-    right: 0;
-    margin-top: 0px;
-    height: 100%;
-    width: 100%;
-    top: 0;
-    background: var(--rstdiDeleteColor);
-    font-weight: 400;
-    display: inline-flex;
-    justify-content: flex-start;
-    align-items: center;
-}
-
-.rstdi .delete button {
-    width: var(--rstdiDeleteWidth);
-    transition: transform var(--rstdiTransitionDuration) cubic-bezier(0.33, 1, 0.68, 1);
-    transform: translateX(var(--rstdiButtonMarginLeft));
-    text-align: center;
-    height: 100%;
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
+/* Rubber-band “resistance”: smaller drag as you pull harder */
+[data-rubber] {
+  touch-action: none;
 }
