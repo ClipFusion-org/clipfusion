@@ -65,6 +65,7 @@ body {
     -webkit-tap-highlight-color: transparent;
     font-family: var(--font-geist), sans-serif;
     background-color: var(--color-background);
+    touch-action: manipulation; 
 }
 
 main {
