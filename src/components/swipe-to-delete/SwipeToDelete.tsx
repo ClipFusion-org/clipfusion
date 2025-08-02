@@ -168,6 +168,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         node.addEventListener("touchstart", handleTouchStart);
         node.addEventListener("touchmove", handleTouchMove);
         node.addEventListener("touchend", handleEnd);
+        node.addEventListener("touchcancel", handleEnd);
 
         node.addEventListener("mousedown", handleMouseStart);
         node.addEventListener("mousemove", handleMouseMove);
@@ -177,6 +178,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             node.removeEventListener("touchstart", handleTouchStart);
             node.removeEventListener("touchmove", handleTouchMove);
             node.removeEventListener("touchend", handleEnd);
+            node.removeEventListener("touchcancel", handleEnd);
 
             node.removeEventListener("mousedown", handleMouseStart);
             node.removeEventListener("mousemove", handleMouseMove);
