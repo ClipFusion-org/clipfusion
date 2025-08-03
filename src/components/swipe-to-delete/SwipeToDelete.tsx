@@ -111,13 +111,14 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             isSticky ||
             velocity < -1000;
         setAllowOverscroll(false);
+        document.body.classList.remove('no-scroll');
         if (!shouldDelete) {
             content.current?.classList.add('ios-ease');
             text.current?.classList.add('ios-ease');
-            document.body.classList.remove('no-scroll');
+
 
             const textWidth = text.current ? text.current.getBoundingClientRect().width : 0;
-            if (((velocity < 0 && Math.abs(velocity) > 10) || dragX < -textWidth * 1.5 && velocity > 0) && text.current && (dragX === 0 ? Math.abs(velocityY) < 5 : true)) {
+            if (((velocity < 0 && Math.abs(velocity) > 10) || dragX < -textWidth * 1.5 && velocity > 0) && text.current && (Math.abs(dragX) < 30 ? Math.abs(velocityY) < 5 : true)) {
                 setDragX(-textWidth * 1.5);
             } else if (allowOverscroll && dragX > 0) {
                 setDragX(0);
@@ -201,7 +202,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             node.removeEventListener("mousemove", handleMouseMove);
             node.removeEventListener("mouseup", handleEnd);
         }
-    }, [dragging, dragX, velocity, container]);
+    }, [dragging, dragX, velocity, velocityY, container]);
 
     const deleteTransform = isCollapsing
         ? `translateX(calc(${dragX}px + 5rem))`
