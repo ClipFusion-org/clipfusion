@@ -81,15 +81,18 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         lastTimeRef.current = now;
         lastXRef.current = pageX;
         lastYRef.current = pageY;
-        if (Math.abs(dy) > 5 && Math.abs(dragX) < 10) {
-            return;
-        }
+
 
         const raw = pageX - startX;
-        const x = dragX < 0 ? rubber(raw) : rubber(raw, width * 0.1);
-        if (x < 0) setAllowOverscroll(true);
-        if (x <= 0 || (allowOverscroll && x >= 0)) setDragX(x);
-        if (Math.abs(vY) < 5) document.body.classList.add('no-scroll');
+        let x = dragX < 0 ? rubber(raw) : rubber(raw, width * 0.1);
+        if ((Math.abs(dragX) === 0 ? Math.abs(vY) < window.innerHeight * 0.05 : true)) {
+            if (x < 0) setAllowOverscroll(true);
+            if (x <= 0 || (allowOverscroll && x >= 0)) setDragX(x);
+        } else {
+            setDragX(0);
+            setAllowOverscroll(false);
+        }
+        if (Math.abs(vY) < 20) document.body.classList.add('no-scroll');
     };
 
     const handleDelete = () => {
@@ -112,13 +115,21 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             velocity < -1000;
         setAllowOverscroll(false);
         document.body.classList.remove('no-scroll');
+        if (Math.abs(velocityY) > window.innerHeight * 0.05) {
+            setDragX(0);
+            setDragX(0);
+            if (transparencyTimeout) {
+                clearTimeout(transparencyTimeout);
+            }
+            setForceTransparentBackground(true);
+            transparencyTimeout = setTimeout(() => setForceTransparentBackground(false), 150);
+            return;
+        }
         if (!shouldDelete) {
             content.current?.classList.add('ios-ease');
             text.current?.classList.add('ios-ease');
-
-
             const textWidth = text.current ? text.current.getBoundingClientRect().width : 0;
-            if (((velocity < 0 && Math.abs(velocity) > 10) || dragX < -textWidth * 1.5 && velocity > 0) && text.current && (Math.abs(dragX) < 30 ? Math.abs(velocityY) < 5 : true)) {
+            if (((velocity < 0 && Math.abs(velocity) > 10) || dragX < -textWidth * 1.5 && velocity > 0) && text.current) {
                 setDragX(-textWidth * 1.5);
             } else if (allowOverscroll && dragX > 0) {
                 setDragX(0);
