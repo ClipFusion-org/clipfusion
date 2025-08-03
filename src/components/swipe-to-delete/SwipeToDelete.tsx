@@ -31,12 +31,13 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
     const [dragging, setDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [velocity, setVelocity] = useState(0);
+    const [velocityY, setVelocityY] = useState(0);
     const [allowOverscroll, setAllowOverscroll] = useState(false);
     const [isCollapsing, setIsCollapsing] = useState(false);
     const [forceTransparentBackground, setForceTransparentBackground] = useState(false);
     const lastTimeRef = useRef<number>(0);
-    const lastXRef = useRef<number>(0);
-    const lastYRef = useRef<number>(0);
+    const lastXRef = useRef<number>(-1);
+    const lastYRef = useRef<number>(-1);
 
     // measure width and thresholds
     const width = container.current?.offsetWidth ?? window.innerWidth;
@@ -66,13 +67,21 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         if (!dragging) return;
         const now = performance.now();
         const dt = now - lastTimeRef.current;
+        if (lastXRef.current === -1 || lastYRef.current === -1) {
+            lastXRef.current = pageX;
+            lastYRef.current = pageY;
+            return;
+        }
         const dx = pageX - lastXRef.current;
         const dy = pageY - lastYRef.current;
-        setVelocity(dx / dt * 1000);
+        const vX = dx / dt * 1000;
+        const vY = dy / dt * 1000;
+        setVelocity(vX);
+        setVelocityY(vY);
         lastTimeRef.current = now;
         lastXRef.current = pageX;
         lastYRef.current = pageY;
-        if (Math.abs(dy) > 5 && dragX == 0) {
+        if (Math.abs(dy) > 5 && Math.abs(dragX) < 10) {
             return;
         }
 
@@ -80,6 +89,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         const x = dragX < 0 ? rubber(raw) : rubber(raw, width * 0.1);
         if (x < 0) setAllowOverscroll(true);
         if (x <= 0 || (allowOverscroll && x >= 0)) setDragX(x);
+        if (Math.abs(vY) < 5) document.body.classList.add('no-scroll');
     };
 
     const handleDelete = () => {
@@ -104,8 +114,10 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         if (!shouldDelete) {
             content.current?.classList.add('ios-ease');
             text.current?.classList.add('ios-ease');
+            document.body.classList.remove('no-scroll');
+
             const textWidth = text.current ? text.current.getBoundingClientRect().width : 0;
-            if ((velocity < 0 || dragX < -textWidth * 1.5 && velocity > 0) && text.current) {
+            if (((velocity < 0 && Math.abs(velocity) > 10) || dragX < -textWidth * 1.5 && velocity > 0) && text.current && (dragX === 0 ? Math.abs(velocityY) < 5 : true)) {
                 setDragX(-textWidth * 1.5);
             } else if (allowOverscroll && dragX > 0) {
                 setDragX(0);
@@ -130,16 +142,18 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         };
 
         const handleTouchStart = (e: TouchEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
                 return;
             }
-            e.preventDefault();
             handleStart(e.touches[0].pageX);
         };
 
         const handleTouchMove = (e: TouchEvent) => {
             e.preventDefault();
+            e.stopPropagation();
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
                 return;
@@ -148,6 +162,8 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         };
 
         const handleMouseStart = (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
                 return;
@@ -157,6 +173,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
 
         const handleMouseMove = (e: MouseEvent) => {
             e.preventDefault();
+            e.stopPropagation();
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
                 return;
