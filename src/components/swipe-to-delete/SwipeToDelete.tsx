@@ -20,7 +20,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
     deleteText = 'Delete',
     fadeOnDeletion = true,
     useBoldDeleteFont = true,
-    threshold = 70
+    threshold = 75
 }) => {
     const container = useRef<HTMLDivElement>(null);
     const content = useRef<HTMLDivElement>(null);
@@ -82,17 +82,21 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         lastXRef.current = pageX;
         lastYRef.current = pageY;
 
-
         const raw = pageX - startX;
         let x = dragX < 0 ? rubber(raw) : rubber(raw, width * 0.1);
-        if ((Math.abs(dragX) === 0 ? Math.abs(vY) < window.innerHeight * 0.05 : true)) {
+        if ((Math.abs(dragX) === 0 ? Math.abs(vY) < window.innerHeight * 0.05 && Math.abs(vX) > Math.abs(vY) : true)) {
             if (x < 0) setAllowOverscroll(true);
-            if (x <= 0 || (allowOverscroll && x >= 0)) setDragX(x);
+            if (x <= 0 || (allowOverscroll && x >= 0)) {
+                setDragX(x);
+                document.body.classList.add('no-scroll');
+            }
+            
         } else {
             setDragX(0);
             setAllowOverscroll(false);
+            document.body.classList.remove('no-scroll');
         }
-        if (Math.abs(vY) < 20) document.body.classList.add('no-scroll');
+        
     };
 
     const handleDelete = () => {
@@ -110,19 +114,16 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         if (!dragging) return;
         setDragging(false);
 
-        const shouldDelete =
-            isSticky ||
-            velocity < -1000;
+        const shouldDelete = isSticky || velocity < -1000;
         setAllowOverscroll(false);
         document.body.classList.remove('no-scroll');
-        if (Math.abs(velocityY) > window.innerHeight * 0.05) {
-            setDragX(0);
+        if (Math.abs(velocityY) > window.innerHeight * 0.05 && Math.abs(dragX) < 20) {
             setDragX(0);
             if (transparencyTimeout) {
                 clearTimeout(transparencyTimeout);
             }
             setForceTransparentBackground(true);
-            transparencyTimeout = setTimeout(() => setForceTransparentBackground(false), 150);
+            transparencyTimeout = setTimeout(() => setForceTransparentBackground(false), 200);
             return;
         }
         if (!shouldDelete) {
@@ -130,14 +131,18 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             text.current?.classList.add('ios-ease');
             const textWidth = text.current ? text.current.getBoundingClientRect().width : 0;
             if (((velocity < 0 && Math.abs(velocity) > 10) || dragX < -textWidth * 1.5 && velocity > 0) && text.current) {
-                setDragX(-textWidth * 1.5);
-            } else if (allowOverscroll && dragX > 0) {
+                if (velocity < 0) {
+                    setDragX(-textWidth * 1.5);
+                } else {
+                    setDragX(0);
+                }
+            } else if (allowOverscroll && dragX > 0 && velocity > 0) {
                 setDragX(0);
                 if (transparencyTimeout) {
                     clearTimeout(transparencyTimeout);
                 }
                 setForceTransparentBackground(true);
-                transparencyTimeout = setTimeout(() => setForceTransparentBackground(false), 150);
+                transparencyTimeout = setTimeout(() => setForceTransparentBackground(false), 200);
             } else setDragX(0);
             return;
         }
@@ -217,7 +222,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
 
     const deleteTransform = isCollapsing
         ? `translateX(calc(${dragX}px + 5rem))`
-        : (isSticky ? `translateX(calc(${dragX}px + 5rem))` : `translateX(max(0rem, calc(${dragX}px + 5rem)))`);
+        : (isSticky ? `translateX(calc(${dragX}px + 5rem))` : `translateX(max(0rem + ${dragX * 0.07}px, calc(${dragX}px + 5rem)))`);
 
     const opacityTransparent = fadeOnDeletion ? 0 : 1;
     const backgroundTransparent = opacityTransparent == 0 ? 'transparent' : backgroundClass;
@@ -255,7 +260,8 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                     marginTop: '1px',
                     marginBottom: '1px',
                     paddingRight: '1rem',
-                    transition: dragX > 1 ? '' : 'background 300ms'
+                    transition: dragX > 1 ? '' : 'background 300ms',
+                    willChange: 'background'
                 }}
             >
                 <button style={{
@@ -264,7 +270,8 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                     color: 'white',
                     fontWeight: useBoldDeleteFont ? 600 : '',
                     height: '100%',
-                    opacity: isCollapsing ? opacityTransparent : 1
+                    opacity: isCollapsing ? opacityTransparent : 1,
+                    willChange: `transform, opacity`
                 }} onClick={handleDelete} ref={text}>
                     {deleteText}
                 </button>

@@ -267,7 +267,10 @@ const ProjectDropdown = ({
                         <div className="flex flex-row items-center w-[95%]">
                             <SheetTitle className="font-semibold line-clamp-1">{project.title}</SheetTitle>
                             <SheetClose asChild>
-                                <Button variant="ghost" onClick={() => setRenameDialogOpen(true)}>
+                                <Button variant="ghost" onClick={(e) => {
+                                    e.preventDefault();
+                                    setRenameDialogOpen(true);
+                                }}>
                                     <PencilIcon /><span className="sr-only">Rename</span>
                                 </Button>
                             </SheetClose>
@@ -463,11 +466,7 @@ const ProjectContainer = ({
             </SwipeToDelete>
         </div>
     ) : (
-        <div className="w-[100% + 5 * var(--spacing)] -mx-5 overflow-hidden">
-            <div ref={containerRef} className="w-full bg-background px-5 py-2">
-                {projectComponent}
-            </div>
-        </div>
+                projectComponent
     );
 };
 

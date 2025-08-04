@@ -8,7 +8,10 @@
     touch-action: none;
 }
 
-.font-sharpen {
--webkit-transform: translateZ(0);
-transform: translateZ(0);
+.no-scroll {
+    overflow: hidden;
+    height: 100%;
+    /* Optional, but often recommended for full-page scroll prevention */
+    touch-action: none;
+    overscroll-behavior: none;
 }
