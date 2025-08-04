@@ -61,7 +61,7 @@ export default function Settings(): ReactNode {
                             }>
                                 {getVersion()} ({shortBuildId ? buildID?.slice(0, 7) : buildID})
                             </Link>
-                            <p onClick={() => setShowUserAgent(!showUserAgent)}>{showUserAgent ? userAgent : `running on ${browserEngine}`}</p>
+                            <p className="cursor-pointer" onClick={() => setShowUserAgent(!showUserAgent)}>{showUserAgent ? userAgent : `running on ${browserEngine}`}</p>
                         </div>
                     </div>
                 </WideContainer>
