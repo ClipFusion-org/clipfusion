@@ -1,6 +1,6 @@
 "use client";
 import { ChartPieIcon, ChevronRightIcon } from "lucide-react";
-import { ReactNode,  } from "react";
+import { ReactNode, useState, } from "react";
 import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
 import ScrollFadingTitle from "@/components/scroll-fading-title";
 import SidebarTriggerAdjustable from "@/components/sidebar-trigger-adjustable";
@@ -10,11 +10,17 @@ import AscendingCard from "@/components/ascending-card";
 import Link from "next/link";
 import WideContainer from "@/components/wide-container";
 import { getBuildID, getVersion } from "@/lib/build";
+import useBrowserEngine from "@/hooks/use-browser-engine";
+import useUserAgent from "@/hooks/use-user-agent";
 
 
 export default function Settings(): ReactNode {
+    const [showUserAgent, setShowUserAgent] = useState(false);
     const isMobile = useIsMobile();
     const shortBuildId = useIsMobile(1024);
+    const browserEngine = useBrowserEngine();
+    const userAgent = useUserAgent();
+
     const buildID = getBuildID();
 
     return (
@@ -49,11 +55,14 @@ export default function Settings(): ReactNode {
                                 <ChevronRightIcon />
                             </AscendingCard>
                         </Link>
-                        <Link className="text-sm text-muted-foreground flex justify-center" target="_blank" href={
-                            `https://github.com/ClipFusion-org/clipfusion/commit/${buildID}`
-                        }>
-                            {getVersion()} ({shortBuildId ? buildID?.slice(0, 7) : buildID})
-                        </Link>
+                        <div className="flex flex-col justify-center items-center text-center w-full text-sm text-muted-foreground">
+                            <Link className="" target="_blank" href={
+                                `https://github.com/ClipFusion-org/clipfusion/commit/${buildID}`
+                            }>
+                                {getVersion()} ({shortBuildId ? buildID?.slice(0, 7) : buildID})
+                            </Link>
+                            <p onClick={() => setShowUserAgent(!showUserAgent)}>{showUserAgent ? userAgent : `running on ${browserEngine}`}</p>
+                        </div>
                     </div>
                 </WideContainer>
             </div>

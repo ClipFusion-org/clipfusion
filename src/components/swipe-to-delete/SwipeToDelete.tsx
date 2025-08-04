@@ -1,5 +1,6 @@
-'use client'
-import React, { useRef, useState, useEffect, FC, ReactNode } from 'react'
+'use client';
+import useBrowserEngine from '@/hooks/use-browser-engine';
+import React, { useRef, useState, useEffect, FC, ReactNode, CSSProperties } from 'react'
 
 type SwipeToDeleteProps = {
     children: ReactNode;
@@ -25,6 +26,15 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
     const container = useRef<HTMLDivElement>(null);
     const content = useRef<HTMLDivElement>(null);
     const text = useRef<HTMLButtonElement>(null);
+
+    const browser = useBrowserEngine();
+
+    const applyBlurFix = (style: CSSProperties) => {
+        if (browser == 'Blink') {
+            style.willChange = undefined;
+        }
+        return style;
+    };
 
     // drag state
     const [dragX, setDragX] = useState(0);
@@ -85,18 +95,18 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         const raw = pageX - startX;
         let x = dragX < 0 ? rubber(raw) : rubber(raw, width * 0.1);
         if ((Math.abs(dragX) === 0 ? Math.abs(vY) < window.innerHeight * 0.05 && Math.abs(vX) > Math.abs(vY) : true)) {
-            if (x < 0) setAllowOverscroll(true);
+            if (x < -1) setAllowOverscroll(true);
             if (x <= 0 || (allowOverscroll && x >= 0)) {
                 setDragX(x);
                 document.body.classList.add('no-scroll');
             }
-            
+
         } else {
             setDragX(0);
             setAllowOverscroll(false);
             document.body.classList.remove('no-scroll');
         }
-        
+
     };
 
     const handleDelete = () => {
@@ -131,7 +141,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             text.current?.classList.add('ios-ease');
             const textWidth = text.current ? text.current.getBoundingClientRect().width : 0;
             if (((velocity < 0 && Math.abs(velocity) > 10) || dragX < -textWidth * 1.5 && velocity > 0) && text.current) {
-                if (velocity < 0) {
+                if (velocity < -10) {
                     setDragX(-textWidth * 1.5);
                 } else {
                     setDragX(0);
@@ -281,7 +291,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             <div
                 ref={content}
                 className="ios-ease"
-                style={{
+                style={applyBlurFix({
                     position: 'relative',
                     inset: 0,
                     transform: `translateX(${Math.floor(dragX)}px)`,
@@ -289,7 +299,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                         ? ''
                         : 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1)',
                     willChange: 'transform'
-                }}
+                })}
             >
                 {children}
             </div>

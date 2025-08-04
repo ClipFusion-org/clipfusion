@@ -160,7 +160,7 @@ const RenameProjectDialog = ({ project }: { project: Project }) => {
             </DialogHeader>
             <Form {...renameForm}>
                 <form onSubmit={renameForm.handleSubmit(handleRenameSubmit)} className="grid gap-3">
-                    <ProjectInfoFormFields form={renameForm}/>
+                    <ProjectInfoFormFields form={renameForm} />
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button type="button" variant="outline">Cancel</Button>
@@ -416,6 +416,7 @@ const ProjectContainer = ({
         setContainer(node);
     };
     const isMobile = useIsMobile();
+    const swipeToDelete = useIsMobile(640);
 
     const date = new Date(project.editDate);
 
@@ -432,7 +433,7 @@ const ProjectContainer = ({
     const LinkComponent = selecting ? "div" : Link;
 
     const projectComponent = (
-        <AspectRatio className="relative" data-selectable="true" ratio={16 / 9}>
+        <AspectRatio  className="relative w-full h-auto" data-selectable="true" ratio={16 / 9}>
             <AscendingCard className="absolute top-0 left-0 w-full h-full overflow-hidden p-0">
                 <LinkComponent href={`/editor/${project.uuid}`} className="absolute top-0 left-0 w-full h-full overflow-hidden">
                     <div className="relative w-full h-full rounded-lg overflow-hidden" data-selectable="true" onClick={handleCheck}>
@@ -457,16 +458,23 @@ const ProjectContainer = ({
         </AspectRatio>
     );
 
-    return isMobile && !selecting ? (
-        <div className="w-[100% + 5 * var(--spacing)] -mx-5 overflow-hidden">
-            <SwipeToDelete height={container ? Math.floor(container.getBoundingClientRect().height) : 210} onDelete={() => deleteProject(project.uuid)}>
+
+    return isMobile && !selecting && swipeToDelete ? (
+        <div className="w-[100% + 5 * var(--spacing)] -mx-5 -my-[2px] overflow-hidden">
+            <SwipeToDelete height={container ? container.getBoundingClientRect().height : 210} onDelete={() => deleteProject(project.uuid)}>
                 <div ref={containerRef} className="w-full bg-background px-5 py-2">
                     {projectComponent}
                 </div>
             </SwipeToDelete>
         </div>
     ) : (
-                projectComponent
+        swipeToDelete ? (
+        <div className="w-[100% + 5 * var(--spacing)] -mx-5 -my-[2px] overflow-hidden">
+            <div ref={containerRef} className="w-full bg-background px-5 py-2">
+                {projectComponent}
+            </div>
+        </div>
+        ) : projectComponent
     );
 };
 
@@ -481,7 +489,7 @@ export default function Home(): ReactNode {
     const [showDeleteSelectedAlert, setShowDeleteSelectedAlert] = useState(false);
 
     const projects = useLiveQuery(async () => (
-        db.projects.toArray()
+        await db.projects.toArray()
     ));
 
     const filteredProjects = projects && (
