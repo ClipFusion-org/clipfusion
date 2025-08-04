@@ -441,7 +441,7 @@ const ProjectContainer = ({
                         <div className="absolute bottom-0 left-0 p-2 w-[85%] flex flex-col" data-selectable="true" >
                             <h3 className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold line-clamp-1" data-selectable="true">{project.title}</h3>
                             {project.description && <p className="text-sm text-secondary-foreground line-clamp-1" data-selectable="true">{project.description}</p>}
-                            {project.editDate && <p className="text-sm text-secondary-foreground" data-selectable="true">Last Edit Date: {date.toLocaleDateString()}, {date.toLocaleTimeString([], { timeStyle: "short" })}</p>}
+                            {project.editDate && <time dateTime={date.toISOString()} className="text-sm text-secondary-foreground" data-selectable="true">Last Edit Date: {date.toLocaleDateString()}, {date.toLocaleTimeString([], { timeStyle: "short" })}</time>}
                         </div>
                     </div>
                 </LinkComponent>

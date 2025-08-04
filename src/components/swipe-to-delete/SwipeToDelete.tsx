@@ -141,10 +141,10 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             text.current?.classList.add('ios-ease');
             const textWidth = text.current ? text.current.getBoundingClientRect().width : 0;
             if (((velocity < 0 && Math.abs(velocity) > 10) || dragX < -textWidth * 1.5 && velocity > 0) && text.current) {
-                if (velocity < -10) {
-                    setDragX(-textWidth * 1.5);
-                } else {
+                if (velocity > window.innerWidth * 0.15) {
                     setDragX(0);
+                } else {
+                    setDragX(-textWidth * 1.5);
                 }
             } else if (allowOverscroll && dragX > 0 && velocity > 0) {
                 setDragX(0);
