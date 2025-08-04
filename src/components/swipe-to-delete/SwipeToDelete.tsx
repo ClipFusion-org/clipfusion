@@ -93,7 +93,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         lastYRef.current = pageY;
 
         const raw = pageX - startX;
-        let x = dragX < 0 ? rubber(raw) : rubber(raw, width * 0.1);
+        const x = dragX < 0 ? rubber(raw) : rubber(raw, width * 0.1);
         if ((Math.abs(dragX) === 0 ? Math.abs(vY) < window.innerHeight * 0.05 && Math.abs(vX) > Math.abs(vY) : true)) {
             if (x < -1) setAllowOverscroll(true);
             if (x <= 0 || (allowOverscroll && x >= 0)) {
