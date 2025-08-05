@@ -1,6 +1,7 @@
 'use client';
 
 import ClipFusionLogo from "@/components/clipfusion-logo";
+import ThemeSwitcher from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menubar, MenubarItem, MenubarMenu, MenubarContent, MenubarTrigger, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarSeparator } from "@/components/ui/menubar";
@@ -70,7 +71,9 @@ export default function Editor() {
                 <div className="flex flex-row justify-center grow basis-0">
                     <Input placeholder="Project Title" spellCheck={false} value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} className="bg-transparent dark:bg-transparent border-none focus-visible:ring-0 text-sm p-0 h-6 text-center"/>
                 </div>
-                <div className="flex flex-row justify-end grow basis-0" />
+                <div className="flex flex-row justify-end grow basis-0">
+                    <ThemeSwitcher/>
+                </div>
             </Menubar>
         </>
     ) : <>Project is invalid (or is it?)</>;

@@ -50,7 +50,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
     const lastYRef = useRef<number>(-1);
 
     // measure width and thresholds
-    const width = container.current?.offsetWidth ?? window.innerWidth;
+    const width = container.current?.offsetWidth ?? 0;
     const rubberMax = width * threshold / 100;
 
     // rubber-band effect
@@ -294,6 +294,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                 style={applyBlurFix({
                     position: 'relative',
                     inset: 0,
+                    height: '100%',
                     transform: `translateX(${Math.floor(dragX)}px)`,
                     transition: dragging
                         ? ''
