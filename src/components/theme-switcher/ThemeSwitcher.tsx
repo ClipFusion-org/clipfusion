@@ -4,11 +4,12 @@ import { ReactNode, useCallback, useEffect, useState } from "react";
 import { Toggle } from "../ui/toggle";
 import { MoonIcon, SunIcon } from "lucide-react";
 import { Label } from "@radix-ui/react-label";
+import { Button } from "../ui/button";
 
 export const ThemeSwitcher = ({
     variant
 }: {
-    variant?: "with-text"
+    variant?: "with-text" | "transparent"
 }): ReactNode => {
     const { resolvedTheme, setTheme } = useTheme();
     const [dark, setDark] = useState(false);
@@ -21,6 +22,14 @@ export const ThemeSwitcher = ({
     useEffect(() => {
         setDark(resolvedTheme == "dark");
     }, []);
+
+    if (variant === 'transparent') {
+        return (
+            <Button className="bg-transparent dark:bg-transparent hover:bg-transparent hover:dark:bg-transparent cursor-pointer p-0 hover:text-muted-foreground" variant="ghost" onClick={onThemeChange}>
+                {dark ? <MoonIcon/> : <SunIcon/>}
+            </Button>
+        )
+    }
 
     return (
         <Toggle pressed={dark} onPressedChange={onThemeChange}>

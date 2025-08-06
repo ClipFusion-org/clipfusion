@@ -8,7 +8,7 @@ export default async function RootLayout({
     children: ReactNode
 }>) {
     return (
-        <main className="relative w-screen h-screen isolate overscroll-none overflow-hidden py-safe">
+        <main className="relative w-screen h-screen isolate overscroll-none py-safe">
             <PersistenceProvider>
                 {children}
             </PersistenceProvider>

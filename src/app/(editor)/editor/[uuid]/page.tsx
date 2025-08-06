@@ -5,11 +5,13 @@ import ThemeSwitcher from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menubar, MenubarItem, MenubarMenu, MenubarContent, MenubarTrigger, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarSeparator } from "@/components/ui/menubar";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { db } from "@/lib/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ChevronDownIcon } from "lucide-react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 export default function Editor() {
     const router = useRouter();
@@ -18,9 +20,17 @@ export default function Editor() {
     const project = useLiveQuery(async () => db.projects.where('uuid').equals(uuid).first());
     const [projectTitle, setProjectTitle] = useState('');
 
+    const handleRename = (e: ChangeEvent<HTMLInputElement>) => {
+        const title = e.target.value;
+        setProjectTitle(title);
+        db.projects.update(uuid, {
+            title: title
+        });
+    };
+
     // Redirect user to the project library if provided UUID is invalid
     useEffect(() => {
-        if (!uuid || (!project && project !== undefined)) {
+        if (!uuid) {
             router.push('/');
             return;
         }
@@ -31,15 +41,21 @@ export default function Editor() {
 
     return project ? (
         <>
-            <div className="absolute top-0 left-0 bg-secondary w-screen h-screen pt-9">
-                Hello, World!
+            <div className="absolute top-0 left-0 bg-card w-screen h-screen pt-10">
+                <ResizablePanelGroup direction="vertical">
+                    <ResizablePanel defaultSize={50}>Player</ResizablePanel>
+                    <ResizableHandle/>
+                    <ResizablePanel defaultSize={50}>Timeline</ResizablePanel>
+                </ResizablePanelGroup>
             </div>
-            <Menubar className="absolute top-0 left-0 px-5 bg-card flex flex-row m-auto justify-between w-screen rounded-none">
+            <Menubar className="absolute top-0 left-0 px-5 bg-white dark:bg-black flex flex-row m-auto justify-between w-full rounded-none z-50 h-10">
                 <div className="flex flex-row justify-begin grow basis-0 items-center gap-4">
-                    <ClipFusionLogo width="16" height="16" />
+                    <Link href="/" prefetch={false}>
+                        <ClipFusionLogo width="16" height="16" />
+                    </Link>
                     <MenubarMenu>
                         <MenubarTrigger className="group" asChild>
-                            <Button variant="ghost" className="p-0 [&>svg]:group-data-[state='open']:rotate-180 gap-1">
+                            <Button variant="ghost" className="p-0 [&>svg]:group-data-[state='open']:rotate-180 gap-1 hover:bg-none">
                                 Menu <ChevronDownIcon className="text-muted-foreground" size={15} />
                             </Button>
                         </MenubarTrigger>
@@ -69,12 +85,16 @@ export default function Editor() {
                     </MenubarMenu>
                 </div>
                 <div className="flex flex-row justify-center grow basis-0">
-                    <Input placeholder="Project Title" spellCheck={false} value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} className="bg-transparent dark:bg-transparent border-none focus-visible:ring-0 text-sm p-0 h-6 text-center"/>
+                    <Input placeholder="Project Title" spellCheck={false} value={projectTitle} onChange={(e) => handleRename(e)} className="bg-transparent dark:bg-transparent border-none focus-visible:ring-0 text-sm p-0 h-6 text-center drop-shadow-none shadow-none font-semibold text-secondary-foreground"/>
                 </div>
                 <div className="flex flex-row justify-end grow basis-0">
-                    <ThemeSwitcher/>
+                    <ThemeSwitcher variant="transparent"/>
                 </div>
             </Menubar>
         </>
-    ) : <>Project is invalid (or is it?)</>;
+    ) : (
+        <div className="flex items-center justify-center w-screen h-screen">
+            <ClipFusionLogo width="100" height="100"/>
+        </div>
+    );
 }

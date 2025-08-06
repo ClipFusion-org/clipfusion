@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react";
+import React, { ComponentProps, createContext, Dispatch, FC, ReactNode, SetStateAction, useContext, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
@@ -430,7 +430,9 @@ const ProjectContainer = ({
         }
     };
 
-    const LinkComponent = selecting ? "div" : Link;
+    const LinkComponent = selecting ? "div" : ((props: ComponentProps<typeof Link>) => (
+        <Link {...props} prefetch={false}/>
+    ));
 
     const projectComponent = (
         <AspectRatio  className="relative w-full h-auto" data-selectable="true" ratio={16 / 9}>
