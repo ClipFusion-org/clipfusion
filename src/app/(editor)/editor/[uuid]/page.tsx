@@ -1,6 +1,9 @@
 'use client';
 
 import ClipFusionLogo from "@/components/clipfusion-logo";
+import { Panel } from "@/components/editor/panel";
+import PlayerPanel from "@/components/editor/player-panel";
+import TimelinePanel from "@/components/editor/timeline-panel";
 import ThemeSwitcher from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,17 +44,21 @@ export default function Editor() {
 
     return project ? (
         <>
-            <div className="absolute top-0 left-0 bg-card w-screen h-screen pt-10">
+            <Panel className="absolute top-0 left-0 w-screen h-screen pt-8 bg-border">
                 <ResizablePanelGroup direction="vertical">
-                    <ResizablePanel defaultSize={50}>Player</ResizablePanel>
+                    <ResizablePanel defaultSize={50}>
+                        <PlayerPanel/>
+                    </ResizablePanel>
                     <ResizableHandle/>
-                    <ResizablePanel defaultSize={50}>Timeline</ResizablePanel>
+                    <ResizablePanel defaultSize={50}>
+                        <TimelinePanel/>
+                    </ResizablePanel>
                 </ResizablePanelGroup>
-            </div>
-            <Menubar className="absolute top-0 left-0 px-5 bg-white dark:bg-black flex flex-row m-auto justify-between w-full rounded-none z-50 h-10">
+            </Panel>
+            <Menubar className="absolute top-0 left-0 bg-border flex flex-row m-auto justify-between w-full rounded-none z-50 h-10 shadow-none">
                 <div className="flex flex-row justify-begin grow basis-0 items-center gap-4">
                     <Link href="/" prefetch={false}>
-                        <ClipFusionLogo width="16" height="16" />
+                        <ClipFusionLogo className="pl-5" width="16" height="16" />
                     </Link>
                     <MenubarMenu>
                         <MenubarTrigger className="group" asChild>
@@ -88,7 +95,7 @@ export default function Editor() {
                     <Input placeholder="Project Title" spellCheck={false} value={projectTitle} onChange={(e) => handleRename(e)} className="bg-transparent dark:bg-transparent border-none focus-visible:ring-0 text-sm p-0 h-6 text-center drop-shadow-none shadow-none font-semibold text-secondary-foreground"/>
                 </div>
                 <div className="flex flex-row justify-end grow basis-0">
-                    <ThemeSwitcher variant="transparent"/>
+                    <ThemeSwitcher className="pr-5" variant="transparent"/>
                 </div>
             </Menubar>
         </>

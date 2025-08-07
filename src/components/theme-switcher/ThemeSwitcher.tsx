@@ -5,11 +5,14 @@ import { Toggle } from "../ui/toggle";
 import { MoonIcon, SunIcon } from "lucide-react";
 import { Label } from "@radix-ui/react-label";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 export const ThemeSwitcher = ({
-    variant
+    variant,
+    className
 }: {
-    variant?: "with-text" | "transparent"
+    variant?: "with-text" | "transparent",
+    className?: string
 }): ReactNode => {
     const { resolvedTheme, setTheme } = useTheme();
     const [dark, setDark] = useState(false);
@@ -25,14 +28,14 @@ export const ThemeSwitcher = ({
 
     if (variant === 'transparent') {
         return (
-            <Button className="bg-transparent dark:bg-transparent hover:bg-transparent hover:dark:bg-transparent cursor-pointer p-0 hover:text-muted-foreground" variant="ghost" onClick={onThemeChange}>
+            <Button className={cn("bg-transparent dark:bg-transparent hover:bg-transparent hover:dark:bg-transparent cursor-pointer p-0 hover:text-muted-foreground", className)} variant="ghost" onClick={onThemeChange}>
                 {dark ? <MoonIcon/> : <SunIcon/>}
             </Button>
         )
     }
 
     return (
-        <Toggle pressed={dark} onPressedChange={onThemeChange}>
+        <Toggle className={className} pressed={dark} onPressedChange={onThemeChange}>
             {dark ? <MoonIcon/> : <SunIcon/>}
             {variant == "with-text" && (
                 <Label>
