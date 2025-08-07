@@ -46,9 +46,7 @@ export default function Editor() {
         <>
             <Panel className="absolute top-0 left-0 w-screen h-screen pt-8 bg-border">
                 <ResizablePanelGroup direction="vertical">
-                    <ResizablePanel defaultSize={50}>
-                        <PlayerPanel/>
-                    </ResizablePanel>
+                    <PlayerPanel/>
                     <ResizableHandle/>
                     <ResizablePanel defaultSize={50}>
                         <TimelinePanel/>
