@@ -31,9 +31,9 @@ export const ProjectControls = () => {
                                                     <Button className="w-full h-full hover:opacity-60" style={{ backgroundColor: color.color }}
                                                         onClick={() => {
                                                             setProject({
-                                                                ...project,
+                                                                ...(project || {}),
                                                                 backgroundColor: color.color
-                                                            } as Project);
+                                                            });
                                                         }}
                                                     />
                                                     {project?.backgroundColor == color.color && (

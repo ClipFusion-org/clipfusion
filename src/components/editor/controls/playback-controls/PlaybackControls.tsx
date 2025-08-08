@@ -7,10 +7,11 @@ export const PlaybackControls = () => {
     const { playbackData, setPlaybackData } = useEditorStore();
 
     const togglePlaying = useCallback(() => {
-        setPlaybackData({
-            playing: !playbackData.playing
-        });
-    }, [playbackData, setPlaybackData]);
+        setPlaybackData(((prev) => ({
+            ...prev,
+            playing: !prev.playing
+        })) as (prev: typeof playbackData) => Partial<typeof playbackData>);
+    }, [setPlaybackData]);
 
     return (
         <div className="flex flex-row items-center justify-center">

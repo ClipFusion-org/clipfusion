@@ -7,21 +7,28 @@ interface PlaybackData {
 
 interface EditorStore {
     project?: Project;
-    setProject: (project: Project) => void;
+    setProject: (project: Partial<Project>) => void;
 
     canvas?: HTMLCanvasElement;
     setCanvas: (canvas: HTMLCanvasElement) => void;
 
     playbackData: PlaybackData;
-    setPlaybackData: (playbackData: Partial<PlaybackData>) => void;
+    setPlaybackData: (playbackData: Partial<PlaybackData> | ((prev: PlaybackData) => Partial<PlaybackData>)) => void;
 }
 
 export const useEditorStore = create<EditorStore>()((set) => ({
-    setProject: (project: Project) => set((state) => ({project: {...state.project, ...project} as Project})),
-    setCanvas: (canvas: HTMLCanvasElement) => set(() => ({canvas: canvas})),
+    setProject: (project: Partial<Project>) => set((state) => ({project: {...(state.project || {}), ...project} as Project})),
+    setCanvas: (canvas: HTMLCanvasElement) => set({ canvas }),
 
     playbackData: {
         playing: false
     },
-    setPlaybackData: (playbackData: Partial<PlaybackData>) => set((state) => ({playbackData: {...state.playbackData, ...playbackData}}))
+    setPlaybackData: (playbackDataOrUpdater: Partial<PlaybackData> | ((prev: PlaybackData) => Partial<PlaybackData>)) =>
+        set((state) => {
+            const playbackData =
+                typeof playbackDataOrUpdater === 'function'
+                    ? playbackDataOrUpdater(state.playbackData)
+                    : playbackDataOrUpdater;
+            return { playbackData: { ...state.playbackData, ...playbackData } };
+        })
 }));
