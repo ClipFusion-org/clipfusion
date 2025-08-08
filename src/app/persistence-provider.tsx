@@ -27,7 +27,7 @@ const PersistenceProvider = ({
     useEffect(() => {
         const tryToPersist = async () => {
             const isPersistent = await isStoragePersisted();
-            if (!isPersistent) {
+            if (!isPersistent || localStorage.getItem('persistence-status') === null) {
                 if ((localStorage.getItem('persistence-status') !== "persisted" && localStorage.getItem('persistence-status') === undefined) || localStorage.getItem('persistence-status') === "") {
                     const persistenceStatus = await tryPersistWithoutPromtingUser();
                     localStorage.setItem("persistence-status", persistenceStatus);
