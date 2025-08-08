@@ -28,7 +28,7 @@ const PersistenceProvider = ({
         const tryToPersist = async () => {
             const isPersistent = await isStoragePersisted();
             if (!isPersistent || localStorage.getItem('persistence-status') === null) {
-                if ((localStorage.getItem('persistence-status') !== "persisted" && localStorage.getItem('persistence-status') === undefined) || localStorage.getItem('persistence-status') === "") {
+                if ((localStorage.getItem('persistence-status') !== "persisted" && localStorage.getItem('persistence-status') === undefined) || !localStorage.getItem('persistence-status')) {
                     const persistenceStatus = await tryPersistWithoutPromtingUser();
                     localStorage.setItem("persistence-status", persistenceStatus);
                     if (persistenceStatus == "never") {
