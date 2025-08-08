@@ -18,13 +18,12 @@ import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { generateUUID } from "@/lib/uuid";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useDebounce } from "use-debounce";
 import { Checkbox } from "@/components/ui/checkbox";
-import { cn } from "@/lib/utils";
+import { cn, generateUUID, truncate } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
@@ -35,7 +34,6 @@ import AscendingCard from "@/components/ascending-card";
 import Link from "next/link";
 import StickyTopContainer from "@/components/sticky-top-container";
 import { useRouter } from "next/navigation";
-import truncate from "@/lib/truncate";
 import SwipeToDelete from "@/components/swipe-to-delete";
 
 type SortingType = "byCreationDate"
@@ -187,7 +185,7 @@ const DeleteProjectDialog = ({ project }: { project: Project }) => {
             <AlertDialogHeader>
                 <AlertDialogTitle>Delete Project</AlertDialogTitle>
                 <AlertDialogDescription>
-                    Are you sure you want to delete the project &quot;{truncate(project.title, 25)}&quot;? This action cannot be undone.
+                    Are you sure you want to delete the project &quot;{truncate(project.title, 32)}&quot;? This action cannot be undone.
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

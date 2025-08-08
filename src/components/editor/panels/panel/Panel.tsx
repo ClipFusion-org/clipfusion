@@ -1,8 +1,17 @@
 import { cn } from "@/lib/utils";
 import { ComponentProps } from "react";
+import { ResizablePanel } from "@/components/ui/resizable";
 
-export const Panel = (props: ComponentProps<"div">) => (
+export const PanelContainer = (props: ComponentProps<"div">) => (
     <div {...props} className={cn("w-full h-full rounded-xl bg-panel border-border border-4 overflow-hidden isolate", props.className)}/>
+);
+
+export const Panel = (props: ComponentProps<typeof ResizablePanel>) => (
+    <ResizablePanel defaultSize={50} {...props}>
+        <PanelContainer className={cn("w-full h-full rounded-xl bg-panel border-border border-4 overflow-hidden isolate", props.className)}>
+            {props.children}
+        </PanelContainer>
+    </ResizablePanel>
 );
 
 export const PanelHeader = (props: ComponentProps<"div">) => (

@@ -8,4 +8,5 @@ export default class Project extends Entity<EditorDB> {
     description!: string;
     creationDate!: number;
     editDate!: number;
+    backgroundColor!: string;
 }
