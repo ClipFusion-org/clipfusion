@@ -168,26 +168,6 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             return !(container.current?.contains(e.target as Node));
         };
 
-        const handleTouchStart = (e: TouchEvent) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (eventOutsideOfContainer(e)) {
-                setDragX(0);
-                return;
-            }
-            handleStart(e.touches[0].pageX);
-        };
-
-        const handleTouchMove = (e: TouchEvent) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (eventOutsideOfContainer(e)) {
-                setDragX(0);
-                return;
-            }
-            handleMove(e.touches[0].pageX, e.touches[0].pageY);
-        };
-
         const handleMouseStart = (e: MouseEvent) => {
             e.preventDefault();
             e.stopPropagation();
@@ -209,24 +189,21 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             handleMove(e.pageX, e.pageY);
         };
 
-        node.addEventListener("touchstart", handleTouchStart);
-        node.addEventListener("touchmove", handleTouchMove);
-        node.addEventListener("touchend", handleEnd);
-        node.addEventListener("touchcancel", handleEnd);
+        const handleMouseEnd = (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
 
-        node.addEventListener("mousedown", handleMouseStart);
-        node.addEventListener("mousemove", handleMouseMove);
-        node.addEventListener("mouseup", handleEnd);
+            handleEnd();
+        }
+
+        node.addEventListener("pointerdown", handleMouseStart);
+        node.addEventListener("pointermove", handleMouseMove);
+        node.addEventListener("pointerup", handleMouseEnd);
 
         return () => {
-            node.removeEventListener("touchstart", handleTouchStart);
-            node.removeEventListener("touchmove", handleTouchMove);
-            node.removeEventListener("touchend", handleEnd);
-            node.removeEventListener("touchcancel", handleEnd);
-
-            node.removeEventListener("mousedown", handleMouseStart);
-            node.removeEventListener("mousemove", handleMouseMove);
-            node.removeEventListener("mouseup", handleEnd);
+            node.removeEventListener("pointerdown", handleMouseStart);
+            node.removeEventListener("pointermove", handleMouseMove);
+            node.removeEventListener("pointerup", handleMouseEnd);
         }
     }, [dragging, dragX, velocity, velocityY, container]);
 
