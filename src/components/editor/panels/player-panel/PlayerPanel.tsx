@@ -5,6 +5,7 @@ import { ComponentProps, useEffect, useRef } from "react";
 import PlaybackControls from "../../controls/playback-controls";
 import ProjectControls from "../../controls/project-controls";
 import { createPortal } from "react-dom";
+import { defaultCanvasData } from "@/types/CanvasData";
 
 export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
     const { setCanvasData } = useEditorStore();
@@ -39,7 +40,7 @@ export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
             const lose = (ctx as WebGLRenderingContext).getExtension?.('WEBGL_lose_context');
             lose?.loseContext();
             // optionally reset store
-            setCanvasData({ canvas: null as any, ctx: null as any, stream: null as any });
+            setCanvasData(defaultCanvasData);
         };
         // include setCanvasData for exhaustive-deps; refs are stable objects
     }, [canvasRef, canvasDisplayRef, setCanvasData]);

@@ -39,8 +39,8 @@ export default function Editor() {
     // setting global data to the default values just in case
     useEffect(() => {
         // Initialize only if unset to avoid overriding PlayerPanel initialization.
-        setPlaybackData((prev: any) => prev ?? defaultPlaybackData);
-        setCanvasData((prev: any) =>
+        setPlaybackData((prev) => prev ?? defaultPlaybackData);
+        setCanvasData((prev) =>
             (prev?.canvas && prev?.ctx) ? prev : defaultCanvasData
         );
         // set* from Zustand are stable; adding as deps satisfies exhaustive-deps.
