@@ -26,7 +26,7 @@ export const ProjectControls = () => {
                                     {group.colors.map((color) => (
                                         <Tooltip key={color.color}>
                                             <TooltipTrigger asChild>
-                                                <div className="relative aspect-square h-auto">
+                                                <div className="relative aspect-square h-auto overflow-hidden">
                                                     <Button className="w-full h-full hover:opacity-60" style={{ backgroundColor: color.color }}
                                                         onClick={() => {
                                                             setProject({
