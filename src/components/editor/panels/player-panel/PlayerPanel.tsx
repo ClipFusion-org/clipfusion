@@ -40,7 +40,7 @@ export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
             <PanelContent className="p-0 flex flex-col items-center justify-between h-full">
                 <div className="flex flex-1 items-center justify-center w-full overflow-hidden p-4">
                     <div ref={canvasContainerRef} className="w-auto h-full aspect-square max-w-full max-h-full overflow-hidden bg-border">
-                        {createPortal(<canvas ref={canvasRef} id="primary-canvas" width="4320" height="2160" style={{position: 'fixed', zIndex: -1000, opacity: 0}}/>, document.body)}
+                        {<canvas ref={canvasRef} id="primary-canvas" width="4320" height="2160" style={{position: 'fixed', top: '200vh', left: '200vw'}}/>}
                         <video className="w-full h-full" ref={canvasDisplayRef} autoPlay playsInline muted/>
                     </div>
                 </div>

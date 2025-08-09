@@ -54,7 +54,7 @@ export default function Editor() {
 
     return project ? (
         <>
-            <PanelContainer className="absolute top-0 left-0 w-screen h-screen pt-8 bg-border">
+            <PanelContainer className="w-screen h-screen pt-8 bg-border rounded-none">
                 <ResizablePanelGroup direction="vertical">
                     <PlayerPanel/>
                     <ResizableHandle/>
