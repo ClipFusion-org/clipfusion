@@ -7,10 +7,10 @@ export const PlaybackControls = () => {
     const { playbackData, setPlaybackData } = useEditorStore();
 
     const togglePlaying = useCallback(() => {
-        setPlaybackData(((prev) => ({
+        setPlaybackData((prev) => ({
             ...prev,
             playing: !prev.playing
-        })) as (prev: typeof playbackData) => Partial<typeof playbackData>);
+        }));
     }, [setPlaybackData]);
 
     return (

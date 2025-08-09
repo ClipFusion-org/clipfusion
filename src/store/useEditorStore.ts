@@ -16,10 +16,10 @@ interface EditorStore {
     project?: Project;
     setProject: Updater<Project>;
 
-    canvasData?: CanvasData;
+    canvasData: CanvasData;
     setCanvasData: Updater<CanvasData>;
 
-    playbackData?: PlaybackData;
+    playbackData: PlaybackData;
     setPlaybackData: Updater<PlaybackData>;
 }
 
