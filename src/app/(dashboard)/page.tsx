@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ALargeSmallIcon, ArrowDownIcon, ArrowUpIcon, CalendarIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, Grid2X2XIcon, InfoIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import Search from "@/components/search";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useMobile";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Project from "@/types/Project";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";

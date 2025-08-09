@@ -1,30 +1,59 @@
+'use client';
 import { useEditorStore } from "@/store/useEditorStore";
 import { Panel, PanelContent, PanelHeader } from "../panel";
-import { ComponentProps, useCallback, useRef } from "react";
+import { ComponentProps, useEffect, useRef, useState } from "react";
 import PlaybackControls from "../../controls/playback-controls";
 import ProjectControls from "../../controls/project-controls";
 
 export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
-    const { canvas, setCanvas, project } = useEditorStore();
+    const { project, canvasData, playbackData, setCanvasData: setCanvasData } = useEditorStore();
     const canvasContainerRef = useRef<HTMLDivElement>(null);
+    const [canvasNode, setCanvasNode] = useState<HTMLCanvasElement | undefined>();
+    const lastRenderedResolution = useRef<[number, number]>([0, 0]);
 
-    const onResize = useCallback(() => {
-        if (!canvas || !canvasContainerRef.current) {
+    const setCanvasRef = (node: HTMLCanvasElement) => {
+        setCanvasNode(node);
+    };
+    
+    const onResize = () => {
+        if (!canvasData || !canvasData.canvas || !canvasContainerRef.current || !project || !playbackData) {
             console.log("canvas is undefined, something strange is going on");
             return;
         }
         const containerRect = canvasContainerRef.current.getBoundingClientRect();
-        canvas.width = containerRect.width;
-        canvas.height = containerRect.height;
-    }, [canvas, canvasContainerRef]);
+        if (containerRect.width == lastRenderedResolution.current[0] && containerRect.height == lastRenderedResolution.current[1]) return;
+        canvasData.canvas.width = containerRect.width;
+        canvasData.canvas.height = containerRect.height;
+        lastRenderedResolution.current = [containerRect.width, containerRect.height];
+        setCanvasData((prev) => ({
+            ...prev,
+            canvas: canvasData.canvas
+        }));
+    };
+
+    useEffect(() => {
+        if (!canvasNode) {
+            console.log("couldn't get webgl context because canvas is not available yet");
+            return;
+        }
+        const ctx = canvasNode.getContext("webgl");
+        if (!ctx) {
+            console.log("failed to get webgl context");
+            return;
+        }
+        setCanvasData({
+            canvas: canvasNode,
+            ctx: ctx
+        });
+    }, [canvasNode]);
 
     return (
         <Panel {...props} onResize={onResize}>
             <PanelHeader>Player</PanelHeader>
             <PanelContent className="p-0 flex flex-col items-center justify-between h-full">
                 <div className="flex flex-1 items-center justify-center w-full overflow-hidden p-4">
-                    <div ref={canvasContainerRef} className="w-auto h-full aspect-square max-w-full max-h-full overflow-hidden" style={{backgroundColor: project?.backgroundColor ?? "#000000"}}>
-                        <canvas ref={setCanvas} id="primary-canvas" />
+                    <div ref={canvasContainerRef} className="w-auto h-full aspect-square max-w-full max-h-full overflow-hidden bg-border">
+                        <canvas ref={setCanvasRef} id="primary-canvas" width="128" height="128" />
                     </div>
                 </div>
                 <div className="flex shrink-0 flex-row justify-between items-center w-full h-10 px-2">

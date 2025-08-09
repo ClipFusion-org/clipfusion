@@ -1,34 +1,34 @@
+import { CanvasData, defaultCanvasData } from "@/types/CanvasData";
+import { PlaybackData, defaultPlaybackData } from "@/types/PlaybackData";
 import Project from "@/types/Project";
 import { create } from "zustand";
 
-interface PlaybackData {
-    playing: boolean;
-}
+type ValueOrUpdater<T> = Partial<T> | ((prev: T) => Partial<T>);
+type Updater<T> = (valueOrUpdater: ValueOrUpdater<T>) => void;
+
+const getValue = <T>(state: T | undefined, value: ValueOrUpdater<T>): Partial<T> => {
+    return typeof value === 'function'
+        ? value(state || {} as T)
+        : value;
+};
 
 interface EditorStore {
     project?: Project;
-    setProject: (project: Partial<Project>) => void;
+    setProject: Updater<Project>;
 
-    canvas?: HTMLCanvasElement;
-    setCanvas: (canvas: HTMLCanvasElement) => void;
+    canvasData?: CanvasData;
+    setCanvasData: Updater<CanvasData>;
 
-    playbackData: PlaybackData;
-    setPlaybackData: (playbackData: Partial<PlaybackData> | ((prev: PlaybackData) => Partial<PlaybackData>)) => void;
+    playbackData?: PlaybackData;
+    setPlaybackData: Updater<PlaybackData>;
 }
 
 export const useEditorStore = create<EditorStore>()((set) => ({
-    setProject: (project: Partial<Project>) => set((state) => ({project: {...(state.project || {}), ...project} as Project})),
-    setCanvas: (canvas: HTMLCanvasElement) => set({ canvas }),
+    setProject: (project: ValueOrUpdater<Project>) => set((state) => ({ project: ({ ...getValue(state.project, project) } as Project) })),
+    
+    canvasData: defaultCanvasData,
+    setCanvasData: (canvasData: ValueOrUpdater<CanvasData>) => set((state) => ({ canvasData: ({ ...getValue(state.canvasData, canvasData) } as CanvasData) })),
 
-    playbackData: {
-        playing: false
-    },
-    setPlaybackData: (playbackDataOrUpdater: Partial<PlaybackData> | ((prev: PlaybackData) => Partial<PlaybackData>)) =>
-        set((state) => {
-            const playbackData =
-                typeof playbackDataOrUpdater === 'function'
-                    ? playbackDataOrUpdater(state.playbackData)
-                    : playbackDataOrUpdater;
-            return { playbackData: { ...state.playbackData, ...playbackData } };
-        })
+    playbackData: defaultPlaybackData,
+    setPlaybackData: (playbackData: ValueOrUpdater<PlaybackData>) => set((state) => ({ playbackData: ({ ...getValue(state.playbackData, playbackData) } as PlaybackData) }))
 }));

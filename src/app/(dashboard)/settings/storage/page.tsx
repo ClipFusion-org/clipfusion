@@ -10,7 +10,7 @@ import StickyTopContainer from "@/components/sticky-top-container";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import WideContainer from "@/components/wide-container";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useMobile";
 import { cn } from "@/lib/utils";
 import { ReactNode, useEffect, useState } from "react";
 

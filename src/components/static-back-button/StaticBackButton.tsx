@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useMobile";
 import { Button } from "../ui/button";
 import { ArrowLeftIcon } from "lucide-react";
 import { useRouter } from "next/navigation";

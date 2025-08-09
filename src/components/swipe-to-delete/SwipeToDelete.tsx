@@ -1,5 +1,5 @@
 'use client';
-import useBrowserEngine from '@/hooks/use-browser-engine';
+import useBrowserEngine from '@/hooks/useBrowserEngine';
 import React, { useRef, useState, useEffect, FC, ReactNode, CSSProperties } from 'react'
 
 type SwipeToDeleteProps = {

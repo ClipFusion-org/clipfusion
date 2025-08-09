@@ -5,13 +5,13 @@ import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
 import ScrollFadingTitle from "@/components/scroll-fading-title";
 import SidebarTriggerAdjustable from "@/components/sidebar-trigger-adjustable";
 import Search from "@/components/search";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useMobile";
 import AscendingCard from "@/components/ascending-card";
 import Link from "next/link";
 import WideContainer from "@/components/wide-container";
 import { getBuildID, getVersion } from "@/lib/build";
-import useBrowserEngine from "@/hooks/use-browser-engine";
-import useUserAgent from "@/hooks/use-user-agent";
+import useBrowserEngine from "@/hooks/useBrowserEngine";
+import useUserAgent from "@/hooks/useUserAgent";
 
 
 export default function Settings(): ReactNode {

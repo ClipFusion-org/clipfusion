@@ -1,5 +1,5 @@
 "use client";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useMobile";
 import { ComponentProps, useEffect, useRef } from "react";
 
 const easeSlide = (x: number) => (

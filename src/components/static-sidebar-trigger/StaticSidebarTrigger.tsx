@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { SidebarTrigger } from "../ui/sidebar";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/useMobile";
 
 const easeSlide = (x: number) => (
     1 - Math.pow(1 - x, 3)

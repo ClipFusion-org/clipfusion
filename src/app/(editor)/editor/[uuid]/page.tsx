@@ -1,16 +1,19 @@
 'use client';
 
 import ClipFusionLogo from "@/components/clipfusion-logo";
-import { Panel, PanelContainer } from "@/components/editor/panels/panel";
+import { PanelContainer } from "@/components/editor/panels/panel";
 import PlayerPanel from "@/components/editor/panels/player-panel";
 import TimelinePanel from "@/components/editor/panels/timeline-panel";
 import ThemeSwitcher from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menubar, MenubarItem, MenubarMenu, MenubarContent, MenubarTrigger, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarSeparator } from "@/components/ui/menubar";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { ResizableHandle, ResizablePanelGroup } from "@/components/ui/resizable";
+import useRendering from "@/hooks/useRendering";
 import { db } from "@/lib/db";
 import { useEditorStore } from "@/store/useEditorStore";
+import { defaultCanvasData } from "@/types/CanvasData";
+import { defaultPlaybackData } from "@/types/PlaybackData";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ChevronDownIcon } from "lucide-react";
 import Link from "next/link";
@@ -18,7 +21,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 
 export default function Editor() {
-    const { setProject } = useEditorStore();
+    const { setProject, setCanvasData, setPlaybackData } = useEditorStore();
     const router = useRouter();
     const params = useParams();
     const uuid = params.uuid as string;
@@ -42,8 +45,12 @@ export default function Editor() {
         if (project && projectTitle === '') {
             setProject(project);
             setProjectTitle(project.title);
+            setPlaybackData(defaultPlaybackData);
+            setCanvasData(defaultCanvasData);
         }
     }, [uuid, project]);
+
+    useRendering();
 
     return project ? (
         <>
