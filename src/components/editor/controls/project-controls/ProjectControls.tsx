@@ -3,7 +3,6 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import groupedColors from "@/constants/groupedColors";
 import { useEditorStore } from "@/store/useEditorStore";
-import Project from "@/types/Project";
 import { CheckIcon, DropletIcon } from "lucide-react";
 
 export const ProjectControls = () => {
@@ -17,12 +16,12 @@ export const ProjectControls = () => {
                         <DropletIcon />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="h-80 overflow-y-auto">
-                    <h3 className="font-bold text-lg">Background Color</h3>
+                <PopoverContent className="h-80 overflow-y-auto gap-2">
+                    <h3 className="font-bold text-lg">Background</h3>
                     <div className="flex flex-col gap-2 overflow-y-auto">
                         {groupedColors.map((group) => (
                             <div key={group.name} className="flex flex-col gap-1">
-                                <h3 className="font-semibold">{group.name}</h3>
+                                <h4 className="font-semibold text-secondary-foreground">{group.name}</h4>
                                 <div className="grid gap-2 grid-cols-4">
                                     {group.colors.map((color) => (
                                         <Tooltip key={color.color}>

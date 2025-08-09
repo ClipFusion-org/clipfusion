@@ -2,7 +2,6 @@ import clsx, { type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const hexRegex = /\w\w/g;
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(...inputs));
 
@@ -20,7 +19,7 @@ export const truncate = (str: string, maxLength: number) => (
     str.length > maxLength ? str.slice(0, maxLength - 3) + '...' : str
 );
 
-export const hex2rgba = (hex: string, alpha: number = 1): [number, number, number, number] | null => {
+export const hex2rgba = (hex: string, alpha: number = 255): [number, number, number, number] | null => {
     let c: string | null = null;
     // Remove '#' if present
     const cleanedHex = hex.startsWith('#') ? hex.slice(1) : hex;
@@ -50,5 +49,5 @@ export const hex2rgba = (hex: string, alpha: number = 1): [number, number, numbe
     const g = parseInt(c.substring(2, 4), 16);
     const b = parseInt(c.substring(4, 6), 16);
 
-    return [r, g, b, alpha];
+    return [r / 255, g / 255, b / 255, alpha / 255];
 }

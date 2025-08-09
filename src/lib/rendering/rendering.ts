@@ -3,9 +3,9 @@ import { PlaybackData } from "@/types/PlaybackData";
 import Project from "@/types/Project";
 import { hex2rgba } from "../utils";
 
-export const renderFrame = (project: Project, canvasData: CanvasData, playbackData: PlaybackData) => {
+export const renderFrame = (project: Project, canvasData: CanvasData, _playbackData: PlaybackData) => {
     const gl = canvasData.ctx;
-    if (!canvasData.canvas || !gl) {
+    if (!canvasData.canvas || !gl || !canvasData.stream) {
         console.log("webgl context is not available!");
         return;
     }

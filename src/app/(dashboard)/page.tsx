@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ComponentProps, createContext, Dispatch, FC, ReactNode, SetStateAction, useContext, useState } from "react";
+import React, { ComponentProps, createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
