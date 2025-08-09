@@ -38,9 +38,13 @@ export default function Editor() {
 
     // setting global data to the default values just in case
     useEffect(() => {
-        setPlaybackData(defaultPlaybackData);
-        setCanvasData(defaultCanvasData);
-    }, []);
+        // Initialize only if unset to avoid overriding PlayerPanel initialization.
+        setPlaybackData((prev: any) => prev ?? defaultPlaybackData);
+        setCanvasData((prev: any) =>
+            (prev?.canvas && prev?.ctx) ? prev : defaultCanvasData
+        );
+        // set* from Zustand are stable; adding as deps satisfies exhaustive-deps.
+    }, [setPlaybackData, setCanvasData]);
 
     // Redirect user to the project library if provided UUID is invalid
     useEffect(() => {

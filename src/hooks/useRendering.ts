@@ -1,5 +1,6 @@
 import { renderFrame } from "@/lib/rendering/rendering";
 import { useEditorStore } from "@/store/useEditorStore";
+import { defaultPlaybackData } from "@/types/PlaybackData";
 import { useEffect } from "react";
 
 const useRendering = () => {
@@ -11,7 +12,7 @@ const useRendering = () => {
             return;
         }
 
-        renderFrame(project, canvasData, playbackData);
+        renderFrame(project, canvasData, playbackData ?? defaultPlaybackData);
     }, [project, canvasData, playbackData]);
 
 };

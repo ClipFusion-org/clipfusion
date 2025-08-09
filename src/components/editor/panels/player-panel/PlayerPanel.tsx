@@ -26,12 +26,23 @@ export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
         if (canvasDisplayRef.current) {
             canvasDisplayRef.current.srcObject = stream;
         }
-        setCanvasData({
-            canvas: canvasNode,
-            ctx: ctx,
-            stream: stream
-        });
-    }, [canvasRef, canvasDisplayRef]);
+        setCanvasData({ canvas: canvasNode, ctx, stream });
+
+        return () => {
+            // stop all tracks
+            stream.getTracks().forEach(t => t.stop());
+            // detach from video
+            if (canvasDisplayRef.current && canvasDisplayRef.current.srcObject === stream) {
+                canvasDisplayRef.current.srcObject = null;
+            }
+            // release WebGL context if possible
+            const lose = (ctx as WebGLRenderingContext).getExtension?.('WEBGL_lose_context');
+            lose?.loseContext();
+            // optionally reset store
+            setCanvasData({ canvas: null as any, ctx: null as any, stream: null as any });
+        };
+        // include setCanvasData for exhaustive-deps; refs are stable objects
+    }, [canvasRef, canvasDisplayRef, setCanvasData]);
 
     return (
         <Panel {...props}>
@@ -39,8 +50,8 @@ export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
             <PanelContent className="p-0 flex flex-col items-center justify-between h-full">
                 <div className="flex flex-1 items-center justify-center w-full overflow-hidden p-4">
                     <div className="w-auto h-full aspect-square max-w-full max-h-full overflow-hidden bg-border">
-                        {createPortal(<canvas ref={canvasRef} id="primary-canvas" width="4320" height="2160" style={{position: 'fixed', top: 0, left: 0, zIndex: -1000}}/>, document.body)}
-                        <video className="w-full h-full" ref={canvasDisplayRef} autoPlay playsInline muted/>
+                        {createPortal(<canvas ref={canvasRef} id="primary-canvas" width="4320" height="2160" style={{ position: 'fixed', top: 0, left: 0, zIndex: -1000 }} />, document.body)}
+                        <video className="w-full h-full" ref={canvasDisplayRef} autoPlay playsInline muted />
                     </div>
                 </div>
                 <div className="flex shrink-0 flex-row justify-between items-center w-full h-10 px-2">
