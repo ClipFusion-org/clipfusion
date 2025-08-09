@@ -6,7 +6,7 @@ const useRendering = () => {
     const { project, canvasData, playbackData } = useEditorStore();
 
     useEffect(() => {
-        if (!canvasData || !canvasData.canvas || !canvasData.ctx || !project || !playbackData) {
+        if (!canvasData.canvas || !canvasData.ctx || !project) {
             console.log("couldn't render a frame because of bad editor state");
             return;
         }

@@ -36,6 +36,12 @@ export default function Editor() {
         });
     };
 
+    // setting global data to the default values just in case
+    useEffect(() => {
+        setPlaybackData(defaultPlaybackData);
+        setCanvasData(defaultCanvasData);
+    }, []);
+
     // Redirect user to the project library if provided UUID is invalid
     useEffect(() => {
         if (!uuid) {
@@ -45,8 +51,6 @@ export default function Editor() {
         if (project && projectTitle === '') {
             setProject(project);
             setProjectTitle(project.title);
-            setPlaybackData(defaultPlaybackData);
-            setCanvasData(defaultCanvasData);
         }
     }, [uuid, project]);
 
@@ -56,9 +60,9 @@ export default function Editor() {
         <>
             <PanelContainer className="w-screen h-screen pt-8 bg-border rounded-none">
                 <ResizablePanelGroup direction="vertical">
-                    <PlayerPanel/>
-                    <ResizableHandle/>
-                    <TimelinePanel/>
+                    <PlayerPanel />
+                    <ResizableHandle />
+                    <TimelinePanel />
                 </ResizablePanelGroup>
             </PanelContainer>
             <Menubar className="absolute top-0 left-0 bg-border flex flex-row m-auto justify-between w-full rounded-none z-50 h-10 shadow-none">
@@ -92,22 +96,22 @@ export default function Editor() {
                                     </MenubarSub>
                                 </MenubarSubContent>
                             </MenubarSub>
-                            <MenubarSeparator/>
+                            <MenubarSeparator />
                             <MenubarItem onClick={() => router.push('/')}>Back to Project Library</MenubarItem>
                         </MenubarContent>
                     </MenubarMenu>
                 </div>
                 <div className="flex flex-row justify-center grow basis-0">
-                    <Input placeholder="Project Title" spellCheck={false} value={projectTitle} onChange={(e) => handleRename(e)} className="bg-transparent dark:bg-transparent border-none focus-visible:ring-0 text-sm p-0 h-6 text-center drop-shadow-none shadow-none font-semibold text-secondary-foreground"/>
+                    <Input placeholder="Project Title" spellCheck={false} value={projectTitle} onChange={(e) => handleRename(e)} className="bg-transparent dark:bg-transparent border-none focus-visible:ring-0 text-sm p-0 h-6 text-center drop-shadow-none shadow-none font-semibold text-secondary-foreground" />
                 </div>
                 <div className="flex flex-row justify-end grow basis-0">
-                    <ThemeSwitcher className="pr-5" variant="transparent"/>
+                    <ThemeSwitcher className="pr-5" variant="transparent" />
                 </div>
             </Menubar>
         </>
     ) : (
         <div className="flex items-center justify-center w-screen h-screen">
-            <ClipFusionLogo width="100" height="100"/>
+            <ClipFusionLogo width="100" height="100" />
         </div>
     );
 }

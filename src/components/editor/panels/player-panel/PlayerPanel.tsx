@@ -8,7 +8,6 @@ import { createPortal } from "react-dom";
 
 export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
     const { setCanvasData } = useEditorStore();
-    const canvasContainerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const canvasDisplayRef = useRef<HTMLVideoElement>(null);
 
@@ -39,8 +38,8 @@ export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
             <PanelHeader>Player</PanelHeader>
             <PanelContent className="p-0 flex flex-col items-center justify-between h-full">
                 <div className="flex flex-1 items-center justify-center w-full overflow-hidden p-4">
-                    <div ref={canvasContainerRef} className="w-auto h-full aspect-square max-w-full max-h-full overflow-hidden bg-border">
-                        {<canvas ref={canvasRef} id="primary-canvas" width="4320" height="2160" style={{position: 'fixed', top: '200vh', left: '200vw'}}/>}
+                    <div className="w-auto h-full aspect-square max-w-full max-h-full overflow-hidden bg-border">
+                        {createPortal(<canvas ref={canvasRef} id="primary-canvas" width="4320" height="2160" style={{position: 'fixed', top: 0, left: 0, zIndex: -1000}}/>, document.body)}
                         <video className="w-full h-full" ref={canvasDisplayRef} autoPlay playsInline muted/>
                     </div>
                 </div>
