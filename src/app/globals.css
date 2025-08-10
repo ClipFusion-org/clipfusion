@@ -25,10 +25,10 @@
     --color-ring: var(--ring);
     --color-input: var(--input);
     --color-border: var(--border);
-    --color-panel-border: var(--panel-border);
     --color-destructive: var(--destructive);
     --color-header: var(--header);
     --color-panel: var(--panel);
+    --color-panel-border: var(--panel-border);
     --color-accent-foreground: var(--accent-foreground);
     --color-accent: var(--accent);
     --color-muted-foreground: var(--muted-foreground);

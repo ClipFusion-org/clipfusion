@@ -168,25 +168,34 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             return !(container.current?.contains(e.target as Node));
         };
 
-        const handleMouseStart = (e: MouseEvent) => {
+        const handleMouseStart = (e: PointerEvent) => {
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
+                e.stopImmediatePropagation();
+                e.preventDefault();
                 return;
             }
             e.preventDefault();
             handleStart(e.pageX);
         };
 
-        const handleMouseMove = (e: MouseEvent) => {
+        const handleMouseMove = (e: PointerEvent) => {
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
+                e.stopImmediatePropagation();
+                e.preventDefault();
                 return;
             }
             e.preventDefault();
             handleMove(e.pageX, e.pageY);
         };
 
-        const handleMouseEnd = (e: MouseEvent) => {
+        const handleMouseEnd = (e: PointerEvent) => {
+            if (!eventOutsideOfContainer(e)) {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                return;
+            }
             handleEnd();
         }
 
