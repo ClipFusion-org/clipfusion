@@ -25,6 +25,7 @@
     --color-ring: var(--ring);
     --color-input: var(--input);
     --color-border: var(--border);
+    --color-panel-border: var(--panel-border);
     --color-destructive: var(--destructive);
     --color-header: var(--header);
     --color-panel: var(--panel);
@@ -59,7 +60,6 @@
 }
 
 html {
-    min-height: calc(100% + env(safe-area-inset-top));
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
@@ -73,6 +73,10 @@ body {
 main {
     width: 100%;
     height: 100%;
+}
+
+a {
+  -webkit-touch-callout: none;
 }
 
 .dark body {
@@ -99,7 +103,7 @@ main {
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
     --ring: oklch(0.708 0 0);
-    --border: oklch(1.0 0 0.0);
+    --panel-border: oklch(1.0 0 0.0);
     --header: var(--color-neutral-200);
     --panel: oklch(88.531% 0.0001 271.152);
     --chart-1: oklch(0.646 0.222 41.116);
@@ -136,7 +140,7 @@ main {
     --border: oklch(1 0 0 / 10%);
     --input: oklch(1 0 0 / 15%);
     --ring: oklch(0.556 0 0);
-    --border: oklch(19.125% 0.00002 271.152);
+    --panel-border: oklch(19.125% 0.00002 271.152);
     --header: oklch(30.919% 0.00004 271.152);
     --panel: oklch(26.862% 0.00003 271.152);
     --chart-1: oklch(0.488 0.243 264.376);

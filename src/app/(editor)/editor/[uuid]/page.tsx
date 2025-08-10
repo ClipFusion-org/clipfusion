@@ -62,14 +62,14 @@ export default function Editor() {
 
     return project ? (
         <>
-            <PanelContainer className="w-screen h-screen pt-8 bg-border rounded-none">
+            <PanelContainer className="w-screen h-screen pt-8 bg-panel-border rounded-none">
                 <ResizablePanelGroup direction="vertical">
                     <PlayerPanel />
                     <ResizableHandle />
                     <TimelinePanel />
                 </ResizablePanelGroup>
             </PanelContainer>
-            <Menubar className="absolute top-0 left-0 bg-border flex flex-row m-auto justify-between w-full rounded-none z-50 h-10 shadow-none">
+            <Menubar className="absolute top-0 left-0 bg-panel-border flex flex-row m-auto justify-between w-full rounded-none z-50 h-10 shadow-none">
                 <div className="flex flex-row justify-begin grow basis-0 items-center gap-4">
                     <Link href="/" prefetch={false}>
                         <ClipFusionLogo className="pl-5" width="16" height="16" />
