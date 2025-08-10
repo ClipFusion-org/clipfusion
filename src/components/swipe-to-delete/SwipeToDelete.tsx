@@ -285,7 +285,8 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                     transition: dragging
                         ? ''
                         : 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1)',
-                    willChange: 'transform'
+                    willChange: 'transform',
+                    touchAction: `pinch-zoom`
                 })}
             >
                 {children}

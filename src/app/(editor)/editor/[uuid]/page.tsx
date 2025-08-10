@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menubar, MenubarItem, MenubarMenu, MenubarContent, MenubarTrigger, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarSeparator } from "@/components/ui/menubar";
 import { ResizableHandle, ResizablePanelGroup } from "@/components/ui/resizable";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import useRendering from "@/hooks/useRendering";
 import { db } from "@/lib/db";
 import { useEditorStore } from "@/store/useEditorStore";
@@ -24,6 +25,7 @@ export default function Editor() {
     const { setProject, setCanvasData, setPlaybackData } = useEditorStore();
     const router = useRouter();
     const params = useParams();
+    const isMobile = useIsMobile();
     const uuid = params.uuid as string;
     const project = useLiveQuery(async () => db.projects.where('uuid').equals(uuid).first());
     const [projectTitle, setProjectTitle] = useState('');
@@ -70,14 +72,18 @@ export default function Editor() {
                 </ResizablePanelGroup>
             </PanelContainer>
             <Menubar className="absolute top-0 left-0 bg-panel-border flex flex-row m-auto justify-between w-full rounded-none z-50 h-10 shadow-none">
-                <div className="flex flex-row justify-begin grow basis-0 items-center gap-4">
-                    <Link href="/" prefetch={false}>
-                        <ClipFusionLogo className="pl-5" width="16" height="16" />
-                    </Link>
+                <div className="flex flex-row justify-begin grow basis-0 items-center gap-4 h-full">
+                    {!isMobile && (
+                        <Link href="/" prefetch={false} className="pl-5 shrink-0 p-0 h-full flex items-center justify-center">
+                            <ClipFusionLogo width="16" height="16" />
+                        </Link>
+                    )}
                     <MenubarMenu>
                         <MenubarTrigger className="group" asChild>
-                            <Button variant="ghost" className="p-0 [&>svg]:group-data-[state='open']:rotate-180 gap-1 hover:bg-none">
-                                Menu <ChevronDownIcon className="text-muted-foreground" size={15} />
+                            <Button variant="ghost" className="p-0 [&>svg]:group-data-[state='open']:rotate-[-180deg] gap-1 hover:bg-none">
+                                {isMobile ? (
+                                    <ClipFusionLogo className="px-1" width="16" height="16" />
+                                ) : "Menu"} <ChevronDownIcon className="text-muted-foreground duration-75 transition-[rotate]" size={15} />
                             </Button>
                         </MenubarTrigger>
                         <MenubarContent>
@@ -106,7 +112,7 @@ export default function Editor() {
                     </MenubarMenu>
                 </div>
                 <div className="flex flex-row justify-center grow basis-0">
-                    <Input placeholder="Project Title" spellCheck={false} value={projectTitle} onChange={(e) => handleRename(e)} className="bg-transparent dark:bg-transparent border-none focus-visible:ring-0 text-sm p-0 h-6 text-center drop-shadow-none shadow-none font-semibold text-secondary-foreground" />
+                    <Input placeholder="Project Title" spellCheck={false} value={projectTitle} onChange={(e) => handleRename(e)} className="bg-transparent dark:bg-transparent border-none focus-visible:ring-0 text-sm p-0 h-6 text-center drop-shadow-none shadow-none font-semibold text-secondary-foreground w-56" />
                 </div>
                 <div className="flex flex-row justify-end grow basis-0">
                     <ThemeSwitcher className="pr-5" variant="transparent" />

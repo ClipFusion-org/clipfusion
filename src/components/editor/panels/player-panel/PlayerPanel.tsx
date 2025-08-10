@@ -13,21 +13,23 @@ export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
     const canvasDisplayRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
-        const canvasNode = canvasRef.current;
-        if (!canvasNode) {
+        const canvas = canvasRef.current;
+        if (!canvas) {
             console.log("couldn't get webgl context because canvas is not available yet");
             return;
         }
-        const ctx = canvasNode.getContext("webgl");
+
+        const ctx = canvas.getContext("webgl");
         if (!ctx) {
             console.log("failed to get webgl context");
             return;
         }
-        const stream = canvasNode.captureStream(60);
+        const stream = canvas.captureStream(60);
         if (canvasDisplayRef.current) {
             canvasDisplayRef.current.srcObject = stream;
         }
-        setCanvasData({ canvas: canvasNode, ctx, stream });
+        console.log("getting webgl context");
+        setCanvasData({ canvas, ctx, stream });
 
         return () => {
             // stop all tracks
@@ -36,10 +38,6 @@ export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
             if (canvasDisplayRef.current && canvasDisplayRef.current.srcObject === stream) {
                 canvasDisplayRef.current.srcObject = null;
             }
-            // release WebGL context if possible
-            const lose = (ctx as WebGLRenderingContext).getExtension?.('WEBGL_lose_context');
-            lose?.loseContext();
-            // optionally reset store
             setCanvasData(defaultCanvasData);
         };
         // include setCanvasData for exhaustive-deps; refs are stable objects
@@ -50,9 +48,9 @@ export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
             <PanelHeader>Player</PanelHeader>
             <PanelContent className="p-0 flex flex-col items-center justify-between h-full">
                 <div className="flex flex-1 items-center justify-center w-full overflow-hidden p-4">
-                    <div className="w-auto h-full aspect-square max-w-full max-h-full overflow-hidden bg-panel-border">
-                        {createPortal(<canvas ref={canvasRef} id="primary-canvas" width="640" height="480" style={{ position: 'fixed', top: 0, left: 0, zIndex: -1000 }} />, document.body)}
-                        <video className="w-full h-full" ref={canvasDisplayRef} autoPlay playsInline muted />
+                    <div className="w-full h-full overflow-hidden bg-panel-border">
+                        {createPortal(<canvas ref={canvasRef} id="primary-canvas" width="4230" height="2160" style={{ position: 'fixed', top: 0, left: 0, zIndex: -1000 }} />, document.body)}
+                        <video className="w-full h-full object-contain" ref={canvasDisplayRef} autoPlay playsInline muted />
                     </div>
                 </div>
                 <div className="flex shrink-0 flex-row justify-between items-center w-full h-10 px-2">

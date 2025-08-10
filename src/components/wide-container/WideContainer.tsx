@@ -1,5 +1,5 @@
 import { ComponentProps } from "react";
-import { useIsMobile } from "@/hooks/useMobile";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 
 export const WideContainer = (props: ComponentProps<"div">) => {
