@@ -196,15 +196,21 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             handleEnd();
         }
 
-        node.addEventListener("pointerdown", handleMouseStart);
-        node.addEventListener("pointermove", handleMouseMove);
-        node.addEventListener("pointerup", handleMouseEnd);
+        const options: AddEventListenerOptions = {
+            capture: true,
+        };
+
+        node.addEventListener("pointerdown", handleMouseStart, options);
+        node.addEventListener("pointermove", handleMouseMove, options);
+        node.addEventListener("pointerup", handleMouseEnd, options);
+        node.addEventListener("pointercancel", handleMouseEnd, options);
 
         return () => {
-            node.removeEventListener("pointerdown", handleMouseStart);
-            node.removeEventListener("pointermove", handleMouseMove);
-            node.removeEventListener("pointerup", handleMouseEnd);
-        }
+            node.removeEventListener("pointerdown", handleMouseStart, options);
+            node.removeEventListener("pointermove", handleMouseMove, options);
+            node.removeEventListener("pointerup", handleMouseEnd, options);
+            node.removeEventListener("pointercancel", handleMouseEnd, options);
+        };
     }, [dragging, dragX, velocity, velocityY, container]);
 
     const deleteTransform = isCollapsing
