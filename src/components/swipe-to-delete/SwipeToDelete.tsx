@@ -169,10 +169,11 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         };
 
         const handleMouseStart = (e: PointerEvent) => {
+            if ((e.target as Element).hasPointerCapture(e.pointerId)) {
+                (e.target as Element).releasePointerCapture(e.pointerId);
+            }
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
-                e.stopImmediatePropagation();
-                e.preventDefault();
                 return;
             }
             e.preventDefault();
@@ -182,8 +183,6 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         const handleMouseMove = (e: PointerEvent) => {
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
-                e.stopImmediatePropagation();
-                e.preventDefault();
                 return;
             }
             e.preventDefault();
@@ -191,13 +190,8 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         };
 
         const handleMouseEnd = (e: PointerEvent) => {
-            if (!eventOutsideOfContainer(e)) {
-                e.stopImmediatePropagation();
-                e.preventDefault();
-                return;
-            }
             handleEnd();
-        }
+        };
 
         const options: AddEventListenerOptions = {
             capture: true,
@@ -285,8 +279,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                     transition: dragging
                         ? ''
                         : 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1)',
-                    willChange: 'transform',
-                    touchAction: `pinch-zoom pan-y`
+                    willChange: 'transform'
                 })}
             >
                 {children}

@@ -71,7 +71,7 @@ export default function Editor() {
                     <TimelinePanel />
                 </ResizablePanelGroup>
             </PanelContainer>
-            <Menubar className="absolute top-0 left-0 bg-panel-border flex flex-row m-auto justify-between w-full rounded-none z-50 h-10 shadow-none">
+            <Menubar className="absolute top-0 left-0 bg-panel-border flex flex-row m-auto justify-between w-full rounded-none z-50 h-10 shadow-none border-0">
                 <div className="flex flex-row justify-begin grow basis-0 items-center gap-4 h-full">
                     {!isMobile && (
                         <Link href="/" prefetch={false} className="pl-5 shrink-0 p-0 h-full flex items-center justify-center">
