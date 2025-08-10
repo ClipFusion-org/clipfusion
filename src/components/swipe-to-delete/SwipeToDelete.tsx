@@ -169,30 +169,24 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         };
 
         const handleMouseStart = (e: MouseEvent) => {
-            e.preventDefault();
-            e.stopPropagation();
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
                 return;
             }
+            e.preventDefault();
             handleStart(e.pageX);
         };
 
         const handleMouseMove = (e: MouseEvent) => {
-            e.preventDefault();
-            e.stopPropagation();
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
                 return;
             }
-
+            e.preventDefault();
             handleMove(e.pageX, e.pageY);
         };
 
         const handleMouseEnd = (e: MouseEvent) => {
-            e.preventDefault();
-            e.stopPropagation();
-
             handleEnd();
         }
 
