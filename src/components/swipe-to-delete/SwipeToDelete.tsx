@@ -195,6 +195,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
 
         const options: AddEventListenerOptions = {
             capture: true,
+            passive: false
         };
 
         node.addEventListener("pointerdown", handleMouseStart, options);
