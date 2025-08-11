@@ -57,7 +57,7 @@ export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
                     <div className="flex flex-row items-center justify-start grow basis-0">
                         <h3 className="text-muted-foreground text-sm">00:00:00/00:00:00</h3>
                     </div>
-                    <div className="flex flex-row items-center justify-center grow basis-0">
+                    <div className="flex flex-row items-center">
                         <PlaybackControls />
                     </div>
                     <div className="flex flex-row items-center justify-end grow basis-0">
