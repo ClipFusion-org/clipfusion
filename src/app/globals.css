@@ -28,7 +28,7 @@
     --color-destructive: var(--destructive);
     --color-header: var(--header);
     --color-panel: var(--panel);
-    --color-panel-border: var(--panel-border);
+    --color-panel-border: var(--background);
     --color-accent-foreground: var(--accent-foreground);
     --color-accent: var(--accent);
     --color-muted-foreground: var(--muted-foreground);
@@ -82,6 +82,7 @@ a {
 .dark body {
     background-color: var(--color-background);
 }
+
 
 :root {
     --radius: 0.625rem;

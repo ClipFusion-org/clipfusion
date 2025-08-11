@@ -73,14 +73,6 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         content.current?.classList.remove('ios-ease');
     };
 
-    const disableScroll = () => {
-        document.body.classList.add('no-scroll');
-    };
-
-    const enableScroll = () => {
-        document.body.classList.remove('no-scroll');
-    };
-
     const handleMove = (pageX: number, pageY: number): boolean => {
         if (!dragging) return false;
         const now = performance.now();
@@ -106,13 +98,11 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             if (x < -1) setAllowOverscroll(true);
             if (x <= 0 || (allowOverscroll && x >= 0)) {
                 setDragX(x);
-                disableScroll();
                 return true;
             }
         } else {
             setDragX(0);
             setAllowOverscroll(false);
-            enableScroll();
         }
         return false;
     };
@@ -134,7 +124,6 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
 
         const shouldDelete = isSticky || velocity < -1000;
         setAllowOverscroll(false);
-        enableScroll();
         if (Math.abs(velocityY) > window.innerHeight * 0.05 && Math.abs(dragX) < 20) {
             setDragX(0);
             if (transparencyTimeout) {
@@ -246,8 +235,8 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
     }, [dragging, dragX, velocity, velocityY, container]);
 
     const deleteTransform = isCollapsing
-        ? `translateX(calc(${dragX}px + 5rem))`
-        : (isSticky ? `translateX(calc(${dragX}px + 5rem))` : `translateX(max(0rem + ${dragX * 0.07}px, calc(${dragX}px + 5rem)))`);
+        ? `translate3d(calc(${dragX}px + 5rem), 0, 0)`
+        : (isSticky ? `translate3d(calc(${dragX}px + 5rem), 0, 0)` : `translate3d(max(0rem + ${dragX * 0.07}px, calc(${dragX}px + 5rem)), 0, 0)`);
 
     const opacityTransparent = fadeOnDeletion ? 0 : 1;
     const backgroundTransparent = opacityTransparent == 0 ? 'transparent' : backgroundClass;
@@ -290,7 +279,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                 }}
             >
                 <button style={{
-                    transform: deleteTransform,
+                    transform: `${deleteTransform}`,
                     transition: 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1), opacity 300ms',
                     color: 'white',
                     fontWeight: useBoldDeleteFont ? 600 : '',
@@ -310,7 +299,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
                     position: 'relative',
                     inset: 0,
                     height: '100%',
-                    transform: `translateX(${Math.floor(dragX)}px)`,
+                    transform: `translate3d(${Math.floor(dragX)}px, 0, 0)`,
                     transition: dragging
                         ? ''
                         : 'transform 300ms cubic-bezier(0.24, 1.04, 0.56, 1)',

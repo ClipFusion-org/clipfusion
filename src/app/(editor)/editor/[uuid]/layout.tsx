@@ -1,19 +1,10 @@
-import { ReactNode } from "react";
+import { PropsWithChildren } from "react";
 import "@/app/globals.css";
-import PersistenceProvider from "@/app/persistence-provider";
 
-export default async function RootLayout({
-    children,
-}: Readonly<{
-    children: ReactNode
-}>) {
+export default async function RootLayout({ children }: PropsWithChildren) {
     return (
-        <main className="fixed w-full h-full isolate overflow-hidden overscroll-none">
-            <div className="relative">
-                <PersistenceProvider>
-                    {children}
-                </PersistenceProvider>
-            </div>
+        <main className="fixed h-full isolate overflow-hidden overscroll-none">
+            {children}
         </main>
     );
 }

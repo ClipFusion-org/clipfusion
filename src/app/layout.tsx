@@ -6,6 +6,8 @@ import ThemeProvider from "./theme-provider";
 import Analytics from "./analytics";
 import { Toaster } from "@/components/ui/sonner";
 import PWAHead from "./pwa-head";
+import NavigationBlocker from "./navigation-blocker";
+import PersistenceProvider from "./persistence-provider";
 
 const geist = Geist({
     variable: "--font-geist",
@@ -29,7 +31,6 @@ export const viewport: Viewport = {
     maximumScale: 1,
     userScalable: false,
     viewportFit: "cover",
-    interactiveWidget: "resizes-visual",
 };
 
 export default async function RootLayout({
@@ -45,7 +46,11 @@ export default async function RootLayout({
             </head>
             <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
                 <ThemeProvider>
-                    {children}
+                    <NavigationBlocker>
+                        <PersistenceProvider>
+                            {children}
+                        </PersistenceProvider>
+                    </NavigationBlocker>
                     <Toaster/>
                 </ThemeProvider>
             </body>

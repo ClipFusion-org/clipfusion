@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ComponentProps, createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react";
+import React, { ComponentProps, createContext, Dispatch, FC, ReactNode, SetStateAction, useContext, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
@@ -121,7 +121,7 @@ const ProjectInfoFormFields = ({ form }: { form: UseFormReturn<ProjectInfoForm> 
             <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                    <Textarea {...field} autoComplete="off" placeholder="Tell something about your project" className="resize-y" />
+                    <Textarea {...field} autoComplete="off" placeholder="Tell something about your project" className="resize-y" wrap="hard" />
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -261,19 +261,17 @@ const ProjectDropdown = ({
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="bottom" className="px-safe-or-2 pb-safe-or-2 gap-1">
-                    <SheetHeader className="m-0 p-2 gap-0">
-                        <div className="flex flex-row items-center w-[95%]">
-                            <SheetTitle className="font-semibold line-clamp-1">Project Description</SheetTitle>
-                            <SheetClose asChild>
-                                <Button variant="ghost" onClick={(e) => {
-                                    e.preventDefault();
-                                    setRenameDialogOpen(true);
-                                }}>
-                                    <PencilIcon /><span className="sr-only">Rename</span>
-                                </Button>
-                            </SheetClose>
+                    <SheetHeader className="m-0 p-2 gap-0 w-[95%]">
+                        <div className="flex flex-row items-center w-full">
+                            <SheetTitle className="font-semibold line-clamp-1">{project.title}</SheetTitle>
+                            <Button variant="ghost" size="icon" onClick={(e) => {
+                                e.preventDefault();
+                                setRenameDialogOpen(true);
+                            }}>
+                                <PencilIcon /><span className="sr-only">Rename</span>
+                            </Button>
                         </div>
-                        <SheetDescription>{project.title}</SheetDescription>
+                        <SheetDescription className="line-clamp-2">{project.description || `Last Edit Date: ${new Date(project.editDate).toLocaleDateString()}`}</SheetDescription>
                     </SheetHeader>
                     <Separator />
                     <SheetClose asChild>
@@ -375,7 +373,7 @@ const ProjectDescription = ({ project }: { project: Project }): ReactNode => {
                 <SheetContent side="bottom">
                     <SheetHeader className="m-0 p-2 gap-0 w-[95%]">
                         <SheetTitle className="line-clamp-1">{project.title} Description</SheetTitle>
-                        <SheetDescription>Additional Information About the Project</SheetDescription>
+                        <SheetDescription className="line-clamp-1">Last Edit Date: {new Date(project.editDate).toLocaleDateString()}</SheetDescription>
                     </SheetHeader>
                     <Separator />
                     <div className="p-2">
@@ -432,9 +430,6 @@ const ProjectContainer = ({
         <Link {...props} prefetch={false}/>
     ));
 
-    console.log("isMobile: ", isMobile);
-    console.log("swipeToDelete", swipeToDelete);
-
     const projectComponent = (
         <AspectRatio className="relative w-full h-auto" data-selectable="true" ratio={16 / 9}>
             <AscendingCard className="absolute top-0 left-0 w-full h-full overflow-hidden p-0">
@@ -461,23 +456,24 @@ const ProjectContainer = ({
         </AspectRatio>
     );
 
+    const SwipeToDeleteConditional: FC<ComponentProps<typeof SwipeToDelete>> = useMemo(() => (props) => {
+        console.log(isMobile, selecting, swipeToDelete);
+        if (isMobile && !selecting && swipeToDelete) {
+            return <SwipeToDelete {...props} />;
+        }
+        return <>{props.children}</>;
+    }, [isMobile, selecting, swipeToDelete]);
 
-    return isMobile && !selecting && swipeToDelete ? (
+    return isMobile ? (
         <div className="w-[100% + 5 * var(--spacing)] -mx-5 -my-[2px] overflow-hidden">
-            <SwipeToDelete height={container ? container.getBoundingClientRect().height : 210} onDelete={() => deleteProject(project.uuid)}>
+            <SwipeToDeleteConditional height={container ? container.getBoundingClientRect().height : 210} onDelete={() => deleteProject(project.uuid)}>
                 <div ref={containerRef} className="w-full bg-background px-5 py-2">
                     {projectComponent}
                 </div>
-            </SwipeToDelete>
+            </SwipeToDeleteConditional>
         </div>
     ) : (
-        swipeToDelete ? (
-        <div className="w-[100% + 5 * var(--spacing)] -mx-5 -my-[2px] overflow-hidden">
-            <div ref={containerRef} className="w-full bg-background px-5 py-2">
-                {projectComponent}
-            </div>
-        </div>
-        ) : projectComponent
+        projectComponent
     );
 };
 

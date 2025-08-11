@@ -7,10 +7,3 @@
 [data-rubber] {
     touch-action: none;
 }
-
-.no-scroll {
-    overflow: hidden;
-    height: 100%;
-    touch-action: none;
-    overscroll-behavior: none;
-}
