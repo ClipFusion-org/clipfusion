@@ -4,7 +4,6 @@ import { Panel, PanelContent, PanelHeader } from "../panel";
 import { ComponentProps, useEffect, useRef } from "react";
 import PlaybackControls from "../../controls/playback-controls";
 import ProjectControls from "../../controls/project-controls";
-import { createPortal } from "react-dom";
 import { defaultCanvasData } from "@/types/CanvasData";
 
 export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {

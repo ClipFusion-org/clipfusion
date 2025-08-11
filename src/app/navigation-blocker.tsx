@@ -30,7 +30,6 @@ import { PropsWithChildren } from "react";
 }; */
 
 const NavigationBlocker = ({ children }: PropsWithChildren) => {
-    console.log("rendering navigation blocker");
     return (
         <>
             {children}

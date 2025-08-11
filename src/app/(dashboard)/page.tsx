@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ComponentProps, createContext, Dispatch, FC, ReactNode, SetStateAction, useContext, useMemo, useState } from "react";
+import React, { ComponentProps, createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
@@ -401,6 +401,24 @@ const ProjectDescription = ({ project }: { project: Project }): ReactNode => {
     );
 }
 
+const ResponsiveSwipeToDelete = ({
+    isMobile,
+    selecting,
+    swipeToDelete,
+    ...props
+}: {
+    children: ReactNode,
+    isMobile: boolean,
+    selecting: boolean,
+    swipeToDelete: boolean
+} & ComponentProps<typeof SwipeToDelete>) => {
+            console.log(isMobile, selecting, swipeToDelete);
+        if (isMobile && !selecting && swipeToDelete) {
+            return <SwipeToDelete {...props} />;
+        }
+        return <>{props.children}</>;
+}
+
 const ProjectContainer = ({
     project
 }: {
@@ -456,21 +474,13 @@ const ProjectContainer = ({
         </AspectRatio>
     );
 
-    const SwipeToDeleteConditional: FC<ComponentProps<typeof SwipeToDelete>> = useMemo(() => (props) => {
-        console.log(isMobile, selecting, swipeToDelete);
-        if (isMobile && !selecting && swipeToDelete) {
-            return <SwipeToDelete {...props} />;
-        }
-        return <>{props.children}</>;
-    }, [isMobile, selecting, swipeToDelete]);
-
     return isMobile ? (
         <div className="w-[100% + 5 * var(--spacing)] -mx-5 -my-[2px] overflow-hidden">
-            <SwipeToDeleteConditional height={container ? container.getBoundingClientRect().height : 210} onDelete={() => deleteProject(project.uuid)}>
+            <ResponsiveSwipeToDelete isMobile={isMobile} swipeToDelete={swipeToDelete} selecting={selecting} height={container ? container.getBoundingClientRect().height : 210} onDelete={() => deleteProject(project.uuid)}>
                 <div ref={containerRef} className="w-full bg-background px-5 py-2">
                     {projectComponent}
                 </div>
-            </SwipeToDeleteConditional>
+            </ResponsiveSwipeToDelete>
         </div>
     ) : (
         projectComponent
