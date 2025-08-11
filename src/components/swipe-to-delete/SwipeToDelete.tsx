@@ -189,7 +189,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             handleMove(e.pageX, e.pageY);
         };
 
-        const handleMouseEnd = (e: PointerEvent) => {
+        const handleMouseEnd = (_e: PointerEvent) => {
             handleEnd();
         };
 
