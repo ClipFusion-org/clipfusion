@@ -12,6 +12,7 @@ import WideContainer from "@/components/wide-container";
 import { getBuildID, getVersion } from "@/lib/build";
 import useBrowserEngine from "@/hooks/useBrowserEngine";
 import useUserAgent from "@/hooks/useUserAgent";
+import StickyTopContainer from "@/components/sticky-top-container";
 
 
 export default function Settings(): ReactNode {
@@ -31,13 +32,13 @@ export default function Settings(): ReactNode {
                     <h2 className="font-bold break-keep text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-none">Settings</h2>
                 </ScrollFadingTitle>
             </div>
-            <div className="flex flex-col sticky top-safe bg-background gap-2 pb-2 pt-4 p-5 w-[100% + 5 * var(--spacing)] z-10 -mx-5">
+            <StickyTopContainer>
                 <SidebarTriggerAdjustable adjustWidth={!isMobile ? 0 : 12} className="flex items-center justify-center">
                     <WideContainer>
                         <Search />
                     </WideContainer>
                 </SidebarTriggerAdjustable>
-            </div>
+            </StickyTopContainer>
             <div className="flex flex-col justify-start items-center">
                 <WideContainer>
                     <div className="flex flex-col gap-2 mt-2 justify-center">

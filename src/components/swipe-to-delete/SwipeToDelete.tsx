@@ -73,14 +73,22 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
         content.current?.classList.remove('ios-ease');
     };
 
-    const handleMove = (pageX: number, pageY: number) => {
-        if (!dragging) return;
+    const disableScroll = () => {
+        document.body.classList.add('no-scroll');
+    };
+
+    const enableScroll = () => {
+        document.body.classList.remove('no-scroll');
+    };
+
+    const handleMove = (pageX: number, pageY: number): boolean => {
+        if (!dragging) return false;
         const now = performance.now();
         const dt = now - lastTimeRef.current;
         if (lastXRef.current === -1 || lastYRef.current === -1) {
             lastXRef.current = pageX;
             lastYRef.current = pageY;
-            return;
+            return false;
         }
         const dx = pageX - lastXRef.current;
         const dy = pageY - lastYRef.current;
@@ -98,15 +106,15 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             if (x < -1) setAllowOverscroll(true);
             if (x <= 0 || (allowOverscroll && x >= 0)) {
                 setDragX(x);
-                document.body.classList.add('no-scroll');
+                disableScroll();
+                return true;
             }
-
         } else {
             setDragX(0);
             setAllowOverscroll(false);
-            document.body.classList.remove('no-scroll');
+            enableScroll();
         }
-
+        return false;
     };
 
     const handleDelete = () => {
@@ -126,7 +134,7 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
 
         const shouldDelete = isSticky || velocity < -1000;
         setAllowOverscroll(false);
-        document.body.classList.remove('no-scroll');
+        enableScroll();
         if (Math.abs(velocityY) > window.innerHeight * 0.05 && Math.abs(dragX) < 20) {
             setDragX(0);
             if (transparencyTimeout) {
@@ -168,46 +176,72 @@ const SwipeToDelete: FC<SwipeToDeleteProps> = ({
             return !(container.current?.contains(e.target as Node));
         };
 
-        const handleMouseStart = (e: PointerEvent) => {
-            if ((e.target as Element).hasPointerCapture(e.pointerId)) {
-                (e.target as Element).releasePointerCapture(e.pointerId);
-            }
+        const handleMouseStart = (e: MouseEvent) => {
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
                 return;
             }
-            e.preventDefault();
             handleStart(e.pageX);
         };
 
-        const handleMouseMove = (e: PointerEvent) => {
+        const handleMouseMove = (e: MouseEvent) => {
             if (eventOutsideOfContainer(e)) {
                 setDragX(0);
                 return;
             }
-            e.preventDefault();
-            handleMove(e.pageX, e.pageY);
+            if (handleMove(e.pageX, e.pageY)) {
+                e.preventDefault();
+            }
         };
 
-        const handleMouseEnd = (_e: PointerEvent) => {
+        const handleMouseEnd = (_e: MouseEvent) => {
+            handleEnd();
+        };
+
+        const handleTouchStart = (e: TouchEvent) => {
+            if (eventOutsideOfContainer(e)) {
+                setDragX(0);
+                return;
+            }
+            handleStart(e.touches[0].clientX);
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            if (eventOutsideOfContainer(e)) {
+                setDragX(0);
+                return;
+            }
+            if (handleMove(e.touches[0].clientX, e.touches[0].clientY)) {
+                e.preventDefault();
+            }
+        };
+
+        const handleTouchEnd = (_e: TouchEvent) => {
             handleEnd();
         };
 
         const options: AddEventListenerOptions = {
-            capture: true,
             passive: false
         };
 
-        node.addEventListener("pointerdown", handleMouseStart, options);
-        node.addEventListener("pointermove", handleMouseMove, options);
-        node.addEventListener("pointerup", handleMouseEnd, options);
-        node.addEventListener("pointercancel", handleMouseEnd, options);
+        node.addEventListener("touchstart", handleTouchStart, options);
+        node.addEventListener("touchmove", handleTouchMove, options);
+        node.addEventListener("touchend", handleTouchEnd, options);
+        node.addEventListener("touchcancel", handleTouchEnd, options);
+
+        node.addEventListener("mousedown", handleMouseStart, options);
+        node.addEventListener("mousemove", handleMouseMove, options);
+        node.addEventListener("mouseup", handleMouseEnd, options);
 
         return () => {
-            node.removeEventListener("pointerdown", handleMouseStart, options);
-            node.removeEventListener("pointermove", handleMouseMove, options);
-            node.removeEventListener("pointerup", handleMouseEnd, options);
-            node.removeEventListener("pointercancel", handleMouseEnd, options);
+            node.removeEventListener("touchstart", handleTouchStart, options);
+            node.removeEventListener("touchmove", handleTouchMove, options);
+            node.removeEventListener("touchend", handleTouchEnd, options);
+            node.removeEventListener("touchcancel", handleTouchEnd, options);
+
+            node.removeEventListener("mousedown", handleMouseStart, options);
+            node.removeEventListener("mousemove", handleMouseMove, options);
+            node.removeEventListener("mouseup", handleMouseEnd, options);
         };
     }, [dragging, dragX, velocity, velocityY, container]);
 

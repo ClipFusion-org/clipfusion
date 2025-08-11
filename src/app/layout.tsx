@@ -43,7 +43,7 @@ export default async function RootLayout({
                 <PWAHead/>
                 <Analytics/>
             </head>
-            <body className={`${geist.variable} ${geistMono.variable} antialiased w-screen h-screen`}>
+            <body className={`${geist.variable} ${geistMono.variable} antialiased`}>
                 <ThemeProvider>
                     {children}
                     <Toaster/>

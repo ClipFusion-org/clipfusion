@@ -263,7 +263,7 @@ const ProjectDropdown = ({
                 <SheetContent side="bottom" className="px-safe-or-2 pb-safe-or-2 gap-1">
                     <SheetHeader className="m-0 p-2 gap-0">
                         <div className="flex flex-row items-center w-[95%]">
-                            <SheetTitle className="font-semibold line-clamp-1">{project.title}</SheetTitle>
+                            <SheetTitle className="font-semibold line-clamp-1">Project Description</SheetTitle>
                             <SheetClose asChild>
                                 <Button variant="ghost" onClick={(e) => {
                                     e.preventDefault();
@@ -273,7 +273,7 @@ const ProjectDropdown = ({
                                 </Button>
                             </SheetClose>
                         </div>
-                        <SheetDescription>Additional Options for the Project</SheetDescription>
+                        <SheetDescription>{project.title}</SheetDescription>
                     </SheetHeader>
                     <Separator />
                     <SheetClose asChild>
@@ -432,8 +432,11 @@ const ProjectContainer = ({
         <Link {...props} prefetch={false}/>
     ));
 
+    console.log("isMobile: ", isMobile);
+    console.log("swipeToDelete", swipeToDelete);
+
     const projectComponent = (
-        <AspectRatio  className="relative w-full h-auto" data-selectable="true" ratio={16 / 9}>
+        <AspectRatio className="relative w-full h-auto" data-selectable="true" ratio={16 / 9}>
             <AscendingCard className="absolute top-0 left-0 w-full h-full overflow-hidden p-0">
                 <LinkComponent href={`/editor/${project.uuid}`} className="absolute top-0 left-0 w-full h-full overflow-hidden">
                     <div className="relative w-full h-full rounded-lg overflow-hidden" data-selectable="true" onClick={handleCheck}>
@@ -533,7 +536,7 @@ export default function Home(): ReactNode {
 
     return (
         <SelectContext.Provider value={context}>
-            <div className="flex flex-col justify-between h-screen">
+            <div className="flex flex-col justify-between h-full">
                 <div className="p-5">
                     <div className="flex flex-row items-center gap-2">
                         <StaticSidebarTrigger />

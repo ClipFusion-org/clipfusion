@@ -11,7 +11,7 @@ export default async function RootLayout({
     return (
         <SidebarProvider>
             <Dashboard />
-            <main className="relative h-screen isolate" style={{touchAction: "pan-y pinch-zoom"}}>
+            <main className="relative isolate h-full">
                 <PersistenceProvider>
                     {children}
                 </PersistenceProvider>
