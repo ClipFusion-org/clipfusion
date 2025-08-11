@@ -24,10 +24,12 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
     width: 'device-width',
+    height: 'device-height',
     initialScale: 1,
     maximumScale: 1,
     userScalable: false,
-    viewportFit: "cover"
+    viewportFit: "cover",
+    interactiveWidget: "resizes-visual",
 };
 
 export default async function RootLayout({
