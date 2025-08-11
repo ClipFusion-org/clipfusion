@@ -60,14 +60,14 @@
 }
 
 html {
-    padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 body {
     -webkit-tap-highlight-color: transparent;
     font-family: var(--font-geist), sans-serif;
     background-color: var(--color-background);
-    touch-action: manipulation; 
+    touch-action: manipulation;
 }
 
 main {
@@ -76,7 +76,7 @@ main {
 }
 
 a {
-  -webkit-touch-callout: none;
+    -webkit-touch-callout: none;
 }
 
 .dark body {

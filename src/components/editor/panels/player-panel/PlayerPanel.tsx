@@ -46,14 +46,14 @@ export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
     return (
         <Panel {...props}>
             <PanelHeader>Player</PanelHeader>
-            <PanelContent className="p-0 flex flex-col items-center justify-between h-full">
-                <div className="flex flex-1 items-center justify-center w-full overflow-hidden p-4">
-                    <div className="w-full h-full overflow-hidden bg-panel-border">
-                        {createPortal(<canvas ref={canvasRef} id="primary-canvas" width="4230" height="2160" style={{ position: 'fixed', top: 0, left: 0, zIndex: -1000, display: 'none'}} />, document.body)}
+            <PanelContent className="flex flex-col items-center justify-between h-full">
+                <div className="flex flex-1 items-center justify-center w-full overflow-hidden">
+                    <div className="w-full h-full overflow-hidden">
+                        <canvas ref={canvasRef} id="primary-canvas" width="4230" height="2160" style={{ position: 'fixed', top: 0, left: 0, zIndex: -1000, display: 'none'}} />
                         <video className="w-full h-full object-contain" ref={canvasDisplayRef} autoPlay playsInline muted />
                     </div>
                 </div>
-                <div className="flex shrink-0 flex-row justify-between items-center w-full h-10 px-2">
+                <div className="flex shrink-0 flex-row justify-between items-center w-full h-10">
                     <div className="flex flex-row items-center justify-start grow basis-0">
                         <h3 className="text-muted-foreground text-sm">00:00:00/00:00:00</h3>
                     </div>
