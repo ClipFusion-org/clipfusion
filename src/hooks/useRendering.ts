@@ -12,6 +12,10 @@ const useRendering = () => {
             return;
         }
 
+        const canvas = canvasData.canvas;
+        canvas.width = (project.height * project.ratio) / project.previewRatio;
+        canvas.height = project.height / project.previewRatio;
+
         renderFrame(project, canvasData, playbackData ?? defaultPlaybackData);
     }, [project, canvasData, playbackData]);
 
