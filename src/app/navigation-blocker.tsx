@@ -38,12 +38,9 @@ const NavigationBlocker = ({ children }: PropsWithChildren) => {
                     if (document.body) {
                         document.body.addEventListener('touchstart', (e) => {
                             let x = e.pageX;
-                            let y = e.pageY;
                             if (!x) x = e.touches[0].pageX;
-                            if (!y) y = e.touches[0].pageY;
                             let edge = 30;
-                            console.log(x, y, edge);
-                            if (x >= edge && x <= window.innerWidth - edge && y >= edge && y <= window.innerHeight - edge) return;
+                            if (x >= edge && x <= window.innerWidth - edge) return;
 
                             e.preventDefault();
                         }, {
