@@ -6,22 +6,59 @@ import PlayerPanel from "@/components/editor/panels/player-panel";
 import { PropertiesPanel } from "@/components/editor/panels/properties-panel/PropertiesPanel";
 import TimelinePanel from "@/components/editor/panels/timeline-panel";
 import ThemeSwitcher from "@/components/theme-switcher";
+import { Description, Title } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menubar, MenubarItem, MenubarMenu, MenubarContent, MenubarTrigger, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarSeparator } from "@/components/ui/menubar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import useRendering from "@/hooks/useRendering";
 import { db } from "@/lib/db";
+import { cn } from "@/lib/utils";
 import { useEditorStore } from "@/store/useEditorStore";
 import { defaultCanvasData } from "@/types/CanvasData";
 import { defaultPlaybackData } from "@/types/PlaybackData";
 import { defaultProject } from "@/types/Project";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, PencilIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
+
+const ProjectRenamePopover = ({
+    className
+}: {
+    className: string
+}) => {
+    const project = useEditorStore((state) => state.project);
+    const setProject = useEditorStore((state) => state.setProject);
+
+    return (
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="ghost" className={className}>
+                    <p className="truncate">{project?.title}</p> <PencilIcon />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="grid gap-2">
+                <div className="grid">
+                    <Title>
+                        Rename Project
+                    </Title>
+                    <Description>
+                        Change name and description of your project.
+                    </Description>
+                </div>
+                <div className="grid gap-2">
+                    <Input value={project?.title} onChange={(e) => setProject((prev) => ({ ...prev, title: e.target.value }))} className="w-full" placeholder="Project Title" spellCheck={false} autoComplete="off" />
+                    <Textarea value={project?.description} onChange={(e) => setProject((prev) => ({ ...prev, description: e.target.value }))} className="w-full" placeholder="Project Description" />
+                </div>
+            </PopoverContent>
+        </Popover>
+    );
+}
 
 export default function Editor() {
     const { setProject, setCanvasData, setPlaybackData } = useEditorStore();
@@ -124,7 +161,7 @@ export default function Editor() {
                     </MenubarMenu>
                 </div>
                 <div className="flex flex-row justify-center grow basis-0">
-                    <Input placeholder="Project Title" spellCheck={false} value={projectTitle} onChange={(e) => handleRename(e)} className="bg-transparent dark:bg-transparent border-none focus-visible:ring-0 text-sm p-0 h-6 text-center drop-shadow-none shadow-none font-semibold text-secondary-foreground w-56" />
+                    <ProjectRenamePopover className="w-56" />
                 </div>
                 <div className="flex flex-row justify-end grow basis-0">
                     <ThemeSwitcher className="pr-5" variant="transparent" />

@@ -10,5 +10,5 @@ export const Muted = (props: React.ComponentProps<"p">) => (
 );
 
 export const Description = (props: React.ComponentProps<"p">) => (
-    <p {...props} className={cn("text-xs text-muted-foreground", props.className)} />
+    <Muted {...props} className={cn("text-xs", props.className)} />
 );
