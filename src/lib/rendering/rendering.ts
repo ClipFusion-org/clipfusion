@@ -1,7 +1,7 @@
 import { CanvasData } from "@/types/CanvasData";
 import { PlaybackData } from "@/types/PlaybackData";
 import Project from "@/types/Project";
-import { hex2rgba } from "../utils";
+import { hexToRgba } from "../color-converter";
 
 export const renderFrame = (project: Project, canvasData: CanvasData, _playbackData: PlaybackData) => {
     const gl = canvasData.ctx;
@@ -11,9 +11,9 @@ export const renderFrame = (project: Project, canvasData: CanvasData, _playbackD
     }
     gl.viewport(0, 0, canvasData.canvas.width, canvasData.canvas.height);
     console.log("rendering");
-    const rgba = hex2rgba(project.backgroundColor ?? "#000000");
+    const rgba = hexToRgba(project.backgroundColor ?? "#000000");
     if (rgba) {
-        const [r, g, b, a] = rgba;
+        const { r, g, b, a } = rgba;
         gl.clearColor(r, g, b, a);
         gl.clear(gl.COLOR_BUFFER_BIT);
     }

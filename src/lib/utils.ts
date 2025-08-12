@@ -1,3 +1,4 @@
+import Project, { defaultProject } from "@/types/Project";
 import clsx, { type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -19,35 +20,24 @@ export const truncate = (str: string, maxLength: number) => (
     str.length > maxLength ? str.slice(0, maxLength - 3) + '...' : str
 );
 
-export const hex2rgba = (hex: string, alpha: number = 255): [number, number, number, number] | null => {
-    let c: string | null = null;
-    // Remove '#' if present
-    const cleanedHex = hex.startsWith('#') ? hex.slice(1) : hex;
+export const createProject = (): Project => {
+    const date = Date.now();
 
-    // Handle 3-digit hex (e.g., #F00)
-    if (cleanedHex.length === 3) {
-        c = cleanedHex.split('').map(char => char + char).join('');
-    }
-    // Handle 4-digit hex with alpha (e.g., #F00A)
-    else if (cleanedHex.length === 4) {
-        c = cleanedHex.slice(0, 3).split('').map(char => char + char).join('');
-        alpha = parseInt(cleanedHex.slice(3, 4) + cleanedHex.slice(3, 4), 16) / 255;
-    }
-    // Handle 6-digit hex (e.g., #FF0000)
-    else if (cleanedHex.length === 6) {
-        c = cleanedHex;
-    }
-    // Handle 8-digit hex with alpha (e.g., #FF0000AA)
-    else if (cleanedHex.length === 8) {
-        c = cleanedHex.slice(0, 6);
-        alpha = parseInt(cleanedHex.slice(6, 8), 16) / 255;
-    } else {
-        return null; // Invalid hex format
-    }
+    return {
+        ...defaultProject,
+        uuid: generateUUID(),
+        creationDate: date,
+        editDate: date
+    } as Project;
+};
 
-    const r = parseInt(c.substring(0, 2), 16);
-    const g = parseInt(c.substring(2, 4), 16);
-    const b = parseInt(c.substring(4, 6), 16);
+export const calculateRatioString = (ratio: number): string | undefined => {
+    const targetString = ratio.toString().slice(0, 5);
 
-    return [r / 255, g / 255, b / 255, alpha / 255];
-}
+    for (let a = 0; a < 100; a++) {
+        for (let b = 0; b < 100; b++) {
+            if ((a / b).toString().slice(0, 5) == targetString) return `${a}:${b}`;
+        }
+    }
+    return undefined;
+};

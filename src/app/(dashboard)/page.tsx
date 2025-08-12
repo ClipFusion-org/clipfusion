@@ -23,7 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useDebounce } from "use-debounce";
 import { Checkbox } from "@/components/ui/checkbox";
-import { cn, generateUUID, truncate } from "@/lib/utils";
+import { cn, createProject, truncate } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
@@ -243,9 +243,6 @@ const ProjectDropdown = ({
 
         const newProject = {
             ...project,
-            uuid: generateUUID(),
-            creationDate: Date.now(),
-            editDate: Date.now(),
             title: newProjectTitle,
             origin: originProject.uuid
         };
@@ -516,11 +513,8 @@ export default function Home(): ReactNode {
     });
 
     const newProjectSubmit = async (data: ProjectInfoForm) => {
-        const date = Date.now();
         addProject({
-            uuid: generateUUID(),
-            creationDate: date,
-            editDate: date,
+            ...createProject(),
             title: data.title,
             description: data.description,
             origin: ""

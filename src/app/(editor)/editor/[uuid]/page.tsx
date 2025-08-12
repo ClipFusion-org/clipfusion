@@ -3,18 +3,20 @@
 import ClipFusionLogo from "@/components/clipfusion-logo";
 import { PanelContainer } from "@/components/editor/panels/panel";
 import PlayerPanel from "@/components/editor/panels/player-panel";
+import { PropertiesPanel } from "@/components/editor/panels/properties-panel/PropertiesPanel";
 import TimelinePanel from "@/components/editor/panels/timeline-panel";
 import ThemeSwitcher from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menubar, MenubarItem, MenubarMenu, MenubarContent, MenubarTrigger, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarSeparator } from "@/components/ui/menubar";
-import { ResizableHandle, ResizablePanelGroup } from "@/components/ui/resizable";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import useRendering from "@/hooks/useRendering";
 import { db } from "@/lib/db";
 import { useEditorStore } from "@/store/useEditorStore";
 import { defaultCanvasData } from "@/types/CanvasData";
 import { defaultPlaybackData } from "@/types/PlaybackData";
+import { defaultProject } from "@/types/Project";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ChevronDownIcon } from "lucide-react";
 import Link from "next/link";
@@ -55,7 +57,11 @@ export default function Editor() {
             return;
         }
         if (project && projectTitle === '') {
-            setProject(project);
+            // making sure we don't get undefined values
+            setProject({
+                ...defaultProject,
+                ...project
+            });
             setProjectTitle(project.title);
         }
     }, [uuid, project]);
@@ -66,7 +72,13 @@ export default function Editor() {
         <>
             <PanelContainer className="absolute top-0 left-0 w-screen h-full pt-8 bg-panel-border rounded-none">
                 <ResizablePanelGroup direction="vertical">
-                    <PlayerPanel />
+                    <ResizablePanel defaultSize={50}>
+                        <ResizablePanelGroup direction="horizontal">
+                            <PlayerPanel />
+                            <ResizableHandle />
+                            <PropertiesPanel />
+                        </ResizablePanelGroup>
+                    </ResizablePanel>
                     <ResizableHandle />
                     <TimelinePanel />
                 </ResizablePanelGroup>

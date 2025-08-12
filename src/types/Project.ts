@@ -9,4 +9,20 @@ export default class Project extends Entity<EditorDB> {
     creationDate!: number;
     editDate!: number;
     backgroundColor!: string;
+    ratio!: number; // default is 16 / 9
+    height!: number; // default is 1080p, width is derived from height using ratio
+    previewRatio!: number; // default is 1, 2 means half of the resolution, 3, 4, 5 and so on
 }
+
+export const defaultProject: Project = {
+    uuid: '',
+    origin: '',
+    title: 'New ClipFusion Project',
+    description: '',
+    creationDate: 0,
+    editDate: 0,
+    backgroundColor: '#000000',
+    ratio: 16 / 9,
+    height: 1080,
+    previewRatio: 1,
+} as Project;
