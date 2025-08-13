@@ -30,14 +30,3 @@ export const createProject = (): Project => {
         editDate: date
     } as Project;
 };
-
-export const calculateRatioString = (ratio: number): string | undefined => {
-    const targetString = ratio.toString().slice(0, 5);
-
-    for (let a = 0; a < 100; a++) {
-        for (let b = 0; b < 100; b++) {
-            if ((a / b).toString().slice(0, 5) == targetString) return `${a}:${b}`;
-        }
-    }
-    return undefined;
-};

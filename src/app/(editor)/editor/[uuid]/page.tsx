@@ -25,7 +25,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { ChevronDownIcon, PencilIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import React from "react";
 
 const ProjectRenamePopover = ({
     className
@@ -69,7 +69,7 @@ export default function Editor() {
     const projectQuery = useLiveQuery(async () => db.projects.where('uuid').equals(uuid).first());
 
     // setting global data to the default values just in case
-    useEffect(() => {
+    React.useEffect(() => {
         // Initialize only if unset to avoid overriding PlayerPanel initialization.
         setPlaybackData((prev) => prev ?? defaultPlaybackData);
         setCanvasData((prev) =>
@@ -79,7 +79,7 @@ export default function Editor() {
     }, [setPlaybackData, setCanvasData]);
 
     // Redirect user to the project library if provided UUID is invalid
-    useEffect(() => {
+    React.useEffect(() => {
         if (!uuid) {
             router.push('/');
             return;
@@ -94,7 +94,7 @@ export default function Editor() {
     }, [projectQuery]);
 
     // Automatically save changes to the project
-    useEffect(() => {
+    React.useEffect(() => {
         db.projects.update(project.uuid, project);
     }, [project]);
 

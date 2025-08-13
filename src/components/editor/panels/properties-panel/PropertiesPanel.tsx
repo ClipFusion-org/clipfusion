@@ -2,7 +2,7 @@ import { useEditorStore } from "@/store/useEditorStore";
 import { Panel, PanelContent, PanelHeader } from "../panel";
 import { CollapsibleText, Muted, NothingToShowPlaceholder, SwitchableText } from "@/components/typography";
 import React from "react";
-import { calculateRatioString, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { PanelFooter } from "../panel/Panel";
 import { Button } from "@/components/ui/button";
 import { PencilIcon } from "lucide-react";
