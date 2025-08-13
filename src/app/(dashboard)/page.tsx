@@ -36,6 +36,7 @@ import StickyTopContainer from "@/components/sticky-top-container";
 import { useRouter } from "next/navigation";
 import SwipeToDelete from "@/components/swipe-to-delete";
 import Spinner from "@/components/spinner";
+import { NothingToShowPlaceholder } from "@/components/typography";
 
 type SortingType = "byCreationDate"
     | "byEditDate"
@@ -155,7 +156,7 @@ const RenameProjectDialog = ({ project }: { project: Project }) => {
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>Rename Project</DialogTitle>
-                <DialogDescription>Change information of your project.</DialogDescription>
+                <DialogDescription>Change information about your project.</DialogDescription>
             </DialogHeader>
             <Form {...renameForm}>
                 <form onSubmit={renameForm.handleSubmit(handleRenameSubmit)} className="grid gap-3">
@@ -358,7 +359,6 @@ const ProjectDropdown = ({
 
 const ProjectDescription = ({ project }: { project: Project }): ReactNode => {
     const isMobile = useIsMobile();
-    if (!project.description) return <></>;
 
     if (isMobile) {
         return (
@@ -375,7 +375,9 @@ const ProjectDescription = ({ project }: { project: Project }): ReactNode => {
                     </SheetHeader>
                     <Separator />
                     <div className="p-2">
-                        {project.description}
+                        <NothingToShowPlaceholder className="text-sm text-muted-foreground break-words">
+                            {project.description}
+                        </NothingToShowPlaceholder>
                     </div>
                 </SheetContent>
             </Sheet>
@@ -391,9 +393,9 @@ const ProjectDescription = ({ project }: { project: Project }): ReactNode => {
             </PopoverTrigger>
             <PopoverContent className="w-80">
                 <h3 className="font-semibold text-lg">{project.title} Description</h3>
-                <p className="text-sm text-muted-foreground">
+                <NothingToShowPlaceholder className="text-sm text-muted-foreground break-words">
                     {project.description}
-                </p>
+                </NothingToShowPlaceholder>
             </PopoverContent>
         </Popover>
     );
