@@ -121,7 +121,7 @@ const ProjectInfoFormFields = ({ form }: { form: UseFormReturn<ProjectInfoForm> 
             <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                    <Textarea {...field} autoComplete="off" placeholder="Tell something about your project" className="resize-y" wrap="hard" />
+                    <Textarea {...field} autoComplete="off" placeholder="Say something about your project" className="resize-y" wrap="hard" />
                 </FormControl>
                 <FormMessage />
             </FormItem>

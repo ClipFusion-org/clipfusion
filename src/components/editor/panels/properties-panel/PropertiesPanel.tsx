@@ -63,7 +63,7 @@ const ProjectPropertiesFormFields = ({ form }: { form: UseFormReturn<ProjectProp
                 <FormLabel>Description</FormLabel>
                 <div>
                     <FormControl>
-                        <Textarea className="break-words overflow-x-auto" autoComplete="false" spellCheck="false" {...field} />
+                        <Textarea placeholder="Say something about your project" className="break-words overflow-x-auto" autoComplete="false" spellCheck="false" {...field} />
                     </FormControl>
                     <FormMessage />
                 </div>
