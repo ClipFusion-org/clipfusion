@@ -42,7 +42,7 @@ const ProjectRenamePopover = ({
                     <p className="truncate">{project?.title}</p> <PencilIcon />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="grid gap-2">
+            <PopoverContent className={cn("grid gap-2", className)}>
                 <div className="grid">
                     <Title>
                         Rename Project
@@ -61,21 +61,12 @@ const ProjectRenamePopover = ({
 }
 
 export default function Editor() {
-    const { setProject, setCanvasData, setPlaybackData } = useEditorStore();
+    const { setProject, setCanvasData, setPlaybackData, project } = useEditorStore();
     const router = useRouter();
     const params = useParams();
     const isMobile = useIsMobile();
     const uuid = params.uuid as string;
-    const project = useLiveQuery(async () => db.projects.where('uuid').equals(uuid).first());
-    const [projectTitle, setProjectTitle] = useState('');
-
-    const handleRename = (e: ChangeEvent<HTMLInputElement>) => {
-        const title = e.target.value;
-        setProjectTitle(title);
-        db.projects.update(uuid, {
-            title: title
-        });
-    };
+    const projectQuery = useLiveQuery(async () => db.projects.where('uuid').equals(uuid).first());
 
     // setting global data to the default values just in case
     useEffect(() => {
@@ -93,19 +84,23 @@ export default function Editor() {
             router.push('/');
             return;
         }
-        if (project && projectTitle === '') {
+        if (projectQuery) {
             // making sure we don't get undefined values
             setProject({
                 ...defaultProject,
-                ...project
+                ...projectQuery
             });
-            setProjectTitle(project.title);
         }
-    }, [uuid, project]);
+    }, []);
+
+    // Automatically save changes to the project
+    useEffect(() => {
+        db.projects.update(project.uuid, project);
+    }, [project]);
 
     useRendering();
 
-    return project ? (
+    return projectQuery ? (
         <>
             <PanelContainer className="absolute top-0 left-0 w-screen h-full pt-8 bg-panel-border rounded-none">
                 <ResizablePanelGroup direction="vertical">
@@ -161,7 +156,7 @@ export default function Editor() {
                     </MenubarMenu>
                 </div>
                 <div className="flex flex-row justify-center grow basis-0">
-                    <ProjectRenamePopover className="w-56" />
+                    <ProjectRenamePopover className="w-56 sm:w-70 md:w-96" />
                 </div>
                 <div className="flex flex-row justify-end grow basis-0">
                     <ThemeSwitcher className="pr-5" variant="transparent" />

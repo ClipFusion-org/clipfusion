@@ -1,6 +1,6 @@
 import { CanvasData, defaultCanvasData } from "@/types/CanvasData";
 import { PlaybackData, defaultPlaybackData } from "@/types/PlaybackData";
-import Project from "@/types/Project";
+import Project, { defaultProject } from "@/types/Project";
 import { create } from "zustand";
 
 type ValueOrUpdater<T> = Partial<T> | ((prev: T) => Partial<T>);
@@ -13,7 +13,7 @@ const getValue = <T>(state: T | undefined, value: ValueOrUpdater<T>): Partial<T>
 };
 
 interface EditorStore {
-    project?: Project;
+    project: Project;
     setProject: Updater<Project>;
 
     canvasData: CanvasData;
@@ -24,6 +24,7 @@ interface EditorStore {
 }
 
 export const useEditorStore = create<EditorStore>()((set) => ({
+    project: defaultProject,
     setProject: (project: ValueOrUpdater<Project>) => set((state) => ({ project: ({ ...getValue(state.project, project) } as Project) })),
     
     canvasData: defaultCanvasData,

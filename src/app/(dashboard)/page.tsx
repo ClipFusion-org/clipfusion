@@ -163,10 +163,10 @@ const RenameProjectDialog = ({ project }: { project: Project }) => {
                         <DialogClose asChild>
                             <Button type="button" variant="outline">Cancel</Button>
                         </DialogClose>
-                        <DialogClose onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        <DialogClose asChild onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                             if (renameForm.formState.errors.title) e.preventDefault();
-                        }} asChild>
-                            <Button type="submit" >Rename</Button>
+                        }}>
+                            <Button type="submit">Rename</Button>
                         </DialogClose>
                     </DialogFooter>
                 </form>
@@ -185,7 +185,7 @@ const DeleteProjectDialog = ({ project }: { project: Project }) => {
             <AlertDialogHeader>
                 <AlertDialogTitle>Delete Project</AlertDialogTitle>
                 <AlertDialogDescription>
-                    Are you sure you want to delete the project &quot;{truncate(project.title, 32)}&quot;? This action cannot be undone.
+                    Are you sure you want to delete &quot;{truncate(project.title, 36)}&quot;? This action cannot be undone.
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -313,7 +313,7 @@ const ProjectDropdown = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent align={isMobile ? "end" : "start"} className="min-w-48">
                 <div className="flex flex-row items-center justify-between w-full">
-                    <DropdownMenuLabel className="font-semibold">{project.title}</DropdownMenuLabel>
+                    <DropdownMenuLabel className="font-semibold">{truncate(project.title, 36)}</DropdownMenuLabel>
                     <DropdownMenuItem onClick={(e: React.MouseEvent<HTMLDivElement>) => {
                         e.preventDefault();
                         setRenameDialogOpen(true)
@@ -570,9 +570,9 @@ export default function Home(): ReactNode {
                                                     <DialogClose asChild>
                                                         <Button type="button" variant="outline">Cancel</Button>
                                                     </DialogClose>
-                                                    <DialogClose onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                                    <DialogClose asChild onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                                         if (newProjectForm.formState.errors.title) e.preventDefault();
-                                                    }} asChild>
+                                                    }}>
                                                         <Button type="submit">Create</Button>
                                                     </DialogClose>
                                                 </DialogFooter>

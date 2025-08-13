@@ -15,8 +15,12 @@ export const Panel = (props: ComponentProps<typeof ResizablePanel>) => (
 );
 
 export const PanelHeader = (props: ComponentProps<"div">) => (
-    <div {...props} className={cn("flex flex-row items-center justify-start w-full h-8 p-2 bg-header border-b border-b-white dark:border-b-black z-50", props.className)}/>
+    <div {...props} className={cn("flex flex-row items-center justify-start w-full h-8 p-2 bg-header border-b border-white dark:border-black z-50", props.className)}/>
 );
+
+export const PanelFooter = (props: ComponentProps<typeof PanelHeader>) => (
+    <PanelHeader {...props} className={cn("border-b-0 border-t", props.className)} />
+)
 
 export const PanelContent = (props: ComponentProps<"div">) => (
     <div {...props} className={cn("w-full h-full p-4 z-0", props.className, "pb-8")}/>

@@ -1,3 +1,4 @@
+import { Description, Title } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Toggle } from "@/components/ui/toggle";
@@ -50,9 +51,9 @@ const ResolutionPopover = () => {
                     <RatioResolutionIcon previewRatio={project?.previewRatio || 1} ratio={project?.ratio || 16 / 9} /> 
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="grid gap-1">
-                <h3 className="font-bold text-lg">Preview Resolution</h3>
-                <p className="text-muted-foreground text-sm">Changing preview resolution has no impact on final results</p>
+            <PopoverContent className="grid gap-0">
+                <Title className="font-bold text-lg">Preview Resolution</Title>
+                <Description>Changing preview resolution has no impact on final results</Description>
                 <div className="flex flex-row items-center justify-center w-full px-2">
                     <PreviewResolutionVariant previewRatio={1} />
                     <PreviewResolutionVariant previewRatio={2} />

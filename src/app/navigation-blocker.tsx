@@ -1,34 +1,5 @@
 import { PropsWithChildren } from "react";
 
-/* const NavigationBlocker = (props: PropsWithChildren) => {
-    const ref = useRef<HTMLDivElement>(null);
-    const browser = useBrowserEngine();
-
-    useEffect(() => {
-        const block = (e: TouchEvent) => {
-            if (browser !== 'WebKit') return;
-            const x = e.touches[0].clientX;
-            // is not near edge of view, exit
-            const edge = window.innerWidth * 0.05;
-            if ((x >= edge && x <= window.innerWidth - edge)) return;
-            // prevent swipe to navigate back gesture
-            e.preventDefault();
-        };
-
-        const options: AddEventListenerOptions = {
-            passive: false
-        };
-
-        window.addEventListener("touchstart", block, options);
-
-        return () => {
-            window.removeEventListener("touchstart", block, options);
-        };
-    }, [ref, browser]);
-
-    return <div ref={ref} {...props}></div>;
-}; */
-
 const NavigationBlocker = ({ children }: PropsWithChildren) => {
     return (
         <>
