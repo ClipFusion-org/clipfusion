@@ -91,7 +91,7 @@ export default function Editor() {
                 ...projectQuery
             });
         }
-    }, []);
+    }, [projectQuery]);
 
     // Automatically save changes to the project
     useEffect(() => {

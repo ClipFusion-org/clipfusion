@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import resolutions from "@/constants/resolutions";
 import aspectRatios from "@/constants/aspectRatios";
+import { getProjectRatio } from "@/types/Project";
 
 const ProjectPropertiesFormSchema = z.object({
     title: z.string().nonempty(),
@@ -127,7 +128,7 @@ const ModifyProjectPropertiesDialog = () => {
             title: values.title,
             description: values.description,
             reslution: +values.resolution,
-            ratio: +values.ratio.split(":")[0] / +values.ratio.split(":")[1]
+            ratio: values.ratio
         }));
     };
 
@@ -137,7 +138,7 @@ const ModifyProjectPropertiesDialog = () => {
                 title: project.title,
                 description: project.description,
                 resolution: `${project.height}`,
-                ratio: calculateRatioString(project.ratio)
+                ratio: project.ratio
             });
         }
     }, [project]);
@@ -205,11 +206,11 @@ export const PropertiesPanel = () => {
 
                     <PropertyName>Resolution:</PropertyName>
                     <PropertyValue>
-                        <SwitchableText a={`${project.height}p`} b={`${project.height * project.ratio}x${project.height}`} />
+                        <SwitchableText a={`${project.height}p`} b={`${project.height * getProjectRatio(project)}x${project.height}`} />
                     </PropertyValue>
 
                     <PropertyName>Ratio:</PropertyName>
-                    <PropertyValue>{calculateRatioString(project?.ratio || 16 / 9)}</PropertyValue>
+                    <PropertyValue>{project.ratio}</PropertyValue>
                 </div>
                 <PanelFooter className="flex flex-row justify-end h-12 shrink-0">
                     <ModifyProjectPropertiesDialog />

@@ -5,6 +5,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import groupedColors from "@/constants/groupedColors";
 import { useEditorStore } from "@/store/useEditorStore";
+import { getProjectRatio } from "@/types/Project";
 import { CheckIcon, DropletIcon } from "lucide-react";
 
 const PreviewResolutionRatioText = ({
@@ -36,7 +37,7 @@ const PreviewResolutionVariant = ({
 
     return (
         <Toggle pressed={(project?.previewRatio || 1) === previewRatio} onPressedChange={() => setProject(prev => ({ ...prev, previewRatio: previewRatio }))} className="size-9 p-2 flex grow-0 flex-row items-center justify-start w-full gap-1">
-            <RatioResolutionIcon previewRatio={previewRatio} ratio={project?.ratio || 16 / 9} />
+            <RatioResolutionIcon previewRatio={previewRatio} ratio={getProjectRatio(project)} />
         </Toggle>
     )
 }
@@ -48,7 +49,7 @@ const ResolutionPopover = () => {
         <Popover>
             <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" className="flex items-center justify-center text-sm p-[2px]">
-                    <RatioResolutionIcon previewRatio={project?.previewRatio || 1} ratio={project?.ratio || 16 / 9} /> 
+                    <RatioResolutionIcon previewRatio={project?.previewRatio || 1} ratio={getProjectRatio(project)} /> 
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="grid gap-0">
