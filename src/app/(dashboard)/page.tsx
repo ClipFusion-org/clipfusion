@@ -5,7 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ALargeSmallIcon, ArrowDownIcon, ArrowUpIcon, CalendarIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, Grid2X2XIcon, InfoIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { ALargeSmallIcon, ArrowDownIcon, ArrowUpIcon, CalendarIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, Grid2X2XIcon, InfoIcon, LoaderIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import Search from "@/components/search";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -35,6 +35,7 @@ import Link from "next/link";
 import StickyTopContainer from "@/components/sticky-top-container";
 import { useRouter } from "next/navigation";
 import SwipeToDelete from "@/components/swipe-to-delete";
+import Spinner from "@/components/spinner";
 
 type SortingType = "byCreationDate"
     | "byEditDate"
@@ -422,6 +423,7 @@ const ProjectContainer = ({
     project: Project
 }): ReactNode => {
     const { selecting, selectedProjects, setSelectedProjects } = useSelectContext();
+    const [navigating, setNavigating] = useState(false);
     const [container, setContainer] = useState<HTMLDivElement | undefined>();
     const containerRef = (node: HTMLDivElement) => {
         setContainer(node);
@@ -431,7 +433,11 @@ const ProjectContainer = ({
 
     const date = new Date(project.editDate);
 
-    const handleCheck = () => {
+    const handleClick = () => {
+        if (!selecting) {
+            setNavigating(true);
+            return;
+        }
         const index = selectedProjects.indexOf(project.uuid);
         if (index >= 0) {
             selectedProjects.splice(index, 1);
@@ -449,11 +455,11 @@ const ProjectContainer = ({
         <AspectRatio className="relative w-full h-auto" data-selectable="true" ratio={16 / 9}>
             <AscendingCard className="absolute top-0 left-0 w-full h-full overflow-hidden p-0">
                 <LinkComponent href={`/editor/${project.uuid}`} className="absolute top-0 left-0 w-full h-full overflow-hidden">
-                    <div className="relative w-full h-full rounded-lg overflow-hidden" data-selectable="true" onClick={handleCheck}>
+                    <div className="relative w-full h-full rounded-lg overflow-hidden" data-selectable="true" onClick={handleClick}>
                         <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-white dark:from-black to-transparent opacity-50" data-selectable="true" />
-                        <div className="absolute bottom-0 left-0 p-2 w-[85%] flex flex-col" data-selectable="true" >
-                            <h3 className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold line-clamp-1" data-selectable="true">{project.title}</h3>
-                            {project.description && <p className="text-sm text-secondary-foreground line-clamp-1" data-selectable="true">{project.description}</p>}
+                        <div className="absolute bottom-0 left-0 p-2 w-[80%] flex flex-col" data-selectable="true" >
+                            <h3 className="text-sm sm:text-sm md:text-md lg:text-lg font-semibold truncate" data-selectable="true">{project.title}</h3>
+                            {project.description && <p className="text-sm text-secondary-foreground truncate" data-selectable="true">{project.description}</p>}
                             {project.editDate && <time dateTime={date.toISOString()} className="text-sm text-secondary-foreground" data-selectable="true">Last Edit Date: {date.toLocaleDateString()}, {date.toLocaleTimeString([], { timeStyle: "short" })}</time>}
                         </div>
                     </div>
@@ -462,11 +468,16 @@ const ProjectContainer = ({
                     {!selecting && <ProjectDescription project={project} />}
                     <ProjectDropdown selected={selectedProjects.includes(project.uuid)} project={project} />
                 </div>
-                {selecting && (
+                {selecting && 
                     <div className="absolute top-0 right-0 pt-5 pr-5" data-selectable="true">
                         <Checkbox checked={selectedProjects.includes(project.uuid)} data-selectable="true" />
                     </div>
-                )}
+                }
+                {navigating && 
+                    <div className="absolute top-0 left-0 w-full h-full bg-black/5 flex items-center justify-center z-50">
+                        <Spinner />
+                    </div>
+                }
             </AscendingCard>
         </AspectRatio>
     );
