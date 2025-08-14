@@ -122,7 +122,6 @@ const ModifyProjectPropertiesDialog = () => {
     });
 
     const onSubmit = (values: ProjectPropertiesForm) => {
-        console.log(values.resolution);
         setProject((prev) => ({
             ...prev,
             title: values.title,

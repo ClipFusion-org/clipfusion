@@ -37,6 +37,7 @@ import { useRouter } from "next/navigation";
 import SwipeToDelete from "@/components/swipe-to-delete";
 import Spinner from "@/components/spinner";
 import { NothingToShowPlaceholder } from "@/components/typography";
+import { ProjectRenameForm, ProjectRenameFormFields, useProjectRenameForm } from "@/hooks/useProjectRenameForm";
 
 type SortingType = "byCreationDate"
     | "byEditDate"
@@ -101,47 +102,10 @@ const useSelectContext = (): SelectContextData => {
     return context;
 };
 
-const ProjectInfoFormSchema = z.object({
-    title: z.string().nonempty("Title cannot be empty"),
-    description: z.string().or(z.literal(""))
-});
-
-type ProjectInfoForm = z.infer<typeof ProjectInfoFormSchema>;
-
-const ProjectInfoFormFields = ({ form }: { form: UseFormReturn<ProjectInfoForm> }) => (
-    <>
-        <FormField control={form.control} name="title" render={({ field }) => (
-            <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                    <Input {...field} />
-                </FormControl>
-                <FormMessage />
-            </FormItem>
-        )} />
-        <FormField control={form.control} name="description" render={({ field }) => (
-            <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                    <Textarea {...field} autoComplete="off" placeholder="Say something about your project" className="resize-y" wrap="hard" />
-                </FormControl>
-                <FormMessage />
-            </FormItem>
-        )} />
-    </>
-);
-
 const RenameProjectDialog = ({ project }: { project: Project }) => {
-    const renameForm = useForm<ProjectInfoForm>({
-        resolver: zodResolver(ProjectInfoFormSchema),
-        defaultValues: {
-            title: project.title,
-            description: project.description
-        },
-        mode: "onChange"
-    });
+    const renameForm = useProjectRenameForm();
 
-    const handleRenameSubmit = async (data: ProjectInfoForm) => {
+    const handleRenameSubmit = async (data: ProjectRenameForm) => {
         console.log(data);
         console.log(project.uuid);
         console.log(data.title);
@@ -160,7 +124,7 @@ const RenameProjectDialog = ({ project }: { project: Project }) => {
             </DialogHeader>
             <Form {...renameForm}>
                 <form onSubmit={renameForm.handleSubmit(handleRenameSubmit)} className="grid gap-3">
-                    <ProjectInfoFormFields form={renameForm} />
+                    <ProjectRenameFormFields form={renameForm} />
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button type="button" variant="outline">Cancel</Button>
@@ -467,12 +431,12 @@ const ProjectContainer = ({
                     </div>
                 </LinkComponent>
                 <div className="absolute bottom-0 right-0 pr-3 pb-3 flex flex-col lg:xl:flex-row items-center gap-1" data-selectable="true">
-                    {!selecting && <ProjectDescription project={project} />}
+                    {(!selecting && project.description.length > 0) && <ProjectDescription project={project} />}
                     <ProjectDropdown selected={selectedProjects.includes(project.uuid)} project={project} />
                 </div>
                 {selecting && 
                     <div className="absolute top-0 right-0 pt-5 pr-5" data-selectable="true">
-                        <Checkbox checked={selectedProjects.includes(project.uuid)} data-selectable="true" />
+                        <Checkbox checked={selectedProjects.includes(project.uuid)} onCheckedChange={handleClick} data-selectable="true" />
                     </div>
                 }
                 {navigating && 
@@ -517,15 +481,9 @@ export default function Home(): ReactNode {
             .sort((a, b) => sortProjects(a, b, sortingType) * (descendingSort ? -1 : 1))
     );
 
-    const newProjectForm = useForm<ProjectInfoForm>({
-        resolver: zodResolver(ProjectInfoFormSchema),
-        defaultValues: {
-            title: "New ClipFusion Project",
-            description: ""
-        }
-    });
+    const newProjectForm = useProjectRenameForm();
 
-    const newProjectSubmit = async (data: ProjectInfoForm) => {
+    const newProjectSubmit = async (data: ProjectRenameForm) => {
         addProject({
             ...createProject(),
             title: data.title,
@@ -578,12 +536,12 @@ export default function Home(): ReactNode {
                                         </DialogHeader>
                                         <Form {...newProjectForm}>
                                             <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
-                                                <ProjectInfoFormFields form={newProjectForm} />
+                                                <ProjectRenameFormFields form={newProjectForm} />
                                                 <DialogFooter>
                                                     <DialogClose asChild>
                                                         <Button type="button" variant="outline">Cancel</Button>
                                                     </DialogClose>
-                                                    <DialogClose asChild onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                                    <DialogClose asChild onClick={(e) => {
                                                         if (newProjectForm.formState.errors.title) e.preventDefault();
                                                     }}>
                                                         <Button type="submit">Create</Button>
@@ -649,7 +607,7 @@ export default function Home(): ReactNode {
                             <div className="m-auto bg-background flex flex-row justify-between p-safe-or-2 z-20">
                                 <div className="flex justify-start text-red-400 grow basis-0">
                                     <Button disabled={selectedProjects.length == 0} variant="ghost" onClick={() => setShowDeleteSelectedAlert(true)}>
-                                        <TrashIcon /> {!isMobile && "Delete All"}
+                                        <TrashIcon /> {!isMobile && "Delete Selected"}
                                     </Button>
                                 </div>
                                 <Label className="flex items-center">{selectedProjects.length} Projects Selected</Label>

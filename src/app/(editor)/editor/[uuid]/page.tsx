@@ -8,12 +8,14 @@ import TimelinePanel from "@/components/editor/panels/timeline-panel";
 import ThemeSwitcher from "@/components/theme-switcher";
 import { Description, Title } from "@/components/typography";
 import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Menubar, MenubarItem, MenubarMenu, MenubarContent, MenubarTrigger, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarSeparator } from "@/components/ui/menubar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { ProjectRenameForm, ProjectRenameFormFields, useProjectRenameForm } from "@/hooks/useProjectRenameForm";
 import useRendering from "@/hooks/useRendering";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
@@ -34,9 +36,32 @@ const ProjectRenamePopover = ({
 }) => {
     const project = useEditorStore((state) => state.project);
     const setProject = useEditorStore((state) => state.setProject);
+    const [open, setOpen] = React.useState(false);
+    const form = useProjectRenameForm();
+
+    const onRename = (values: ProjectRenameForm) => {
+        setProject((prev) => ({
+            ...prev,
+            title: values.title,
+            description: values.description
+        }));
+        setOpen(false);
+    };
+
+    const resetForm = () => {
+        form.reset({
+            title: project.title,
+            description: project.description
+        });
+        setOpen(false);
+    };
+
+    React.useEffect(() => {
+        resetForm();
+    }, [project]);
 
     return (
-        <Popover>
+        <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button variant="ghost" className={className}>
                     <p className="truncate">{project?.title}</p> <PencilIcon />
@@ -48,13 +73,22 @@ const ProjectRenamePopover = ({
                         Rename Project
                     </Title>
                     <Description>
-                        Change name and description of your project.
+                        Change title and description of your project
                     </Description>
                 </div>
-                <div className="grid gap-2">
-                    <Input value={project?.title} onChange={(e) => setProject((prev) => ({ ...prev, title: e.target.value }))} className="w-full" placeholder="Project Title" spellCheck={false} autoComplete="off" />
-                    <Textarea value={project?.description} onChange={(e) => setProject((prev) => ({ ...prev, description: e.target.value }))} className="w-full" placeholder="Project Description" />
-                </div>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onRename)} className="grid gap-2">
+                        <ProjectRenameFormFields form={form} />
+                        <div className="flex items-center justify-end w-full gap-2">
+                            <Button variant="outline" onClick={resetForm}>
+                                Cancel
+                            </Button>
+                            <Button type="submit">
+                                Save
+                            </Button>
+                        </div>
+                    </form>
+                </Form>
             </PopoverContent>
         </Popover>
     );
@@ -106,7 +140,7 @@ export default function Editor() {
                 <ResizablePanelGroup direction="vertical">
                     <ResizablePanel defaultSize={50}>
                         <ResizablePanelGroup direction="horizontal">
-                            <PlayerPanel />
+                            <PlayerPanel defaultSize={80} />
                             <ResizableHandle />
                             <PropertiesPanel />
                         </ResizablePanelGroup>
