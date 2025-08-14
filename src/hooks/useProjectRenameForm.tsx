@@ -35,12 +35,13 @@ export const ProjectRenameFormFields = ({ form }: { form: UseFormReturn<ProjectR
     </>
 );
 
-export const useProjectRenameForm = () => {
-    const form =  useForm<ProjectRenameForm>({
+export const useProjectRenameForm = (defaultValues?: ProjectRenameForm) => {
+    const form = useForm<ProjectRenameForm>({
         resolver: zodResolver(ProjectRenameFormSchema),
         defaultValues: {
-            title: '',
-            description: ''
+            title: 'New ClipFusion Project',
+            description: '',
+            ...defaultValues,
         },
         mode: "onChange"
     });

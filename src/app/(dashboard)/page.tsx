@@ -12,12 +12,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Project from "@/types/Project";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { z } from "zod";
-import { useForm, UseFormReturn } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -103,12 +98,12 @@ const useSelectContext = (): SelectContextData => {
 };
 
 const RenameProjectDialog = ({ project }: { project: Project }) => {
-    const renameForm = useProjectRenameForm();
+    const form = useProjectRenameForm({
+        title: project.title,
+        description: project.description
+    });
 
     const handleRenameSubmit = async (data: ProjectRenameForm) => {
-        console.log(data);
-        console.log(project.uuid);
-        console.log(data.title);
         db.projects.update(project.uuid, {
             title: data.title,
             description: data.description,
@@ -122,15 +117,18 @@ const RenameProjectDialog = ({ project }: { project: Project }) => {
                 <DialogTitle>Rename Project</DialogTitle>
                 <DialogDescription>Change information about your project.</DialogDescription>
             </DialogHeader>
-            <Form {...renameForm}>
-                <form onSubmit={renameForm.handleSubmit(handleRenameSubmit)} className="grid gap-3">
-                    <ProjectRenameFormFields form={renameForm} />
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleRenameSubmit)} className="grid gap-3">
+                    <ProjectRenameFormFields form={form} />
                     <DialogFooter>
-                        <DialogClose asChild>
+                        <DialogClose asChild onClick={() => form.reset({
+                            title: project.title,
+                            description: project.description
+                        })}>
                             <Button type="button" variant="outline">Cancel</Button>
                         </DialogClose>
                         <DialogClose asChild onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                            if (renameForm.formState.errors.title) e.preventDefault();
+                            if (form.formState.errors.title) e.preventDefault();
                         }}>
                             <Button type="submit">Rename</Button>
                         </DialogClose>
@@ -376,11 +374,11 @@ const ResponsiveSwipeToDelete = ({
     selecting: boolean,
     swipeToDelete: boolean
 } & ComponentProps<typeof SwipeToDelete>) => {
-            console.log(isMobile, selecting, swipeToDelete);
-        if (isMobile && !selecting && swipeToDelete) {
-            return <SwipeToDelete {...props} />;
-        }
-        return <>{props.children}</>;
+    console.log(isMobile, selecting, swipeToDelete);
+    if (isMobile && !selecting && swipeToDelete) {
+        return <SwipeToDelete {...props} />;
+    }
+    return <>{props.children}</>;
 }
 
 const ProjectContainer = ({
@@ -414,7 +412,7 @@ const ProjectContainer = ({
     };
 
     const LinkComponent = selecting ? "div" : ((props: ComponentProps<typeof Link>) => (
-        <Link {...props} prefetch={false}/>
+        <Link {...props} prefetch={false} />
     ));
 
     const projectComponent = (
@@ -434,12 +432,12 @@ const ProjectContainer = ({
                     {(!selecting && project.description.length > 0) && <ProjectDescription project={project} />}
                     <ProjectDropdown selected={selectedProjects.includes(project.uuid)} project={project} />
                 </div>
-                {selecting && 
+                {selecting &&
                     <div className="absolute top-0 right-0 pt-5 pr-5" data-selectable="true">
                         <Checkbox checked={selectedProjects.includes(project.uuid)} onCheckedChange={handleClick} data-selectable="true" />
                     </div>
                 }
-                {navigating && 
+                {navigating &&
                     <div className="absolute top-0 left-0 w-full h-full bg-black/5 flex items-center justify-center z-50">
                         <Spinner />
                     </div>
@@ -461,6 +459,60 @@ const ProjectContainer = ({
     );
 };
 
+const NewProjectButton = () => {
+    const isMobile = useIsMobile();
+    const form = useProjectRenameForm();
+
+    const newProjectSubmit = async (data: ProjectRenameForm) => {
+        addProject({
+            ...createProject(),
+            title: data.title,
+            description: data.description,
+            origin: ""
+        } as Project);
+        form.reset();
+    };
+
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                <Button>
+                    <PlusIcon /> {!isMobile && "New Project"}<span className="sr-only">New Project</span>
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>
+                        Create New Project
+                    </DialogTitle>
+                    <DialogDescription>
+                        Fill in the information about your project. You can change it at any time later.
+                    </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(newProjectSubmit)} className="grid gap-2">
+                        <ProjectRenameFormFields form={form} />
+                        <DialogFooter>
+                            <DialogClose asChild onClick={() => {
+                                form.reset();
+                            }}>
+                                <Button type="button" variant="outline">Cancel</Button>
+                            </DialogClose>
+                            <DialogClose asChild onClick={(e) => {
+                                if (form.formState.errors.title) {
+                                    e.preventDefault();
+                                }
+                            }}>
+                                <Button type="submit">Create</Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </form>
+                </Form>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 export default function Home(): ReactNode {
     const isMobile = useIsMobile();
     const [search, setSearch] = useState('');
@@ -480,17 +532,6 @@ export default function Home(): ReactNode {
             .filter((project) => project.title.toLowerCase().includes(debouncedSearch.toLowerCase()))
             .sort((a, b) => sortProjects(a, b, sortingType) * (descendingSort ? -1 : 1))
     );
-
-    const newProjectForm = useProjectRenameForm();
-
-    const newProjectSubmit = async (data: ProjectRenameForm) => {
-        addProject({
-            ...createProject(),
-            title: data.title,
-            description: data.description,
-            origin: ""
-        } as Project);
-    };
 
     const handleDeleteSelected = () => {
         selectedProjects.map((uuid) => deleteProject(uuid));
@@ -519,38 +560,7 @@ export default function Home(): ReactNode {
                     <StickyTopContainer>
                         <SidebarTriggerAdjustable>
                             <div className={cn("flex flex-row gap-2 items-center w-full", !isMobile && "justify-between")}>
-                                <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button>
-                                            <PlusIcon /> {!isMobile && "New Project"}<span className="sr-only">New Project</span>
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        <DialogHeader>
-                                            <DialogTitle>
-                                                Create New Project
-                                            </DialogTitle>
-                                            <DialogDescription>
-                                                Fill in the information about your project. You can change it at any time later.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <Form {...newProjectForm}>
-                                            <form onSubmit={newProjectForm.handleSubmit(newProjectSubmit)} className="grid gap-3">
-                                                <ProjectRenameFormFields form={newProjectForm} />
-                                                <DialogFooter>
-                                                    <DialogClose asChild>
-                                                        <Button type="button" variant="outline">Cancel</Button>
-                                                    </DialogClose>
-                                                    <DialogClose asChild onClick={(e) => {
-                                                        if (newProjectForm.formState.errors.title) e.preventDefault();
-                                                    }}>
-                                                        <Button type="submit">Create</Button>
-                                                    </DialogClose>
-                                                </DialogFooter>
-                                            </form>
-                                        </Form>
-                                    </DialogContent>
-                                </Dialog>
+                                <NewProjectButton />
                                 <Search placeholder="Search Projects" value={search} onChange={(e) => setSearch(e.target.value)} className={isMobile ? "w-full" : "w-60"} />
                             </div>
                         </SidebarTriggerAdjustable>
