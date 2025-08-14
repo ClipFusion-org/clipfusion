@@ -4,7 +4,7 @@ const easeFade = (x: number) => (
     x === 0 ? 0 : Math.pow(2, 10 * x - 10)
 );
 
-export const ScrollFadingTitle = (props: ComponentProps<"div">) => {
+const ScrollFadingTitle = (props: ComponentProps<"div">) => {
     const elementRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -24,3 +24,5 @@ export const ScrollFadingTitle = (props: ComponentProps<"div">) => {
 
     return <div style={{opacity: 1}} ref={elementRef} {...props} className={props.className}/>
 };
+
+export default ScrollFadingTitle;

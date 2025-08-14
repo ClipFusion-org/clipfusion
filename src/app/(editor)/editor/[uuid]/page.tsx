@@ -3,17 +3,15 @@
 import ClipFusionLogo from "@/components/clipfusion-logo";
 import { PanelContainer } from "@/components/editor/panels/panel";
 import PlayerPanel from "@/components/editor/panels/player-panel";
-import { PropertiesPanel } from "@/components/editor/panels/properties-panel/PropertiesPanel";
+import PropertiesPanel from "@/components/editor/panels/properties-panel";
 import TimelinePanel from "@/components/editor/panels/timeline-panel";
 import ThemeSwitcher from "@/components/theme-switcher";
 import { Description, Title } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Menubar, MenubarItem, MenubarMenu, MenubarContent, MenubarTrigger, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarSeparator } from "@/components/ui/menubar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { ProjectRenameForm, ProjectRenameFormFields, useProjectRenameForm } from "@/hooks/useProjectRenameForm";
 import useRendering from "@/hooks/useRendering";

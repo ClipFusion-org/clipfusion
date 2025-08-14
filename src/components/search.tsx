@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export const Search = (props: ComponentProps<typeof Input>): ReactNode => (
+const Search = (props: ComponentProps<typeof Input>): ReactNode => (
     <div className={cn("relative", props.className)}>
         <Input
             placeholder="Search"
@@ -15,3 +15,5 @@ export const Search = (props: ComponentProps<typeof Input>): ReactNode => (
         <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2" />
     </div>
 );
+
+export default Search;

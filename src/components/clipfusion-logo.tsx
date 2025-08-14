@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import Image from "next/image";
 
-export const ClipFusionLogo = (props: {
+const ClipFusionLogo = (props: {
     children?: ReactNode,
     width?: number | `${number}`,
     height?: number | `${number}`,
@@ -12,3 +12,5 @@ export const ClipFusionLogo = (props: {
         {props.children}
     </div>
 );
+
+export default ClipFusionLogo;

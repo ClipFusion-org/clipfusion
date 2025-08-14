@@ -1,9 +1,8 @@
 import { useEditorStore } from "@/store/useEditorStore";
-import { Panel, PanelContent, PanelHeader } from "../panel";
+import { Panel, PanelContent, PanelHeader, PanelFooter } from "./panel";
 import { CollapsibleText, Muted, NothingToShowPlaceholder, SwitchableText } from "@/components/typography";
 import React from "react";
 import { cn } from "@/lib/utils";
-import { PanelFooter } from "../panel/Panel";
 import { Button } from "@/components/ui/button";
 import { PencilIcon } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -177,7 +176,7 @@ const ModifyProjectPropertiesDialog = () => {
     );
 }
 
-export const PropertiesPanel = () => {
+const PropertiesPanel = () => {
     const { project } = useEditorStore();
 
     if (!project.uuid) {
@@ -218,3 +217,6 @@ export const PropertiesPanel = () => {
         </Panel>
     );
 };
+
+
+export default PropertiesPanel;

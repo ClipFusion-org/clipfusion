@@ -3,7 +3,7 @@ import { useEditorStore } from "@/store/useEditorStore";
 import { PauseIcon, PlayIcon } from "lucide-react";
 import { useCallback } from "react";
 
-export const PlaybackControls = () => {
+const PlaybackControls = () => {
     const { playbackData, setPlaybackData } = useEditorStore();
 
     const togglePlaying = useCallback(() => {
@@ -21,3 +21,5 @@ export const PlaybackControls = () => {
         </div>
     )
 };
+
+export default PlaybackControls;

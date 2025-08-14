@@ -117,7 +117,7 @@ const BackgroundPopover = () => {
     );
 };
 
-export const ProjectControls = () => {
+const ProjectControls = () => {
     return (
         <div className="flex flex-row items-center justify-center gap-2">
             <ResolutionPopover />
@@ -125,3 +125,5 @@ export const ProjectControls = () => {
         </div>
     );
 };
+
+export default ProjectControls;

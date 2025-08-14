@@ -1,19 +1,21 @@
 "use client";
-import { useEffect, useRef } from "react";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { Button } from "../ui/button";
-import { ArrowLeftIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { ComponentProps, useEffect, useRef } from "react";
 
 const easeSlide = (x: number) => (
     1 - Math.pow(1 - x, 3)
 );
 
-export const StaticBackButton = () => {
+const lerp = (a: number, b: number, t: number) => (
+    a * t + b * (1 - t)
+);
+
+const SidebarTriggerAdjustable = (props: ComponentProps<"div"> & {
+    adjustWidth?: number | `${number}`
+}) => {
+    const adjustWidth = props.adjustWidth === undefined ? 12 : +props.adjustWidth;
     const isMobile = useIsMobile();
-    const router = useRouter();
-    const adjustHeight = isMobile ? -1 : 1;
-    const ref = useRef<HTMLButtonElement>(null);
+    const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         let lastKnownScrollPosition = 0;
@@ -24,7 +26,8 @@ export const StaticBackButton = () => {
             const slideAmount = easeSlide(
                 Math.max(0, Math.min(1, scrollPos / (window.innerHeight / 20))));
 
-            ref.current.style.transform = `translateY(calc(var(--spacing) * ${adjustHeight * -slideAmount}))`;
+            ref.current.style.transform = `translateX(calc(var(--spacing) * ${adjustWidth * slideAmount}))`;
+            ref.current.style.width = `calc(100% - var(--spacing) * ${lerp(0, adjustWidth, 1 - slideAmount)})`;
         };
 
         const handleScroll = () => {
@@ -48,14 +51,7 @@ export const StaticBackButton = () => {
         };
     }, [isMobile, ref]);
 
-    return (
-        <>
-            <div className="w-10 h-full" />
-            <div className="absolute top-0 left-0 pl-6 pt-4 md:p-6 overscroll-auto">
-                <Button ref={ref} className="fixed size-7 ml-10 z-40 transition-colors" variant="ghost" size="icon" onClick={() => router.back()} tabIndex={1}>
-                    <ArrowLeftIcon />
-                </Button>
-            </div>
-        </>
-    );
-};
+    return <div ref={ref} className={props.className}>{props.children}</div>;
+}
+
+export default SidebarTriggerAdjustable;

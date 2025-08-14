@@ -1,13 +1,13 @@
 "use client";
 import { useTheme } from "next-themes";
 import { ReactNode, useCallback, useEffect, useState } from "react";
-import { Toggle } from "../ui/toggle";
+import { Toggle } from "./ui/toggle";
 import { MoonIcon, SunIcon } from "lucide-react";
 import { Label } from "@radix-ui/react-label";
-import { Button } from "../ui/button";
+import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 
-export const ThemeSwitcher = ({
+const ThemeSwitcher = ({
     variant,
     className
 }: {
@@ -45,3 +45,5 @@ export const ThemeSwitcher = ({
         </Toggle>
     );
 };
+
+export default ThemeSwitcher;

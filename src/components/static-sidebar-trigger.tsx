@@ -1,21 +1,16 @@
 "use client";
+import { useEffect, useRef } from "react";
+import { SidebarTrigger } from "./ui/sidebar";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { ComponentProps, useEffect, useRef } from "react";
 
 const easeSlide = (x: number) => (
     1 - Math.pow(1 - x, 3)
 );
 
-const lerp = (a: number, b: number, t: number) => (
-    a * t + b * (1 - t)
-);
-
-export const SidebarTriggerAdjustable = (props: ComponentProps<"div"> & {
-    adjustWidth?: number | `${number}`
-}) => {
-    const adjustWidth = props.adjustWidth === undefined ? 12 : +props.adjustWidth;
+const StaticSidebarTrigger = () => {
     const isMobile = useIsMobile();
-    const ref = useRef<HTMLDivElement>(null);
+    const adjustHeight = isMobile ? -1 : 1;
+    const ref = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         let lastKnownScrollPosition = 0;
@@ -26,8 +21,7 @@ export const SidebarTriggerAdjustable = (props: ComponentProps<"div"> & {
             const slideAmount = easeSlide(
                 Math.max(0, Math.min(1, scrollPos / (window.innerHeight / 20))));
 
-            ref.current.style.transform = `translateX(calc(var(--spacing) * ${adjustWidth * slideAmount}))`;
-            ref.current.style.width = `calc(100% - var(--spacing) * ${lerp(0, adjustWidth, 1 - slideAmount)})`;
+            ref.current.style.transform = `translateY(calc(var(--spacing) * ${adjustHeight * -slideAmount}))`;
         };
 
         const handleScroll = () => {
@@ -51,5 +45,14 @@ export const SidebarTriggerAdjustable = (props: ComponentProps<"div"> & {
         };
     }, [isMobile, ref]);
 
-    return <div ref={ref} className={props.className}>{props.children}</div>;
-}
+    return (
+        <>
+            <div className="w-10 h-full" />
+            <div className="absolute top-0 left-0 pl-6 pt-4 md:p-6 overscroll-auto">
+                <SidebarTrigger ref={ref} className={`fixed mr-2 z-40 transition-colors`} size="lg" tabIndex={0} />
+            </div>
+        </>
+    );
+};
+
+export default StaticSidebarTrigger;

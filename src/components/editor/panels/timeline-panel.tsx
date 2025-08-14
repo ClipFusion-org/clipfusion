@@ -1,11 +1,12 @@
-import { Panel, PanelContent } from "../panel"
-import { PanelHeader } from "../panel/Panel"
+import { Panel, PanelHeader, PanelContent } from "./panel";
 
-export const TimelinePanel = () => {
+const TimelinePanel = () => {
     return (
         <Panel>
             <PanelHeader>Timeline</PanelHeader>
             <PanelContent>Timeline</PanelContent>
         </Panel>
     )
-}
+};
+
+export default TimelinePanel;

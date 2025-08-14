@@ -1,12 +1,12 @@
 'use client';
 import { useEditorStore } from "@/store/useEditorStore";
-import { Panel, PanelContent, PanelHeader } from "../panel";
+import { Panel, PanelContent, PanelHeader } from "./panel";
 import { ComponentProps, useEffect, useRef } from "react";
-import PlaybackControls from "../../controls/playback-controls";
-import ProjectControls from "../../controls/project-controls";
+import PlaybackControls from "../controls/playback-controls";
+import ProjectControls from "../controls/project-controls";
 import { defaultCanvasData } from "@/types/CanvasData";
 
-export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
+const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
     const { setCanvasData } = useEditorStore();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const canvasDisplayRef = useRef<HTMLVideoElement>(null);
@@ -67,3 +67,5 @@ export const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
         </Panel>
     )
 };
+
+export default PlayerPanel;

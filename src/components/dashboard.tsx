@@ -1,13 +1,13 @@
 "use client";
 import { FolderOpenIcon, LucideIcon, PlusIcon, SettingsIcon } from "lucide-react";
 import { ReactNode } from "react";
-import { SidebarMenuItem, SidebarMenuButton, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader, SidebarFooter, Sidebar, SidebarGroupLabel, SidebarGroupAction } from "../ui/sidebar";
+import { SidebarMenuItem, SidebarMenuButton, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader, SidebarFooter, Sidebar, SidebarGroupLabel, SidebarGroupAction } from "./ui/sidebar";
 import Link from "next/link";
-import { Label } from "../ui/label";
-import ClipFusionLogo from "../clipfusion-logo";
-import ThemeSwitcher from "../theme-switcher";
+import { Label } from "./ui/label";
+import ClipFusionLogo from "./clipfusion-logo";
+import ThemeSwitcher from "./theme-switcher";
 import Image from "next/image";
-import { Tooltip, TooltipContent } from "../ui/tooltip";
+import { Tooltip, TooltipContent } from "./ui/tooltip";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
 
 interface DashboardItem {
@@ -30,7 +30,7 @@ const items: DashboardItem[] = [
 ];
 
 
-export const Dashboard = (): ReactNode => {
+const Dashboard = (): ReactNode => {
     return (
         <Sidebar className="pl-safe z-50">
             <SidebarHeader className="flex justify-center items-center mt-safe-or-2">
@@ -119,3 +119,5 @@ export const Dashboard = (): ReactNode => {
         </Sidebar>
     );
 };
+
+export default Dashboard;
