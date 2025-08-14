@@ -5,7 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { addProject, db, deleteProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ALargeSmallIcon, ArrowDownIcon, ArrowUpIcon, CalendarIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, Grid2X2XIcon, InfoIcon, LoaderIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { ALargeSmallIcon, ArrowDownIcon, ArrowUpIcon, CalendarIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, Grid2X2XIcon, InfoIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import Search from "@/components/search";
 import { useIsMobile } from "@/hooks/useIsMobile";
