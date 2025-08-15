@@ -12,11 +12,34 @@ export default class Project extends Entity<EditorDB> {
     ratio!: string; // i.e '16:9', '19.5:9', '4:3'
     height!: number; // default is 1080p, width is derived from height using ratio
     previewRatio!: number; // default is 1, 2 means half of the resolution, 3, 4, 5 and so on
+    fps!: number; // default is 30
 }
 
 export const getProjectRatio = (project: Project): number => (
     typeof project.ratio === 'string' ? +project.ratio.split(":")[0] / +project.ratio.split(":")[1] : project.ratio
 );
+
+// returns project length in frames
+export const getProjectLength = (_project: Project): number => {
+    return 60 * 60;
+};
+
+export const getProjectFPS = (project: Project): number => {
+    return project.fps || 30;
+};
+
+
+// converts '1' to '01'
+// so timestamps look like '00:02:48' and not '0:2:48'
+const expandTimeString = <T>(value: T) => (
+    `${value}`.length <= 1 ? `0${value}` : `${value}`
+);
+
+export const getTimeStringFromFrame = (project: Project, frame: number): string => {
+    const fps = getProjectFPS(project);
+    const seconds = Math.floor(frame / fps);
+    return `${expandTimeString(Math.floor(seconds / 3600))}:${expandTimeString(Math.floor(seconds / fps) % 60)}:${expandTimeString(seconds % 60)},${expandTimeString(Math.floor((frame % fps) / fps * 100))}`;
+};
 
 export const defaultProject: Project = {
     uuid: '',
@@ -29,4 +52,5 @@ export const defaultProject: Project = {
     ratio: '16:9',
     height: 1080,
     previewRatio: 1,
+    fps: 30
 } as Project;

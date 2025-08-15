@@ -1,4 +1,4 @@
-import { useEditorStore } from "@/store/useEditorStore";
+import { useEditorStore } from "@/stores/useEditorStore";
 import { Panel, PanelContent, PanelHeader, PanelFooter } from "./panel";
 import { CollapsibleText, Muted, NothingToShowPlaceholder, SwitchableText } from "@/components/typography";
 import React from "react";

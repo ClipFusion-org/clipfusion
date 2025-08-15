@@ -1,12 +1,16 @@
 'use client';
-import { useEditorStore } from "@/store/useEditorStore";
+import { useEditorStore, usePlaybackData, useProject } from "@/stores/useEditorStore";
 import { Panel, PanelContent, PanelHeader } from "./panel";
 import { ComponentProps, useEffect, useRef } from "react";
 import PlaybackControls from "../controls/playback-controls";
 import ProjectControls from "../controls/project-controls";
 import { defaultCanvasData } from "@/types/CanvasData";
+import DraggableTimestamp from "../draggable-timestamp";
+import { getProjectLength, getTimeStringFromFrame } from "@/types/Project";
 
 const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
+    const [project] = useProject();
+    const [playbackData] = usePlaybackData();
     const { setCanvasData } = useEditorStore();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const canvasDisplayRef = useRef<HTMLVideoElement>(null);
@@ -54,13 +58,16 @@ const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
                 </div>
                 <div className="flex shrink-0 flex-row justify-between items-center w-full h-10">
                     <div className="flex flex-row items-center justify-start grow basis-0">
-                        <h3 className="text-muted-foreground text-sm">00:00:00/00:00:00</h3>
+                        <DraggableTimestamp />
                     </div>
                     <div className="flex flex-row items-center">
                         <PlaybackControls />
                     </div>
-                    <div className="flex flex-row items-center justify-end grow basis-0">
+                    <div className="flex flex-row items-center justify-end grow basis-0 gap-2">
                         <ProjectControls />
+                        <div className="overflow-hidden w-24 text-sm opacity-80 font-semibold">
+                            {getTimeStringFromFrame(project, getProjectLength(project) - playbackData.currentFrame)}
+                        </div>
                     </div>
                 </div>
             </PanelContent>

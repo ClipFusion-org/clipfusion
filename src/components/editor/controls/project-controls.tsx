@@ -4,7 +4,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Toggle } from "@/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import groupedColors from "@/constants/groupedColors";
-import { useEditorStore } from "@/store/useEditorStore";
+import { useEditorStore } from "@/stores/useEditorStore";
 import { getProjectRatio } from "@/types/Project";
 import { CheckIcon, DropletIcon } from "lucide-react";
 

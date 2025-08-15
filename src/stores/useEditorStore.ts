@@ -5,6 +5,7 @@ import { create } from "zustand";
 
 type ValueOrUpdater<T> = Partial<T> | ((prev: T) => Partial<T>);
 type Updater<T> = (valueOrUpdater: ValueOrUpdater<T>) => void;
+type ValueAndSetter<T> = [T, Updater<T>];
 
 const getValue = <T>(state: T | undefined, value: ValueOrUpdater<T>): Partial<T> => {
     return typeof value === 'function'
@@ -33,3 +34,13 @@ export const useEditorStore = create<EditorStore>()((set) => ({
     playbackData: defaultPlaybackData,
     setPlaybackData: (playbackData: ValueOrUpdater<PlaybackData>) => set((state) => ({ playbackData: ({ ...getValue(state.playbackData, playbackData) } as PlaybackData) }))
 }));
+
+export const useProject = (): ValueAndSetter<Project> => [
+    useEditorStore((state) => state.project),
+    useEditorStore((state) => state.setProject)
+];
+
+export const usePlaybackData = (): ValueAndSetter<PlaybackData> => [
+    useEditorStore((state) => state.playbackData),
+    useEditorStore((state) => state.setPlaybackData)
+];

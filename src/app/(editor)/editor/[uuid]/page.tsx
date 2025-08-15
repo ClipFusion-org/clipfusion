@@ -17,7 +17,7 @@ import { ProjectRenameForm, ProjectRenameFormFields, useProjectRenameForm } from
 import useRendering from "@/hooks/useRendering";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
-import { useEditorStore } from "@/store/useEditorStore";
+import { useEditorStore } from "@/stores/useEditorStore";
 import { defaultCanvasData } from "@/types/CanvasData";
 import { defaultPlaybackData } from "@/types/PlaybackData";
 import { defaultProject } from "@/types/Project";

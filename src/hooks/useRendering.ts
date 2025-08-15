@@ -1,5 +1,5 @@
 import { renderFrame } from "@/lib/rendering/rendering";
-import { useEditorStore } from "@/store/useEditorStore";
+import { useEditorStore } from "@/stores/useEditorStore";
 import { defaultPlaybackData } from "@/types/PlaybackData";
 import { getProjectRatio } from "@/types/Project";
 import React from "react";
