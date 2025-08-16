@@ -121,11 +121,13 @@ const ModifyProjectPropertiesDialog = () => {
     });
 
     const onSubmit = (values: ProjectPropertiesForm) => {
+        console.log(values.resolution);
+        console.log(values.ratio);
         setProject((prev) => ({
             ...prev,
             title: values.title,
             description: values.description,
-            reslution: +values.resolution,
+            height: +values.resolution,
             ratio: values.ratio
         }));
     };

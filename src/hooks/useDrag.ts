@@ -88,7 +88,7 @@ export default function useDrag(options: UseDragOptions = { resizeCursor: true }
             window.removeEventListener('mousemove', onMouseMove, listenerOptions);
             window.removeEventListener('mouseup', onDragEnd, listenerOptions);
 
-            window.removeEventListener('touchstart', onTouchStart, listenerOptions)
+            el.removeEventListener('touchstart', onTouchStart, listenerOptions)
             window.removeEventListener('touchmove', onTouchMove, listenerOptions);
             window.removeEventListener('touchend', onDragEnd, listenerOptions);
             window.removeEventListener('touchcancel', onDragEnd, listenerOptions);
