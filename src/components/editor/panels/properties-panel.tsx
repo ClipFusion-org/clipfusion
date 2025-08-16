@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import resolutions from "@/constants/resolutions";
 import aspectRatios from "@/constants/aspectRatios";
-import { getProjectRatio } from "@/types/Project";
+import { getProjectRatio, getProjectResolutionString } from "@/types/Project";
 
 const ProjectPropertiesFormSchema = z.object({
     title: z.string().nonempty(),
@@ -121,8 +121,6 @@ const ModifyProjectPropertiesDialog = () => {
     });
 
     const onSubmit = (values: ProjectPropertiesForm) => {
-        console.log(values.resolution);
-        console.log(values.ratio);
         setProject((prev) => ({
             ...prev,
             title: values.title,
@@ -206,7 +204,7 @@ const PropertiesPanel = () => {
 
                     <PropertyName>Resolution:</PropertyName>
                     <PropertyValue>
-                        <SwitchableText a={`${project.height}p`} b={`${project.height * getProjectRatio(project)}x${project.height}`} />
+                        <SwitchableText a={`${project.height}p`} b={getProjectResolutionString(project)} />
                     </PropertyValue>
 
                     <PropertyName>Ratio:</PropertyName>

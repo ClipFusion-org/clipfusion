@@ -1,11 +1,11 @@
-import { Description, Title } from "@/components/typography";
+import { Description, Muted, Title } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Toggle } from "@/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import groupedColors from "@/constants/groupedColors";
 import { useEditorStore } from "@/stores/useEditorStore";
-import { getProjectRatio } from "@/types/Project";
+import { getProjectPreviewResolutionString, getProjectRatio, getProjectResolutionString } from "@/types/Project";
 import { CheckIcon, DropletIcon } from "lucide-react";
 
 const PreviewResolutionRatioText = ({
@@ -49,7 +49,7 @@ const ResolutionPopover = () => {
         <Popover>
             <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" className="flex items-center justify-center text-sm p-[2px]">
-                    <RatioResolutionIcon previewRatio={project?.previewRatio || 1} ratio={getProjectRatio(project)} /> 
+                    <RatioResolutionIcon previewRatio={project?.previewRatio || 1} ratio={getProjectRatio(project)} />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="grid gap-0">
@@ -61,6 +61,9 @@ const ResolutionPopover = () => {
                     <PreviewResolutionVariant previewRatio={3} />
                     <PreviewResolutionVariant previewRatio={4} />
                     <PreviewResolutionVariant previewRatio={5} />
+                </div>
+                <div className="flex items-center justify-center w-full">
+                    <Description>{getProjectPreviewResolutionString(project)}</Description>
                 </div>
             </PopoverContent>
         </Popover>

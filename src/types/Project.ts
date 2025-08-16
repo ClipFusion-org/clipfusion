@@ -19,15 +19,26 @@ export const getProjectRatio = (project: Project): number => (
     typeof project.ratio === 'string' ? +project.ratio.split(":")[0] / +project.ratio.split(":")[1] : project.ratio
 );
 
+export const getProjectPreviewRatio = (project: Project): number => (
+    project.previewRatio || 1
+);
+
 // returns project length in frames
-export const getProjectLength = (_project: Project): number => {
-    return 60 * 60;
-};
+export const getProjectLength = (_project: Project): number => (
+    60 * 60
+);
 
-export const getProjectFPS = (project: Project): number => {
-    return project.fps || 30;
-};
+export const getProjectFPS = (project: Project): number => (
+    project.fps || 30
+);
 
+export const getProjectResolutionString = (project: Project): string => (
+    `${Math.floor(project.height * getProjectRatio(project))}x${Math.floor(project.height)}`
+);
+
+export const getProjectPreviewResolutionString = (project: Project): string => (
+    `${Math.floor(project.height * getProjectRatio(project) / getProjectPreviewRatio(project))}x${Math.floor(project.height / getProjectPreviewRatio(project))}`
+);
 
 // converts '1' to '01'
 // so timestamps look like '00:02:48' and not '0:2:48'
