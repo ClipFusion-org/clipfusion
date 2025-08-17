@@ -2,7 +2,7 @@
 
 import React, { ComponentProps, createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { addProject, db, deleteProject } from "@/lib/db";
+import { addProject, db, deleteProject, duplicateProject } from "@/lib/db";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ALargeSmallIcon, ArrowDownIcon, ArrowUpIcon, CalendarIcon, ClockIcon, CopyIcon, EditIcon, EllipsisIcon, Grid2X2CheckIcon, Grid2X2XIcon, InfoIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
@@ -192,31 +192,6 @@ const ProjectDropdown = ({
 
     const handleEdit = () => router.push(`/editor/${project.uuid}`);
 
-    const handleDuplicate = async () => {
-        let originProject = await db.projects.where('uuid').equals(project.origin).first();
-        if (!originProject) originProject = project;
-        let newProjectTitle = originProject.title;
-
-        const duplication = await db.duplications.where('uuid').equals(originProject.uuid).first();
-        if (!duplication) return;
-        newProjectTitle = `${originProject.title} (${duplication.count + 1})`;
-        await db.duplications.update(duplication.uuid, {
-            ...duplication,
-            count: duplication.count + 1
-        });
-
-        const now = Date.now();
-        const newProject = {
-            ...project,
-            uuid: generateUUID(),
-            title: newProjectTitle,
-            origin: originProject.uuid,
-            creationDate: now,
-            editDate: now
-        };
-        addProject(newProject as Project);
-    };
-
     if (isMobile) {
         return (
             <Sheet>
@@ -248,7 +223,7 @@ const ProjectDropdown = ({
                         <EditIcon /> Edit
                     </Button>
                     <SheetClose asChild>
-                        <Button variant="ghost" className="justify-start w-full" onClick={handleDuplicate}>
+                        <Button variant="ghost" className="justify-start w-full" onClick={() => duplicateProject(project)}>
                             <CopyIcon /> Duplicate
                         </Button>
                     </SheetClose>
@@ -297,7 +272,7 @@ const ProjectDropdown = ({
                     <DropdownMenuItem onClick={handleEdit}>
                         <EditIcon className="mr-2" /> Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleDuplicate}>
+                    <DropdownMenuItem onClick={() => duplicateProject(project)}>
                         <CopyIcon className="mr-2" /> Duplicate
                     </DropdownMenuItem>
                     <DropdownMenuItem variant="destructive" onClick={(e: React.MouseEvent<HTMLDivElement>) => {

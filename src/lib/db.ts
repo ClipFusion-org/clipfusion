@@ -1,5 +1,6 @@
 import EditorDB from "@/types/EditorDB";
 import Project from "@/types/Project";
+import { generateUUID } from "./utils";
 
 export const db = new EditorDB();
 
@@ -9,6 +10,31 @@ export function addProject(project: Project) {
         uuid: project.uuid,
         count: 0
     });
+}
+
+export async function duplicateProject(project: Project) {
+    let originProject = await db.projects.where('uuid').equals(project.origin).first();
+    if (!originProject) originProject = project;
+    let newProjectTitle = originProject.title;
+
+    const duplication = await db.duplications.where('uuid').equals(originProject.uuid).first();
+    if (!duplication) return;
+    newProjectTitle = `${originProject.title} (${duplication.count + 1})`;
+    await db.duplications.update(duplication.uuid, {
+        ...duplication,
+        count: duplication.count + 1
+    });
+
+    const now = Date.now();
+    const newProject = {
+        ...project,
+        uuid: generateUUID(),
+        title: newProjectTitle,
+        origin: originProject.uuid,
+        creationDate: now,
+        editDate: now
+    };
+    addProject(newProject as Project);
 }
 
 export async function deleteProject(uuid: string) {
@@ -35,7 +61,7 @@ export async function deleteProject(uuid: string) {
   using persistent storage, false if not, and undefined if the API is not
   present.
 */
-export async function isStoragePersisted() : Promise<boolean | undefined> {
+export async function isStoragePersisted(): Promise<boolean | undefined> {
     return await navigator.storage && navigator.storage.persisted ?
         navigator.storage.persisted() :
         undefined;
