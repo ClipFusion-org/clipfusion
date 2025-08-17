@@ -18,7 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useDebounce } from "use-debounce";
 import { Checkbox } from "@/components/ui/checkbox";
-import { cn, createProject, truncate } from "@/lib/utils";
+import { cn, createProject, generateUUID, truncate } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
@@ -205,10 +205,14 @@ const ProjectDropdown = ({
             count: duplication.count + 1
         });
 
+        const now = Date.now();
         const newProject = {
             ...project,
+            uuid: generateUUID(),
             title: newProjectTitle,
-            origin: originProject.uuid
+            origin: originProject.uuid,
+            creationDate: now,
+            editDate: now
         };
         addProject(newProject as Project);
     };

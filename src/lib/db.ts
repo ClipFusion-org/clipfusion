@@ -11,7 +11,19 @@ export function addProject(project: Project) {
     });
 }
 
-export function deleteProject(uuid: string) {
+export async function deleteProject(uuid: string) {
+    const project = await db.projects.where('uuid').equals(uuid).first();
+    if (!project) return; // uuid is not valid, do nothing
+    if (project.origin.length > 0) {
+        // decreasing duplications count in the db
+        const duplication = await db.duplications.where('uuid').equals(project.origin).first();
+        if (duplication) {
+            db.duplications.update(duplication.uuid, {
+                ...duplication,
+                count: Math.max(0, duplication.count - 1)
+            });
+        }
+    }
     db.projects.delete(uuid);
     db.duplications.delete(uuid);
 }
