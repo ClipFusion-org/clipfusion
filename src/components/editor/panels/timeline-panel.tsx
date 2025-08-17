@@ -2,7 +2,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { Panel, PanelHeader, PanelContent } from "./panel";
 import DraggableTimestamp from "../draggable-timestamp";
 import { useProject } from "@/stores/useEditorStore";
-import { getProjectFPS, getProjectLength, getShortTimeStringFromFrame, getTimeStringFromFrame } from "@/types/Project";
+import { getProjectLength, getShortTimeStringFromFrame } from "@/types/Project";
 import { Description } from "@/components/typography";
 
 const PIXELS_PER_FRAME = 3;
@@ -25,7 +25,6 @@ const TimelineLegend = (props: React.ComponentProps<typeof ResizablePanel>) => {
 
 const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => {
     const [project] = useProject();
-    const fps = getProjectFPS(project);
     const headerWidthPx = toPixels(getProjectLength(project));
     const TIMESTAMP_SPACING = PIXELS_PER_FRAME * 50;
     const timestampsCount = headerWidthPx / TIMESTAMP_SPACING;

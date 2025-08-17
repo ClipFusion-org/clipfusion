@@ -17,7 +17,7 @@ import { ProjectRenameForm, ProjectRenameFormFields, useProjectRenameForm } from
 import useRendering from "@/hooks/useRendering";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
-import { useCanvasData, useEditorStore, usePlaybackData, useProject } from "@/stores/useEditorStore";
+import { useCanvasData, usePlaybackData, useProject } from "@/stores/useEditorStore";
 import { defaultCanvasData } from "@/types/CanvasData";
 import { defaultPlaybackData } from "@/types/PlaybackData";
 import { defaultProject } from "@/types/Project";
@@ -93,8 +93,8 @@ const ProjectRenamePopover = ({
 
 export default function Editor() {
     const [project, setProject] = useProject();
-    const [playbackData, setPlaybackData] = usePlaybackData();
-    const [canvasData, setCanvasData] = useCanvasData();
+    const [_playbackData, setPlaybackData] = usePlaybackData();
+    const [_canvasData, setCanvasData] = useCanvasData();
     const router = useRouter();
     const params = useParams();
     const isMobile = useIsMobile();

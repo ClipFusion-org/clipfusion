@@ -1,4 +1,4 @@
-import { useEditorStore, useProject } from "@/stores/useEditorStore";
+import { useProject } from "@/stores/useEditorStore";
 import { Panel, PanelContent, PanelHeader, PanelFooter } from "./panel";
 import { CollapsibleText, Muted, NothingToShowPlaceholder, SwitchableText } from "@/components/typography";
 import React from "react";
@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import resolutions from "@/constants/resolutions";
 import aspectRatios from "@/constants/aspectRatios";
-import { getProjectRatio, getProjectResolutionString } from "@/types/Project";
+import { getProjectResolutionString } from "@/types/Project";
 
 const ProjectPropertiesFormSchema = z.object({
     title: z.string().nonempty(),
@@ -176,7 +176,7 @@ const ModifyProjectPropertiesDialog = () => {
 }
 
 const PropertiesPanel = (props: React.ComponentProps<typeof Panel>) => {
-    const [project, setProject] = useProject();
+    const [project] = useProject();
 
     if (!project.uuid) {
         return (

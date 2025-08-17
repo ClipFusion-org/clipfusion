@@ -1,11 +1,11 @@
-import { Description, Muted, Title } from "@/components/typography";
+import { Description, Title } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Toggle } from "@/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import groupedColors from "@/constants/groupedColors";
-import { useEditorStore, useProject } from "@/stores/useEditorStore";
-import { getProjectPreviewResolutionString, getProjectRatio, getProjectResolutionString } from "@/types/Project";
+import { useProject } from "@/stores/useEditorStore";
+import { getProjectPreviewResolutionString, getProjectRatio } from "@/types/Project";
 import { CheckIcon, DropletIcon } from "lucide-react";
 
 const PreviewResolutionRatioText = ({

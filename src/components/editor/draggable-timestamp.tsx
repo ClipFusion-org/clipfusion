@@ -1,7 +1,7 @@
 import useDrag from "@/hooks/useDrag";
 import { cn } from "@/lib/utils";
 import { usePlaybackData, useProject } from "@/stores/useEditorStore";
-import { getProjectFPS, getTimeStringFromFrame } from "@/types/Project";
+import { getTimeStringFromFrame } from "@/types/Project";
 import React from "react";
 
 const DraggableTimestamp = (props: React.ComponentProps<"p">) => {
