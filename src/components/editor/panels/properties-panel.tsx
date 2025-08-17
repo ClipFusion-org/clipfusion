@@ -193,7 +193,7 @@ const PropertiesPanel = (props: React.ComponentProps<typeof Panel>) => {
     return (
         <Panel {...props}>
             <PanelHeader>Properties</PanelHeader>
-            <PanelContent className="p-0 flex flex-col justify-between">
+            <PanelContent className="p-0 flex flex-col h-full justify-between pb-8">
                 <div className="grid grid-cols-[1fr_2fr] w-full p-4">
                     <PropertyName>Title:</PropertyName>
                     <PropertyValue>{project.title}</PropertyValue>

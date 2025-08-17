@@ -25,7 +25,7 @@ export const getProjectPreviewRatio = (project: Project): number => (
 
 // returns project length in frames
 export const getProjectLength = (_project: Project): number => (
-    60 * 60
+    600
 );
 
 export const getProjectFPS = (project: Project): number => (
@@ -50,6 +50,14 @@ export const getTimeStringFromFrame = (project: Project, frame: number): string 
     const fps = getProjectFPS(project);
     const seconds = Math.floor(frame / fps);
     return `${expandTimeString(Math.floor(seconds / 3600))}:${expandTimeString(Math.floor(seconds / fps) % 60)}:${expandTimeString(seconds % 60)},${expandTimeString(Math.floor((frame % fps) / fps * 100))}`;
+};
+
+export const getShortTimeStringFromFrame = (project: Project, frame: number): string => {
+    const fps = getProjectFPS(project);
+    const seconds = Math.floor(frame / fps);
+    if (seconds <= 60) return `${seconds}s`;
+    if (seconds <= 3600) return `${(Math.floor(seconds / fps) % 60)}:${seconds % 60}`;
+    return getTimeStringFromFrame(project, frame);
 };
 
 export const defaultProject: Project = {

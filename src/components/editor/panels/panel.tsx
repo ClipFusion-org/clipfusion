@@ -23,5 +23,5 @@ export const PanelFooter = (props: ComponentProps<typeof PanelHeader>) => (
 )
 
 export const PanelContent = (props: ComponentProps<"div">) => (
-    <div {...props} className={cn("w-full h-full p-4 z-0", props.className, "pb-8")}/>
+    <div {...props} className={cn("w-full h-full p-4 z-0 pb-8", props.className)}/>
 );
