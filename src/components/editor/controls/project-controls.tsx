@@ -4,7 +4,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Toggle } from "@/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import groupedColors from "@/constants/groupedColors";
-import { useEditorStore } from "@/stores/useEditorStore";
+import { useEditorStore, useProject } from "@/stores/useEditorStore";
 import { getProjectPreviewResolutionString, getProjectRatio, getProjectResolutionString } from "@/types/Project";
 import { CheckIcon, DropletIcon } from "lucide-react";
 
@@ -33,7 +33,7 @@ const PreviewResolutionVariant = ({
 }: {
     previewRatio: number
 }) => {
-    const { project, setProject } = useEditorStore();
+    const [project, setProject] = useProject();
 
     return (
         <Toggle pressed={(project?.previewRatio || 1) === previewRatio} onPressedChange={() => setProject(prev => ({ ...prev, previewRatio: previewRatio }))} className="size-9 p-2 flex grow-0 flex-row items-center justify-start w-full gap-1">
@@ -43,7 +43,7 @@ const PreviewResolutionVariant = ({
 }
 
 const ResolutionPopover = () => {
-    const { project } = useEditorStore();
+    const [project] = useProject();
 
     return (
         <Popover>
@@ -71,7 +71,7 @@ const ResolutionPopover = () => {
 }
 
 const BackgroundPopover = () => {
-    const { project, setProject } = useEditorStore();
+    const [project, setProject] = useProject();
 
     return (
         <Popover>

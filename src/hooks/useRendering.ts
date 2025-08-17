@@ -1,11 +1,13 @@
 import { renderFrame } from "@/lib/rendering/rendering";
-import { useEditorStore } from "@/stores/useEditorStore";
+import { useCanvasData, usePlaybackData, useProject } from "@/stores/useEditorStore";
 import { defaultPlaybackData } from "@/types/PlaybackData";
 import { getProjectRatio } from "@/types/Project";
 import React from "react";
 
 const useRendering = () => {
-    const { project, canvasData, playbackData } = useEditorStore();
+    const [project] = useProject();
+    const [canvasData] = useCanvasData();
+    const [playbackData] = usePlaybackData();
 
     React.useEffect(() => {
         if (!canvasData.canvas || !canvasData.ctx || !project) {

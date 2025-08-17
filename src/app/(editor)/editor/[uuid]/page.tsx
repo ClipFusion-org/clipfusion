@@ -17,7 +17,7 @@ import { ProjectRenameForm, ProjectRenameFormFields, useProjectRenameForm } from
 import useRendering from "@/hooks/useRendering";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
-import { useEditorStore } from "@/stores/useEditorStore";
+import { useCanvasData, useEditorStore, usePlaybackData, useProject } from "@/stores/useEditorStore";
 import { defaultCanvasData } from "@/types/CanvasData";
 import { defaultPlaybackData } from "@/types/PlaybackData";
 import { defaultProject } from "@/types/Project";
@@ -32,8 +32,7 @@ const ProjectRenamePopover = ({
 }: {
     className: string
 }) => {
-    const project = useEditorStore((state) => state.project);
-    const setProject = useEditorStore((state) => state.setProject);
+    const [project, setProject] = useProject();
     const [open, setOpen] = React.useState(false);
     const form = useProjectRenameForm();
 
@@ -93,7 +92,9 @@ const ProjectRenamePopover = ({
 }
 
 export default function Editor() {
-    const { setProject, setCanvasData, setPlaybackData, project } = useEditorStore();
+    const [project, setProject] = useProject();
+    const [playbackData, setPlaybackData] = usePlaybackData();
+    const [canvasData, setCanvasData] = useCanvasData();
     const router = useRouter();
     const params = useParams();
     const isMobile = useIsMobile();
@@ -138,9 +139,9 @@ export default function Editor() {
                 <ResizablePanelGroup direction="vertical">
                     <ResizablePanel defaultSize={50}>
                         <ResizablePanelGroup direction="horizontal">
-                            <PlayerPanel defaultSize={80} />
+                            <PlayerPanel defaultSize={70} />
                             <ResizableHandle />
-                            <PropertiesPanel />
+                            <PropertiesPanel defaultSize={30}/>
                         </ResizablePanelGroup>
                     </ResizablePanel>
                     <ResizableHandle />

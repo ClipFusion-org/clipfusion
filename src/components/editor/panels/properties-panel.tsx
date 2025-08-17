@@ -1,4 +1,4 @@
-import { useEditorStore } from "@/stores/useEditorStore";
+import { useEditorStore, useProject } from "@/stores/useEditorStore";
 import { Panel, PanelContent, PanelHeader, PanelFooter } from "./panel";
 import { CollapsibleText, Muted, NothingToShowPlaceholder, SwitchableText } from "@/components/typography";
 import React from "react";
@@ -112,8 +112,7 @@ const ProjectPropertiesFormFields = ({ form }: { form: UseFormReturn<ProjectProp
     </>
 );
 const ModifyProjectPropertiesDialog = () => {
-    const project = useEditorStore((state) => state.project);
-    const setProject = useEditorStore((state) => state.setProject);
+    const [project, setProject] = useProject();
 
     const form = useForm<ProjectPropertiesForm>({
         resolver: zodResolver(ProjectPropertiesFormSchema),
@@ -176,12 +175,12 @@ const ModifyProjectPropertiesDialog = () => {
     );
 }
 
-const PropertiesPanel = () => {
-    const { project } = useEditorStore();
+const PropertiesPanel = (props: React.ComponentProps<typeof Panel>) => {
+    const [project, setProject] = useProject();
 
     if (!project.uuid) {
         return (
-            <Panel>
+            <Panel {...props}>
                 <PanelContent>
                     <div className="w-full h-full flex justify-center items-center">
                         Nothing to Show
@@ -192,7 +191,7 @@ const PropertiesPanel = () => {
     }
 
     return (
-        <Panel>
+        <Panel {...props}>
             <PanelHeader>Properties</PanelHeader>
             <PanelContent className="p-0 flex flex-col justify-between">
                 <div className="grid grid-cols-[1fr_2fr] w-full p-4">

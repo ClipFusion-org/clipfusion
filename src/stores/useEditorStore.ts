@@ -37,10 +37,15 @@ export const useEditorStore = create<EditorStore>()((set) => ({
 
 export const useProject = (): ValueAndSetter<Project> => [
     useEditorStore((state) => state.project),
-    useEditorStore((state) => state.setProject)
+    useEditorStore((state) => state.setProject),
+];
+
+export const useCanvasData = (): ValueAndSetter<CanvasData> => [
+    useEditorStore((state) => state.canvasData),
+    useEditorStore((state) => state.setCanvasData),
 ];
 
 export const usePlaybackData = (): ValueAndSetter<PlaybackData> => [
     useEditorStore((state) => state.playbackData),
-    useEditorStore((state) => state.setPlaybackData)
+    useEditorStore((state) => state.setPlaybackData),
 ];
