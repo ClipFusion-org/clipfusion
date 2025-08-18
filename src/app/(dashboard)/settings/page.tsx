@@ -1,5 +1,5 @@
 "use client";
-import { ChartPieIcon, ChevronRightIcon } from "lucide-react";
+import { ChartPieIcon, ChevronRightIcon, ExternalLinkIcon } from "lucide-react";
 import { ReactNode, useState, } from "react";
 import StaticSidebarTrigger from "@/components/static-sidebar-trigger";
 import ScrollFadingTitle from "@/components/scroll-fading-title";
@@ -13,16 +13,86 @@ import { getBuildID, getVersion } from "@/lib/build";
 import useBrowserEngine from "@/hooks/useBrowserEngine";
 import useUserAgent from "@/hooks/useUserAgent";
 import StickyTopContainer from "@/components/sticky-top-container";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import Image from "next/image";
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
+const BuildInfo = () => {
+    const shortBuildId = useIsMobile(1024);
+    const isMobile = useIsMobile();
+    const buildID = getBuildID();
+
+    const openGitHub = () => {
+        window.open(`https://github.com/ClipFusion-org/clipfusion/commit/${buildID}`, '_blank')
+    };
+
+    const openGitMirror = () => {
+        window.open(buildID === 'main'
+            ? `https://git.clipfusion.org/ClipFusion-org/clipfusion/commits/branch/main`
+            : `https://git.clipfusion.org/ClipFusion-org/clipfusion/commit/${buildID}`, '_blank');
+    };
+
+    if (isMobile) {
+        return (
+            <Sheet>
+                <SheetTrigger>
+                    <p className="cursor-pointer flex flex-row items-center gap-1 hover:scale-[101%] duration-100">
+                        <ExternalLinkIcon size={15} /> {getVersion()} ({shortBuildId ? buildID?.slice(0, 7) : buildID})
+                    </p>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="px-safe-or-2 pb-safe-or-2">
+                    <SheetHeader className="w-[95%]">
+                        <SheetTitle>Open in</SheetTitle>
+                    </SheetHeader>
+                    <div className="-mt-3">
+                        <SheetClose asChild>
+                            <Button variant="ghost" className="justify-start w-full" onClick={openGitHub}>
+                                <Image src="/github-mark.svg" aria-hidden width="15" height="15" alt="ClipFusion GitHub" className="dark:invert" />
+                                GitHub
+                            </Button>
+                        </SheetClose>
+                        <SheetClose asChild>
+                            <Button variant="ghost" className="justify-start w-full" onClick={openGitMirror}>
+                                <Image src="/clipfusion-git-logo.png" aria-hidden width="15" height="15" alt="ClipFusion Git Mirror" className="duration-100 hover:opacity-95 active:scale-95" />
+                                ClipFusion Git Mirror
+                            </Button>
+                        </SheetClose>
+                    </div>
+                </SheetContent>
+            </Sheet>
+        );
+    }
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger>
+                <p className="cursor-pointer flex flex-row items-center gap-1 hover:scale-[101%] duration-100">
+                    <ExternalLinkIcon size={15} /> {getVersion()} ({shortBuildId ? buildID?.slice(0, 7) : buildID})
+                </p>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuItem onClick={openGitHub}>
+                    <Image src="/github-mark.svg" aria-hidden width="15" height="15" alt="ClipFusion GitHub" className="dark:invert" />
+                    Open in GitHub
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={openGitMirror}>
+                    <Image src="/clipfusion-git-logo.png" aria-hidden width="15" height="15" alt="ClipFusion Git Mirror" className="duration-100 hover:opacity-95 active:scale-95" />
+                    Open in ClipFusion Git
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+};
 
 export default function Settings(): ReactNode {
     const [showUserAgent, setShowUserAgent] = useState(false);
     const isMobile = useIsMobile();
-    const shortBuildId = useIsMobile(1024);
+
     const browserEngine = useBrowserEngine();
     const userAgent = useUserAgent();
 
-    const buildID = getBuildID();
+
 
     return (
         <div className="p-5 w-full h-full">
@@ -57,11 +127,7 @@ export default function Settings(): ReactNode {
                             </AscendingCard>
                         </Link>
                         <div className="flex flex-col justify-center items-center text-center w-full text-sm text-muted-foreground">
-                            <Link className="" target="_blank" href={
-                                `https://github.com/ClipFusion-org/clipfusion/commit/${buildID}`
-                            }>
-                                {getVersion()} ({shortBuildId ? buildID?.slice(0, 7) : buildID})
-                            </Link>
+                            <BuildInfo />
                             <p className="cursor-pointer" onClick={() => setShowUserAgent(!showUserAgent)}>{showUserAgent ? userAgent : `running on ${browserEngine}`}</p>
                         </div>
                     </div>
