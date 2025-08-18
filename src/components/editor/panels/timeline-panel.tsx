@@ -9,7 +9,7 @@ import React from "react";
 import { usePixelsPerFrame } from "@/stores/useTimelineStore";
 import { HotkeysProvider } from "react-hotkeys-hook";
 import { Slider } from "@/components/ui/slider";
-import { SearchSlash, ZoomInIcon, ZoomOutIcon } from "lucide-react";
+import { ZoomInIcon, ZoomOutIcon } from "lucide-react";
 
 interface TimelineContextData {
     contentRef: HTMLDivElement | null;
@@ -24,47 +24,44 @@ const useTimelineContext = () => {
     return value;
 };
 
-const usePlayheadDrag = (requireDrag: boolean = true) => {
+const usePlayheadDrag = () => {
     const [_playbackData, setPlaybackData] = usePlaybackData();
     const [pixelsPerFrame] = usePixelsPerFrame();
-    const { dragX, mouseX, ref, dragging } = useDrag();
+    const { mouseX, ref, dragging } = useDrag();
     const { contentRef } = useTimelineContext();
 
+    React.useEffect(() => {
+        if (!contentRef || !dragging) return;
+        const rect = contentRef.getBoundingClientRect();
+        const x = mouseX - rect.left;
+        if (x < 0) return;
 
+        setPlaybackData((prev) => ({
+            ...prev,
+            currentFrame: (contentRef.scrollLeft + x) / pixelsPerFrame
+        }));
+    }, [contentRef, mouseX, dragging, pixelsPerFrame]);
 
-    if (requireDrag) {
-        React.useEffect(() => {
-            if (!contentRef || (requireDrag && dragX === 0) || !dragging) return;
-
+    React.useEffect(() => {
+        if (!contentRef || !ref.current) return;
+        const handleClick = (e: PointerEvent) => {
+            if (e.button !== 0) return;
             const rect = contentRef.getBoundingClientRect();
-            var x = mouseX - rect.left;
+            const x = e.clientX - rect.left;
+            if (x < 0) return;
 
             setPlaybackData((prev) => ({
                 ...prev,
                 currentFrame: (contentRef.scrollLeft + x) / pixelsPerFrame
             }));
-        }, [dragX, contentRef, dragging]);
-    } else {
-        React.useEffect(() => {
-            if (!contentRef || !ref.current) return;
-            const handleClick = (e: PointerEvent) => {
-                const rect = contentRef.getBoundingClientRect();
-                var x = e.pageX - rect.left;
-                console.log(x);
+        };
 
-                setPlaybackData((prev) => ({
-                    ...prev,
-                    currentFrame: (contentRef.scrollLeft + x) / pixelsPerFrame
-                }));
-            };
+        ref.current.addEventListener('pointerdown', handleClick);
 
-            ref.current.addEventListener('pointerdown', handleClick);
-
-            return () => {
-                ref.current?.removeEventListener('pointerdown', handleClick);
-            };
-        }, [ref, contentRef]);
-    }
+        return () => {
+            ref.current?.removeEventListener('pointerdown', handleClick);
+        };
+    }, [ref, contentRef, pixelsPerFrame]);
 
     return ref;
 };
@@ -100,12 +97,28 @@ const TimelinePlayheadRuler = () => {
 }
 
 const TimelinePlayhead = () => {
+    const { contentRef } = useTimelineContext();
     const [playbackData] = usePlaybackData();
     const [pixelsPerFrame] = usePixelsPerFrame();
+    const [scrollX, setScrollX] = React.useState(0);
     const ref = usePlayheadDrag();
 
+    React.useEffect(() => {
+        if (!contentRef) return;
+
+        const handleScroll = () => {
+            setScrollX(contentRef.scrollLeft);
+        };
+
+        contentRef.addEventListener('scroll', handleScroll);
+
+        return () => {
+            contentRef.removeEventListener('scroll', handleScroll);
+        };
+    }, [contentRef]);
+
     return (
-        <div ref={ref as React.RefObject<HTMLDivElement>} className="absolute h-full top-0 w-[20px] cursor-ew-resize z-50" style={{ transform: `translateX(${pixelsPerFrame * playbackData.currentFrame}px)` }}>
+        <div ref={ref as React.RefObject<HTMLDivElement>} className="absolute top-0 h-full w-[20px] cursor-ew-resize z-50" style={{ left: pixelsPerFrame * playbackData.currentFrame - scrollX}}>
             <TimelinePlayheadRuler />
         </div>
     )
@@ -137,7 +150,7 @@ const TimelineTimestamps = ({
 const MemoizedTimelineTimestamps = React.memo(TimelineTimestamps);
 
 const TimelineHeaderAccessibleDrag = (props: React.ComponentProps<"div">) => {
-    const ref = usePlayheadDrag(false);
+    const ref = usePlayheadDrag();
 
     return (
         <div {...props} ref={ref as React.RefObject<HTMLDivElement>} />
@@ -146,6 +159,7 @@ const TimelineHeaderAccessibleDrag = (props: React.ComponentProps<"div">) => {
 
 const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => {
     const [project] = useProject();
+    const [pixelsPerFrame] = usePixelsPerFrame();
     const [contentRef, setContentRef] = React.useState<HTMLDivElement | null>(null);
 
     const value: TimelineContextData = {
@@ -155,16 +169,14 @@ const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => 
 
     return (
         <TimelineContext.Provider value={value}>
-            <ResizablePanel {...props} className="relative w-full h-full flex flex-col justify-between">
-                <div>
-                    <TimelineHeaderAccessibleDrag>
-                        <TimelineHeader className="overflow-hidden p-0">
+            <ResizablePanel {...props} className="relative w-full h-full flex flex-col overflow-auto">
+                <div ref={setContentRef} className="overflow-auto mb-8 w-full h-full">
+                    <TimelineHeaderAccessibleDrag className="sticky top-0">
+                        <TimelineHeader className="overflow-hidden p-0" style={{ width: getProjectLength(project) * pixelsPerFrame + getProjectFPS(project) * 2 * pixelsPerFrame }}>
                             <MemoizedTimelineTimestamps project={project} />
                         </TimelineHeader>
                     </TimelineHeaderAccessibleDrag>
                     <TimelinePlayhead />
-                </div>
-                <div ref={setContentRef} className="overflow-auto w-full h-full">
                 </div>
                 <PanelFooter className="absolute bottom-0 left-0 flex flex-row justify-end gap-2">
                     <Description><ZoomOutIcon size={15} /></Description>

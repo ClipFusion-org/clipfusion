@@ -17,8 +17,8 @@ export default function useDrag(options: UseDragOptions = { resizeCursor: true }
     const ref = useRef<HTMLElement>(null);
     const [dragX, setDeltaX] = useState(0);
     const [dragY, setDeltaY] = useState(0);
-    const [mouseX, setMouseX] = useState(0);
-    const [mouseY, setMouseY] = useState(0);
+    const [mouseX, setMouseX] = useState(-1);
+    const [mouseY, setMouseY] = useState(-1);
     const [dragging, setDragging] = useState(false);
     const posRef = useRef({ lastX: 0, lastY: 0 });
 
