@@ -50,7 +50,7 @@ const StaticBackButton = () => {
 
     return (
         <>
-            <div className="w-10 h-full" />
+            <div className="w-8 h-full" />
             <div className="absolute top-0 left-0 pl-6 pt-4 md:p-6 overscroll-auto">
                 <Button ref={ref} className="fixed size-7 ml-10 z-40 transition-colors" variant="ghost" size="icon" onClick={() => router.back()} tabIndex={1}>
                     <ArrowLeftIcon />
