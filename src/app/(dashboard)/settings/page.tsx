@@ -92,8 +92,6 @@ export default function Settings(): ReactNode {
     const browserEngine = useBrowserEngine();
     const userAgent = useUserAgent();
 
-
-
     return (
         <div className="p-5 w-full h-full">
             <div className="flex flex-row items-center gap-2">
