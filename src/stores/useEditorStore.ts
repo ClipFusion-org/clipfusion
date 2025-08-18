@@ -1,17 +1,8 @@
+import { Updater, ValueOrUpdater, getValue, ValueAndSetter } from "@/lib/storeUtils";
 import { CanvasData, defaultCanvasData } from "@/types/CanvasData";
 import { PlaybackData, defaultPlaybackData } from "@/types/PlaybackData";
 import Project, { defaultProject } from "@/types/Project";
 import { create } from "zustand";
-
-type ValueOrUpdater<T> = Partial<T> | ((prev: T) => Partial<T>);
-type Updater<T> = (valueOrUpdater: ValueOrUpdater<T>) => void;
-type ValueAndSetter<T> = [T, Updater<T>];
-
-const getValue = <T>(state: T | undefined, value: ValueOrUpdater<T>): Partial<T> => {
-    return typeof value === 'function'
-        ? value(state || {} as T)
-        : value;
-};
 
 interface EditorStore {
     project: Project;

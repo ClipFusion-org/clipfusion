@@ -12,6 +12,7 @@ import { Form } from "@/components/ui/form";
 import { Menubar, MenubarItem, MenubarMenu, MenubarContent, MenubarTrigger, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarSeparator } from "@/components/ui/menubar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import useEditorHotkeys from "@/hooks/useEditorHotkeys";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { ProjectRenameForm, ProjectRenameFormFields, useProjectRenameForm } from "@/hooks/useProjectRenameForm";
 import useRendering from "@/hooks/useRendering";
@@ -132,6 +133,7 @@ export default function Editor() {
     }, [project]);
 
     useRendering();
+    useEditorHotkeys();
 
     return projectQuery ? (
         <>

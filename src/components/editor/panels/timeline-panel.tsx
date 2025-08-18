@@ -1,17 +1,83 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { Panel, PanelHeader, PanelContent } from "./panel";
+import { Panel, PanelHeader, PanelContent, PanelFooter } from "./panel";
 import DraggableTimestamp from "../draggable-timestamp";
-import { useProject } from "@/stores/useEditorStore";
-import { getProjectLength, getShortTimeStringFromFrame } from "@/types/Project";
+import { usePlaybackData, useProject } from "@/stores/useEditorStore";
+import Project, { getProjectFPS, getProjectLength, getShortTimeStringFromFrame } from "@/types/Project";
 import { Description } from "@/components/typography";
+import useDrag from "@/hooks/useDrag";
+import React from "react";
+import { usePixelsPerFrame } from "@/stores/useTimelineStore";
+import { HotkeysProvider } from "react-hotkeys-hook";
+import { Slider } from "@/components/ui/slider";
+import { SearchSlash, ZoomInIcon, ZoomOutIcon } from "lucide-react";
 
-const PIXELS_PER_FRAME = 3;
+interface TimelineContextData {
+    contentRef: HTMLDivElement | null;
+    setContentRef: (node: HTMLDivElement | null) => void;
+}
 
-const toPixels = (frames: number) => frames * PIXELS_PER_FRAME;
+const TimelineContext = React.createContext<TimelineContextData | null>(null);
+
+const useTimelineContext = () => {
+    const value = React.useContext(TimelineContext);
+    if (!value) throw new Error("TimelineContext is not defined");
+    return value;
+};
+
+const usePlayheadDrag = (requireDrag: boolean = true) => {
+    const [_playbackData, setPlaybackData] = usePlaybackData();
+    const [pixelsPerFrame] = usePixelsPerFrame();
+    const { dragX, mouseX, ref, dragging } = useDrag();
+    const { contentRef } = useTimelineContext();
+
+
+
+    if (requireDrag) {
+        React.useEffect(() => {
+            if (!contentRef || (requireDrag && dragX === 0) || !dragging) return;
+
+            const rect = contentRef.getBoundingClientRect();
+            var x = mouseX - rect.left;
+
+            setPlaybackData((prev) => ({
+                ...prev,
+                currentFrame: (contentRef.scrollLeft + x) / pixelsPerFrame
+            }));
+        }, [dragX, contentRef, dragging]);
+    } else {
+        React.useEffect(() => {
+            if (!contentRef || !ref.current) return;
+            const handleClick = (e: PointerEvent) => {
+                const rect = contentRef.getBoundingClientRect();
+                var x = e.pageX - rect.left;
+                console.log(x);
+
+                setPlaybackData((prev) => ({
+                    ...prev,
+                    currentFrame: (contentRef.scrollLeft + x) / pixelsPerFrame
+                }));
+            };
+
+            ref.current.addEventListener('pointerdown', handleClick);
+
+            return () => {
+                ref.current?.removeEventListener('pointerdown', handleClick);
+            };
+        }, [ref, contentRef]);
+    }
+
+    return ref;
+};
+
+const Triangle = (props: React.ComponentProps<"svg">) => (
+    <svg {...props} id="triangle" viewBox="0 0 100 100">
+        <polygon points="50 15, 100 100, 0 100" />
+    </svg>
+);
 
 const TimelineHeader = (props: React.ComponentProps<typeof PanelHeader>) => (
     <PanelHeader {...props} />
-)
+);
 
 const TimelineLegend = (props: React.ComponentProps<typeof ResizablePanel>) => {
     return (
@@ -23,39 +89,106 @@ const TimelineLegend = (props: React.ComponentProps<typeof ResizablePanel>) => {
     );
 };
 
-const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => {
-    const [project] = useProject();
-    const headerWidthPx = toPixels(getProjectLength(project));
-    const TIMESTAMP_SPACING = PIXELS_PER_FRAME * 50;
-    const timestampsCount = headerWidthPx / TIMESTAMP_SPACING;
+const TimelinePlayheadRuler = () => {
+    return (
+        <div className="relative h-full w-full">
+            <div className="absolute top-3 left-0 w-[2px] bg-sky-400 -translate-x-1/2" style={{ height: 'calc(100%)' }} />
+            <div className="absolute top-2 left-0 w-3 h-3 bg-sky-400 -translate-x-1/2" />
+            <Triangle className="absolute top-6 left-0 w-3 h-3 fill-sky-400 -scale-100 -translate-x-1/2 -translate-y-1" />
+        </div>
+    )
+}
+
+const TimelinePlayhead = () => {
+    const [playbackData] = usePlaybackData();
+    const [pixelsPerFrame] = usePixelsPerFrame();
+    const ref = usePlayheadDrag();
 
     return (
-        <ResizablePanel {...props}>
-            <div className="relative w-full h-full overflow-auto">
-                <TimelineHeader className="absolute top-0 left-0 overflow-hidden" style={{ width: `${headerWidthPx}px` }}>
-                    <div className="relative w-full h-full">
-                        {[...Array(timestampsCount + 1)].map((_e, i) => (
-                            <Description key={i} style={{position: 'absolute', top: 0, left: i * TIMESTAMP_SPACING}}>{getShortTimeStringFromFrame(project, i / timestampsCount * getProjectLength(project))}</Description>
-                        ))}
-                        <Description className="absolute top-0 right-0">{getShortTimeStringFromFrame(project, getProjectLength(project))}</Description>
-                    </div>
-                </TimelineHeader>
-            </div>
-        </ResizablePanel>
+        <div ref={ref as React.RefObject<HTMLDivElement>} className="absolute h-full top-0 w-[20px] cursor-ew-resize z-50" style={{ transform: `translateX(${pixelsPerFrame * playbackData.currentFrame}px)` }}>
+            <TimelinePlayheadRuler />
+        </div>
+    )
+}
+
+const TimelineTimestamps = ({
+    project
+}: {
+    project: Project
+}) => {
+    const [pixelsPerFrame] = usePixelsPerFrame();
+    const fps = getProjectFPS(project);
+    const projectLength = getProjectLength(project);
+
+    return (
+        <div className="relative w-full h-full">
+            {[...Array(projectLength + 1)].map((_e, i) => (
+                <div key={i}>
+                    <div className="bg-muted-foreground" style={{ position: 'absolute', bottom: 0, left: i * pixelsPerFrame, width: 1, height: i % fps === 0 ? '35%' : (i % (fps / 2) === 0 ? '30%' : '15%') }}></div>
+                    {i % fps === 0 && (
+                        <Description className="select-none" style={{ position: 'absolute', bottom: '30%', left: `${i * pixelsPerFrame}px`, transform: i !== 0 ? `translateX(${i === projectLength ? '-100%' : '-45%'})` : '' }}>{getShortTimeStringFromFrame(project, i)}</Description>
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+};
+
+const MemoizedTimelineTimestamps = React.memo(TimelineTimestamps);
+
+const TimelineHeaderAccessibleDrag = (props: React.ComponentProps<"div">) => {
+    const ref = usePlayheadDrag(false);
+
+    return (
+        <div {...props} ref={ref as React.RefObject<HTMLDivElement>} />
+    )
+};
+
+const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => {
+    const [project] = useProject();
+    const [contentRef, setContentRef] = React.useState<HTMLDivElement | null>(null);
+
+    const value: TimelineContextData = {
+        contentRef,
+        setContentRef
+    };
+
+    return (
+        <TimelineContext.Provider value={value}>
+            <ResizablePanel {...props} className="relative w-full h-full flex flex-col justify-between">
+                <div>
+                    <TimelineHeaderAccessibleDrag>
+                        <TimelineHeader className="overflow-hidden p-0">
+                            <MemoizedTimelineTimestamps project={project} />
+                        </TimelineHeader>
+                    </TimelineHeaderAccessibleDrag>
+                    <TimelinePlayhead />
+                </div>
+                <div ref={setContentRef} className="overflow-auto w-full h-full">
+                </div>
+                <PanelFooter className="absolute bottom-0 left-0 flex flex-row justify-end gap-2">
+                    <Description><ZoomOutIcon size={15} /></Description>
+                    <Slider className="w-48" min={1} value={[3]} max={6} />
+                    <Description><ZoomInIcon size={15} /></Description>
+                </PanelFooter>
+            </ResizablePanel>
+        </TimelineContext.Provider>
     );
 };
 
 const TimelinePanel = () => {
     return (
-        <Panel className="pb-0">
-            <PanelContent className="p-0 pb-0">
-                <ResizablePanelGroup direction="horizontal" className="h-full">
-                    <TimelineLegend minSize={10} defaultSize={15} />
-                    <ResizableHandle />
-                    <TimelineContent minSize={10} defaultSize={85} />
-                </ResizablePanelGroup>
-            </PanelContent>
-        </Panel>
+        <HotkeysProvider initiallyActiveScopes={['timeline']}>
+            <Panel className="pb-0">
+                <PanelContent className="p-0 pb-0">
+                    <ResizablePanelGroup direction="horizontal" className="h-full">
+                        <TimelineLegend minSize={10} defaultSize={15} />
+                        <ResizableHandle />
+                        <TimelineContent minSize={10} defaultSize={85} />
+                    </ResizablePanelGroup>
+                </PanelContent>
+            </Panel>
+        </HotkeysProvider>
     )
 };
 

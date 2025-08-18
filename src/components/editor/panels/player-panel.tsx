@@ -58,7 +58,9 @@ const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
                 </div>
                 <div className="flex shrink-0 flex-row justify-between items-center w-full h-10">
                     <div className="flex flex-row items-center justify-start grow basis-0">
-                        <DraggableTimestamp />
+                        <div className="overflow-hidden w-24">
+                            <DraggableTimestamp />
+                        </div>
                     </div>
                     <div className="flex flex-row items-center">
                         <PlaybackControls />

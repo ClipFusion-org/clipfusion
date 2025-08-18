@@ -8,13 +8,17 @@ interface DragHookReturn {
     dragX: number,
     dragY: number,
     ref: RefObject<HTMLElement | null>,
-    dragging: boolean
+    dragging: boolean,
+    mouseX: number,
+    mouseY: number
 }
 
 export default function useDrag(options: UseDragOptions = { resizeCursor: true }): DragHookReturn {
     const ref = useRef<HTMLElement>(null);
     const [dragX, setDeltaX] = useState(0);
     const [dragY, setDeltaY] = useState(0);
+    const [mouseX, setMouseX] = useState(0);
+    const [mouseY, setMouseY] = useState(0);
     const [dragging, setDragging] = useState(false);
     const posRef = useRef({ lastX: 0, lastY: 0 });
 
@@ -44,6 +48,8 @@ export default function useDrag(options: UseDragOptions = { resizeCursor: true }
 
             setDeltaX(dx);
             setDeltaY(dy);
+            setMouseX(x);
+            setMouseY(y);
 
             posRef.current.lastX = x;
             posRef.current.lastY = y;
@@ -53,6 +59,8 @@ export default function useDrag(options: UseDragOptions = { resizeCursor: true }
             setDragging(false);
             setDeltaX(0);
             setDeltaY(0);
+            setMouseX(0);
+            setMouseY(0);
             if (options.resizeCursor) {
                 document.body.style.cursor = '';
             }
@@ -99,6 +107,7 @@ export default function useDrag(options: UseDragOptions = { resizeCursor: true }
         dragX,
         dragY,
         ref,
-        dragging
+        dragging,
+        mouseX, mouseY
     };
 }
