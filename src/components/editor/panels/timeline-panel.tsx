@@ -10,6 +10,7 @@ import { usePixelsPerFrame } from "@/stores/useTimelineStore";
 import { HotkeysProvider } from "react-hotkeys-hook";
 import { Slider } from "@/components/ui/slider";
 import { ZoomInIcon, ZoomOutIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const TIMELINE_OVERSHOOT = 2;
 
@@ -92,7 +93,7 @@ const TimelinePlayheadRuler = () => {
     return (
         <div className="relative h-full w-full">
             <div className="absolute top-0 left-0 w-[2px] bg-sky-400 -translate-x-1/2 h-full" />
-            <Triangle className="absolute top-0 left-0 w-4 h-4 fill-sky-400 -scale-100 -translate-x-1/2 -translate-y-1"/>
+            <Triangle className="absolute top-0 left-0 w-4 h-4 fill-sky-400 -scale-100 -translate-x-1/2 -translate-y-1" />
         </div>
     )
 }
@@ -103,7 +104,7 @@ const TimelinePlayhead = () => {
     const ref = usePlayheadDrag();
 
     return (
-        <div ref={ref as React.RefObject<HTMLDivElement>} className="absolute top-0 left-0 h-full w-4 cursor-ew-resize z-50 pt-6" style={{ transform: `translateX(${pixelsPerFrame * playbackData.currentFrame}px)` }}>
+        <div ref={ref as React.RefObject<HTMLDivElement>} className="absolute top-0 left-0 h-full w-4 cursor-ew-resize z-50 pt-6" style={{ transform: `translateX(${Math.floor(pixelsPerFrame * playbackData.currentFrame)}px)` }}>
             <TimelinePlayheadRuler />
         </div>
     )
@@ -117,13 +118,14 @@ const TimelineTimestamps = ({
     const [pixelsPerFrame] = usePixelsPerFrame();
     const fps = getProjectFPS(project);
     const projectLength = getProjectLength(project);
-    const reduction = +(pixelsPerFrame / (3 * getProjectFPS(project) / 30)).toFixed(1);
+    const reduction = Math.min(1, +(pixelsPerFrame / (3 * getProjectFPS(project) / 30)).toFixed(1));
+    console.log(reduction);
 
     return (
         <div className="relative w-full h-full">
-            {[...Array(Math.ceil((projectLength + 1 + fps * TIMELINE_OVERSHOOT) * reduction))].map((_e, i) => (
+            {[...Array(Math.ceil((projectLength + 1 + fps * TIMELINE_OVERSHOOT * reduction)))].map((_e, i) => (
                 <div key={i}>
-                    <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground/60"} style={{ position: 'absolute', bottom: 0, left: Math.round(i / reduction * pixelsPerFrame), width: 1, height: Math.floor((i / reduction) % fps) === 0 ? '35%' : (Math.floor((i / reduction) % (fps / 2)) === 0 ? '30%' : '15%') }}></div>
+                    <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground/60"} style={{ position: 'absolute', bottom: 0, left: Math.floor(i / reduction * pixelsPerFrame), width: 1, height: Math.round(Math.floor(i / reduction) % fps) == 0 ? '35%' : ((Math.floor(i / reduction) % (fps / 2)) == 0 && reduction > 0.6 ? '30%' : '15%') }}></div>
                     {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength && (
                         <Description className="select-none" style={{ position: 'absolute', bottom: '30%', left: `${Math.floor(i / reduction) * pixelsPerFrame}px`, transform: i !== 0 ? `translateX(${i === projectLength ? '-100%' : '-45%'})` : '' }}>{getShortTimeStringFromFrame(project, Math.floor(i / reduction))}</Description>
                     )}
@@ -165,9 +167,13 @@ const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => 
                     <TimelinePlayhead />
                 </div>
                 <PanelFooter className="absolute bottom-0 left-0 flex flex-row justify-end gap-2 basis-0">
-                    <Description><ZoomOutIcon size={15} /></Description>
+                    <Button variant="ghost" size="icon" onClick={() => setPixelsPerFrame((prev) => prev - 0.1)}>
+                        <Description><ZoomOutIcon size={15} /></Description>
+                    </Button>
                     <Slider className="w-48" min={10} value={[pixelsPerFrame * 10]} onValueChange={(value) => setPixelsPerFrame(value[0] / 10)} max={60} />
-                    <Description><ZoomInIcon size={15} /></Description>
+                    <Button variant="ghost" size="icon" onClick={() => setPixelsPerFrame((prev) => prev + 0.1)}>
+                        <Description><ZoomInIcon size={15} /></Description>
+                    </Button>
                 </PanelFooter>
             </ResizablePanel>
         </TimelineContext.Provider>
