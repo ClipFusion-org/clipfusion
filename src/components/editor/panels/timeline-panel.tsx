@@ -117,14 +117,15 @@ const TimelineTimestamps = ({
     const [pixelsPerFrame] = usePixelsPerFrame();
     const fps = getProjectFPS(project);
     const projectLength = getProjectLength(project);
+    const reduction = +(pixelsPerFrame / (3 * getProjectFPS(project) / 30)).toFixed(1);
 
     return (
         <div className="relative w-full h-full">
-            {[...Array(projectLength + 1 + fps * TIMELINE_OVERSHOOT)].map((_e, i) => (
+            {[...Array(Math.ceil((projectLength + 1 + fps * TIMELINE_OVERSHOOT) * reduction))].map((_e, i) => (
                 <div key={i}>
-                    <div className={i <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground/60"} style={{ position: 'absolute', bottom: 0, left: i * pixelsPerFrame, width: 1, height: i % fps === 0 ? '35%' : (i % (fps / 2) === 0 ? '30%' : '15%') }}></div>
-                    {i % fps === 0 && i <= projectLength && (
-                        <Description className="select-none" style={{ position: 'absolute', bottom: '30%', left: `${i * pixelsPerFrame}px`, transform: i !== 0 ? `translateX(${i === projectLength ? '-100%' : '-45%'})` : '' }}>{getShortTimeStringFromFrame(project, i)}</Description>
+                    <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground/60"} style={{ position: 'absolute', bottom: 0, left: Math.round(i / reduction * pixelsPerFrame), width: 1, height: Math.floor((i / reduction) % fps) === 0 ? '35%' : (Math.floor((i / reduction) % (fps / 2)) === 0 ? '30%' : '15%') }}></div>
+                    {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength && (
+                        <Description className="select-none" style={{ position: 'absolute', bottom: '30%', left: `${Math.floor(i / reduction) * pixelsPerFrame}px`, transform: i !== 0 ? `translateX(${i === projectLength ? '-100%' : '-45%'})` : '' }}>{getShortTimeStringFromFrame(project, Math.floor(i / reduction))}</Description>
                     )}
                 </div>
             ))}
@@ -144,7 +145,7 @@ const TimelineHeaderAccessibleDrag = (props: React.ComponentProps<"div">) => {
 
 const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => {
     const [project] = useProject();
-    const [pixelsPerFrame] = usePixelsPerFrame();
+    const [pixelsPerFrame, setPixelsPerFrame] = usePixelsPerFrame();
     const [contentRef, setContentRef] = React.useState<HTMLDivElement | null>(null);
 
     const value: TimelineContextData = {
@@ -157,7 +158,7 @@ const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => 
             <ResizablePanel {...props} className="relative w-full h-full flex flex-col overflow-auto justify-between">
                 <div ref={setContentRef} className="relative overflow-auto mb-8 w-full h-full grow basis-0">
                     <TimelineHeaderAccessibleDrag className="sticky top-0">
-                        <TimelineHeader className="overflow-hidden p-0" style={{ width: getProjectLength(project) * pixelsPerFrame + getProjectFPS(project) * 2 * pixelsPerFrame }}>
+                        <TimelineHeader className="overflow-hidden p-0 min-w-full" style={{ width: getProjectLength(project) * pixelsPerFrame + getProjectFPS(project) * 2 * pixelsPerFrame }}>
                             <MemoizedTimelineTimestamps project={project} />
                         </TimelineHeader>
                     </TimelineHeaderAccessibleDrag>
@@ -165,7 +166,7 @@ const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => 
                 </div>
                 <PanelFooter className="absolute bottom-0 left-0 flex flex-row justify-end gap-2 basis-0">
                     <Description><ZoomOutIcon size={15} /></Description>
-                    <Slider className="w-48" min={1} value={[3]} max={6} />
+                    <Slider className="w-48" min={10} value={[pixelsPerFrame * 10]} onValueChange={(value) => setPixelsPerFrame(value[0] / 10)} max={60} />
                     <Description><ZoomInIcon size={15} /></Description>
                 </PanelFooter>
             </ResizablePanel>
