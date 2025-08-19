@@ -30,3 +30,7 @@ export const createProject = (): Project => {
         editDate: date
     } as Project;
 };
+
+export const clamp = (x: number, a: number, b: number): number => (
+    Math.max(a, Math.min(x, b))
+);

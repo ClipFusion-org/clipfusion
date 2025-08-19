@@ -3,11 +3,14 @@ import { useCanvasData, usePlaybackData, useProject } from "@/stores/useEditorSt
 import { defaultPlaybackData } from "@/types/PlaybackData";
 import { getProjectRatio } from "@/types/Project";
 import React from "react";
+import useLimitPlaybackData from "./useLimitPlaybackData";
 
 const useRendering = () => {
     const [project] = useProject();
     const [canvasData] = useCanvasData();
     const [playbackData] = usePlaybackData();
+
+    useLimitPlaybackData();
 
     React.useEffect(() => {
         if (!canvasData.canvas || !canvasData.ctx || !project) {
