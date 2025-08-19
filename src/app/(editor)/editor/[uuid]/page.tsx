@@ -137,7 +137,7 @@ export default function Editor() {
 
     return projectQuery ? (
         <>
-            <PanelContainer className="absolute top-0 left-0 w-screen h-full pt-8 bg-panel-border rounded-none">
+            <PanelContainer className="absolute top-0 left-0 w-screen h-full pt-8 bg-panel-border rounded-none pb-safe">
                 <ResizablePanelGroup direction="vertical">
                     <ResizablePanel defaultSize={50}>
                         <ResizablePanelGroup direction="horizontal">
