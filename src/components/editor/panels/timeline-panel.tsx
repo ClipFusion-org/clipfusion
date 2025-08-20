@@ -118,14 +118,19 @@ const TimelineTimestamps = ({
     const [pixelsPerFrame] = usePixelsPerFrame();
     const fps = getProjectFPS(project);
     const projectLength = getProjectLength(project);
-    const rawReduction = Math.min(1, +(pixelsPerFrame / (3 * getProjectFPS(project) / 30)).toFixed(1));
-    const reduction = rawReduction;
-    console.log(reduction);
+    const fixReduction = (r: number) => {
+        if (Math.floor(r % fps) === 0) return r;
+        for (let i = 0; i < 50; i++) {
+            if (((r + i * 0.1) % fps) === 0) return r + i * 0.1;
+        }
+        return r;
+    };
+    const reduction = fixReduction(Math.min(1, +(pixelsPerFrame / (3 * getProjectFPS(project) / 30)).toFixed(1)));
     return (
         <div className="relative w-full h-full">
             {[...Array(Math.ceil((projectLength + 1 + fps * TIMELINE_OVERSHOOT * reduction)))].map((_e, i) => (
                 <div key={i}>
-                    <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground/60"} style={{ position: 'absolute', bottom: 0, left: Math.floor(i / reduction * pixelsPerFrame), width: 1, height: (Math.floor(i / reduction) % fps) < 1 / reduction && !((Math.floor((i - 1) / reduction) % fps) < 1 / reduction) ? '35%' : ((Math.floor(i / reduction) % (fps / 2)) < 1 / reduction && !((Math.floor((i - 1) / reduction) % (fps / 2)) < 1 / reduction) ? '30%' : '15%') }}></div>
+                    <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground/60"} style={{ position: 'absolute', bottom: 0, left: i / reduction * pixelsPerFrame, width: 1, height: (Math.floor(i / reduction) % fps) < 1 / reduction && !((Math.floor((i - 1) / reduction) % fps) < 1 / reduction) ? '35%' : ((Math.floor(i / reduction) % (fps / 2)) < 1 / reduction && !((Math.floor((i - 1) / reduction) % (fps / 2)) < 1 / reduction) ? '30%' : '15%') }}></div>
                     {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength && (
                         <Description className="select-none" style={{ position: 'absolute', bottom: '30%', left: `${Math.floor(i / reduction) * pixelsPerFrame}px`, transform: i !== 0 ? `translateX(${i === projectLength ? '-100%' : '-45%'})` : '' }}>{getShortTimeStringFromFrame(project, Math.floor(i / reduction))}</Description>
                     )}
