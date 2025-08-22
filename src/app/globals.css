@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "tailwindcss-safe-area";
+@plugin 'tailwind-scrollbar';
+
 @custom-variant dark (&:is(.dark *));
 @custom-variant adjust (&:where([data-adjust="true"] *));
 

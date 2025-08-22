@@ -7,7 +7,7 @@ interface TimelineStore {
 }
 
 export const useTimelineStore = create<TimelineStore>()((set) => ({
-    pixelsPerFrame: 6,
+    pixelsPerFrame: 3,
     setPixelsPerFrame: (pfs: ValueOrUpdater<number>) => set((state) => ({ pixelsPerFrame: getValue(state.pixelsPerFrame, pfs) }))
 }));
 

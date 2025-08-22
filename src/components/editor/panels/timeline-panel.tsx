@@ -88,7 +88,7 @@ const TimelineTrackContainer = ({
 }: React.ComponentProps<"div"> & {
     track: Track
 }) => (
-    <div {...props} className={cn("bg-card shrink-0", props.className)} style={{ height: `calc(var(--spacing) * 16)` }} />
+    <div {...props} className={cn("bg-card shrink-0", props.className)} style={{ height: `calc(var(--spacing) * 12)` }} />
 );
 
 const TimelineLegendTrack = ({
@@ -114,7 +114,7 @@ const TimelineLegend = (props: React.ComponentProps<typeof ResizablePanel>) => {
             <TimelineHeader className="sticky top-0 flex items-center justify-center">
                 <DraggableTimestamp />
             </TimelineHeader>
-            <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center overflow-none divide-y divide-panel-border pt-8 pb-8">
+            <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center overflow-none divide-y divide-panel-border py-8">
                 {project.tracks.map((_track, i) => (
                     <TimelineLegendTrack key={i} trackIndex={i} />
                 ))}
@@ -204,9 +204,9 @@ const TimelineContentTracks = () => {
     const [pixelsPerFrame] = usePixelsPerFrame();
 
     return (
-        <div className="absolute top-0 left-0 h-full pt-12 flex flex-col items-center justify-center overflow-y-auto w-full divide-y divide-panel-border" style={{ width: getProjectLength(project) * pixelsPerFrame }}>
+        <div className="absolute top-0 left-0 h-full pt-11 flex flex-col items-center justify-center overflow-y-auto w-full divide-y divide-panel-border" style={{ width: getProjectLength(project) * pixelsPerFrame }}>
             {project.tracks.map((_track, i) => <>
-                <TimelineContentTrack trackIndex={i} />
+                <TimelineContentTrack key={i} trackIndex={i} />
             </>)}
         </div>
     );
@@ -225,7 +225,7 @@ const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => 
     return (
         <TimelineContext.Provider value={value}>
             <ResizablePanel {...props} className="relative w-full h-full flex flex-col overflow-auto justify-between">
-                <div ref={setContentRef} className="relative overflow-auto mb-8 w-full h-full grow basis-0">
+                <div ref={setContentRef} className="relative overflow-scroll scrollbar-thin mb-8 w-full h-full grow basis-0">
                     <TimelineContentTracks />
                     <TimelineHeaderAccessibleDrag className="sticky top-0">
                         <TimelineHeader className="overflow-hidden p-0 min-w-full" style={{ width: getProjectLength(project) * pixelsPerFrame + getProjectFPS(project) * 2 * pixelsPerFrame }}>
