@@ -1,6 +1,7 @@
 import { Entity } from "dexie";
 import type EditorDB from "./EditorDB";
-import Track, { defaultTrack } from "./Track";
+import Track, { generateTrack } from "./Track";
+import { generateSegment } from "./Segment";
 
 export default class Project extends Entity<EditorDB> {
     uuid!: string;
@@ -68,8 +69,16 @@ export const getShortTimeStringFromFrame = (project: Project, frame: number): st
 
 export const migrateProject = (project: Project): Project => {
     if (!project.tracks) {
-        project.tracks = new Array(3).fill(defaultTrack);
+        project.tracks = [];
+        for (let i = 0; i < 3; i++) {
+            project.tracks.push({
+                ...generateTrack(),
+                segments: [generateSegment()]
+            });
+        }
+        console.log(project.tracks);
     }
+    console.log(project);
     return project;
 }
 

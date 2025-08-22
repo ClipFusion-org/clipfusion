@@ -13,6 +13,7 @@ import { ZoomInIcon, ZoomOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Track from "@/types/Track";
 import { cn } from "@/lib/utils";
+import Segment from "@/types/Segment";
 
 const TIMELINE_OVERSHOOT = 2;
 
@@ -88,7 +89,7 @@ const TimelineTrackContainer = ({
 }: React.ComponentProps<"div"> & {
     track: Track
 }) => (
-    <div {...props} className={cn("bg-card shrink-0", props.className)} style={{ height: `calc(var(--spacing) * 12)` }} />
+    <div {...props} className={cn("bg-card shrink-0 rounded-md overflow-hidden", props.className)} style={{ ...props.style, height: `calc(var(--spacing) * 12)` }} />
 );
 
 const TimelineLegendTrack = ({
@@ -114,9 +115,9 @@ const TimelineLegend = (props: React.ComponentProps<typeof ResizablePanel>) => {
             <TimelineHeader className="sticky top-0 flex items-center justify-center">
                 <DraggableTimestamp />
             </TimelineHeader>
-            <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center overflow-none divide-y divide-panel-border py-8">
-                {project.tracks.map((_track, i) => (
-                    <TimelineLegendTrack key={i} trackIndex={i} />
+            <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center overflow-none gap-1 py-8">
+                {project.tracks.map((track, i) => (
+                    <TimelineLegendTrack key={track.uuid} trackIndex={i} />
                 ))}
             </div>
         </ResizablePanel>
@@ -164,7 +165,7 @@ const TimelineTimestamps = ({
         <div className="relative w-full h-full">
             {[...Array(Math.ceil((projectLength + 1 + fps * TIMELINE_OVERSHOOT * reduction)))].map((_e, i) => (
                 <div key={i}>
-                    <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground/60"} style={{ position: 'absolute', bottom: 0, left: i / reduction * pixelsPerFrame, width: 1, height: (Math.floor(i / reduction) % fps) < 1 / reduction && !((Math.floor((i - 1) / reduction) % fps) < 1 / reduction) ? '35%' : ((Math.floor(i / reduction) % (fps / 2)) < 1 / reduction && !((Math.floor((i - 1) / reduction) % (fps / 2)) < 1 / reduction) ? '30%' : '15%') }}></div>
+                    <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground/60"} style={{ position: 'absolute', bottom: 0, left: i / reduction * pixelsPerFrame, width: 1, height: (Math.floor(i / reduction) % fps) < 1 / reduction && !((Math.floor((i - 1) / reduction) % fps) < 1 / reduction) || i === 0 ? '35%' : ((Math.floor(i / reduction) % (fps / 2)) < 1 / reduction && !((Math.floor((i - 1) / reduction) % (fps / 2)) < 1 / reduction) ? '30%' : '15%') }}></div>
                     {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength && (
                         <Description className="select-none" style={{ position: 'absolute', bottom: '30%', left: `${Math.floor(i / reduction) * pixelsPerFrame}px`, transform: i !== 0 ? `translateX(${i === projectLength ? '-100%' : '-45%'})` : '' }}>{getShortTimeStringFromFrame(project, Math.floor(i / reduction))}</Description>
                     )}
@@ -184,6 +185,22 @@ const TimelineHeaderAccessibleDrag = (props: React.ComponentProps<"div">) => {
     )
 };
 
+const TimelineContentSegment = ({
+    track,
+    segment
+}: {
+    track: Track,
+    segment: Segment
+}) => {
+    const [pixelsPerFrame] = usePixelsPerFrame();
+
+    return (
+        <TimelineTrackContainer track={track} className="absolute top-0 left-0" style={{width: pixelsPerFrame * segment.length, transform: `translateX(${segment.start * pixelsPerFrame}px)`}}>
+            <p className="truncate">{track.name} {segment.uuid}</p>
+        </TimelineTrackContainer>
+    );
+}
+
 const TimelineContentTrack = ({
     trackIndex
 }: {
@@ -193,8 +210,10 @@ const TimelineContentTrack = ({
     const track = project.tracks[trackIndex];
 
     return (
-        <TimelineTrackContainer track={track} className="w-full flex items-center justify-center">
-            <p className="sticky left-0">{trackIndex} {track.name}</p>
+        <TimelineTrackContainer track={track} className="relative w-full flex items-center justify-center bg-transparent">
+            {track.segments.map((segment) => 
+                <TimelineContentSegment key={segment.uuid} track={track} segment={segment} />
+            )}
         </TimelineTrackContainer>
     )
 }
@@ -202,12 +221,28 @@ const TimelineContentTrack = ({
 const TimelineContentTracks = () => {
     const [project] = useProject();
     const [pixelsPerFrame] = usePixelsPerFrame();
+    const { contentRef } = useTimelineContext();
+    const [offsetY, setOffsetY] = React.useState(0);
+
+    React.useEffect(() => {
+        if (!contentRef) return;
+        const onResize = () => {
+            setOffsetY(contentRef.offsetHeight - contentRef.clientHeight);
+        };
+
+        onResize();
+        window.addEventListener('resize', onResize);
+
+        return () => {
+            window.removeEventListener('resize', onResize);
+        };
+    }, [contentRef]);
 
     return (
-        <div className="absolute top-0 left-0 h-full pt-11 flex flex-col items-center justify-center overflow-y-auto w-full divide-y divide-panel-border" style={{ width: getProjectLength(project) * pixelsPerFrame }}>
-            {project.tracks.map((_track, i) => <>
-                <TimelineContentTrack key={i} trackIndex={i} />
-            </>)}
+        <div className="absolute top-0 left-0 h-full flex flex-col items-center justify-center overflow-y-auto w-full gap-1" style={{ width: getProjectLength(project) * pixelsPerFrame, paddingTop: `calc(var(--spacing) * 8 + ${offsetY}px)` }}>
+            {project.tracks.map((track, i) =>
+                (<TimelineContentTrack key={track.uuid} trackIndex={i} />)
+            )}
         </div>
     );
 }
@@ -225,9 +260,12 @@ const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => 
     return (
         <TimelineContext.Provider value={value}>
             <ResizablePanel {...props} className="relative w-full h-full flex flex-col overflow-auto justify-between">
-                <div ref={setContentRef} className="relative overflow-scroll scrollbar-thin mb-8 w-full h-full grow basis-0">
+                <div className="relative w-full">
+                    <TimelineHeader className="absolute top-0 left-0overflow-hidden p-0 min-w-full" style={{ width: getProjectLength(project) * pixelsPerFrame + getProjectFPS(project) * 2 * pixelsPerFrame }} />
+                </div>
+                <div ref={setContentRef} className="relative overflow-scroll scrollbar-thin mb-8 w-full h-full grow basis-0 z-50">
                     <TimelineContentTracks />
-                    <TimelineHeaderAccessibleDrag className="sticky top-0">
+                    <TimelineHeaderAccessibleDrag className="sticky top-0 right-0">
                         <TimelineHeader className="overflow-hidden p-0 min-w-full" style={{ width: getProjectLength(project) * pixelsPerFrame + getProjectFPS(project) * 2 * pixelsPerFrame }}>
                             <MemoizedTimelineTimestamps project={project} />
                         </TimelineHeader>
@@ -255,7 +293,7 @@ const TimelinePanel = () => {
                 <PanelContent className="p-0 pb-0">
                     <ResizablePanelGroup direction="horizontal" className="h-full">
                         <TimelineLegend minSize={10} defaultSize={15} />
-                        <ResizableHandle/>
+                        <ResizableHandle />
                         <TimelineContent minSize={10} defaultSize={85} />
                     </ResizablePanelGroup>
                 </PanelContent>
