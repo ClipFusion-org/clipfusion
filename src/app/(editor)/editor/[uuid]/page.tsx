@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import { useCanvasData, usePlaybackData, useProject } from "@/stores/useEditorStore";
 import { defaultCanvasData } from "@/types/CanvasData";
 import { defaultPlaybackData } from "@/types/PlaybackData";
-import { defaultProject } from "@/types/Project";
+import Project, { defaultProject, migrateProject } from "@/types/Project";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ChevronDownIcon, PencilIcon } from "lucide-react";
 import Link from "next/link";
@@ -100,42 +100,45 @@ export default function Editor() {
     const params = useParams();
     const isMobile = useIsMobile();
     const uuid = params.uuid as string;
-    const projectQuery = useLiveQuery(async () => db.projects.where('uuid').equals(uuid).first());
 
     // setting global data to the default values just in case
     React.useEffect(() => {
-        // Initialize only if unset to avoid overriding PlayerPanel initialization.
         setPlaybackData((prev) => prev ?? defaultPlaybackData);
         setCanvasData((prev) =>
             (prev?.canvas && prev?.ctx) ? prev : defaultCanvasData
         );
-        // set* from Zustand are stable; adding as deps satisfies exhaustive-deps.
     }, [setPlaybackData, setCanvasData]);
 
     // Redirect user to the project library if provided UUID is invalid
     React.useEffect(() => {
-        if (!uuid) {
-            router.push('/');
-            return;
-        }
-        if (projectQuery) {
-            // making sure we don't get undefined values
-            setProject({
-                ...defaultProject,
-                ...projectQuery
-            });
-        }
-    }, [projectQuery]);
+        const initializeProject = async () => {
+            if (!uuid) {
+                router.push('/');
+                return;
+            }
+            const projectQuery = await db.projects.where('uuid').equals(uuid).first();
+            if (projectQuery) {
+                // making sure we don't get undefined values
+                setProject(migrateProject({
+                    ...defaultProject,
+                    ...projectQuery
+                } as Project));
+            }
+        };
+        initializeProject();
+    }, []);
 
     // Automatically save changes to the project
     React.useEffect(() => {
-        db.projects.update(project.uuid, project);
+        db.projects.update(project.uuid, {
+            ...project
+        });
     }, [project]);
 
     useRendering();
     useEditorHotkeys();
 
-    return projectQuery ? (
+    return project.uuid ? (
         <>
             <PanelContainer className="absolute top-0 left-0 w-screen h-full pt-8 bg-panel-border rounded-none pb-safe">
                 <ResizablePanelGroup direction="vertical">
@@ -143,7 +146,7 @@ export default function Editor() {
                         <ResizablePanelGroup direction="horizontal">
                             <PlayerPanel defaultSize={70} />
                             <ResizableHandle />
-                            <PropertiesPanel defaultSize={30}/>
+                            <PropertiesPanel defaultSize={30} />
                         </ResizablePanelGroup>
                     </ResizablePanel>
                     <ResizableHandle />

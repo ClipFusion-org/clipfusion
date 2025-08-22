@@ -1,5 +1,6 @@
 import { Entity } from "dexie";
 import type EditorDB from "./EditorDB";
+import Track, { defaultTrack } from "./Track";
 
 export default class Project extends Entity<EditorDB> {
     uuid!: string;
@@ -13,6 +14,7 @@ export default class Project extends Entity<EditorDB> {
     height!: number; // default is 1080p, width is derived from height using ratio
     previewRatio!: number; // default is 1, 2 means half of the resolution, 3, 4, 5 and so on
     fps!: number; // default is 30
+    tracks!: Track[];
 }
 
 export const getProjectRatio = (project: Project): number => (
@@ -40,6 +42,10 @@ export const getProjectPreviewResolutionString = (project: Project): string => (
     `${Math.floor(project.height * getProjectRatio(project) / getProjectPreviewRatio(project))}x${Math.floor(project.height / getProjectPreviewRatio(project))}`
 );
 
+export const getProjectTracks = (project: Project): Track[] => (
+    project.tracks || []
+);
+
 // converts '1' to '01'
 // so timestamps look like '00:02:48' and not '0:2:48'
 const expandTimeString = <T>(value: T) => (
@@ -59,6 +65,13 @@ export const getShortTimeStringFromFrame = (project: Project, frame: number): st
     if (seconds <= 3600) return `${(Math.floor(seconds / fps) % 60)}:${seconds % 60}`;
     return getTimeStringFromFrame(project, frame);
 };
+
+export const migrateProject = (project: Project): Project => {
+    if (!project.tracks) {
+        project.tracks = new Array(3).fill(defaultTrack);
+    }
+    return project;
+}
 
 export const defaultProject: Project = {
     uuid: '',

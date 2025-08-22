@@ -67,6 +67,7 @@ export default function useDrag(options: UseDragOptions = { resizeCursor: true }
         };
 
         const onMouseDown = (e: MouseEvent) => {
+            if (e.button !== 0) return;
             onDragBegin(e.pageX, e.pageY, e);
         };
 
