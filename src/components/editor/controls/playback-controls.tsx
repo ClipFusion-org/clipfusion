@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { clamp } from "@/lib/utils";
 import { usePlaybackData, useProject } from "@/stores/useEditorStore";
 import { getProjectFPS, getProjectLength } from "@/types/Project";
 import { PauseIcon, PlayIcon, SkipBackIcon, SkipForwardIcon } from "lucide-react";
@@ -24,14 +25,14 @@ const PlaybackControls = () => {
 
             setPlaybackData((prev) => ({
                 ...prev,
-                currentFrame: prev.currentFrame + 1
+                currentFrame: clamp(prev.currentFrame + 1, 0, getProjectLength(project))
             }));
         };
 
         const interval = setInterval(nextFrame, Math.floor(1000 / getProjectFPS(project)));
 
         return () => clearInterval(interval);
-    }, [playbackData.playing]);
+    }, [playbackData.playing, project]);
 
     return (
         <div className="flex flex-row items-center justify-center">

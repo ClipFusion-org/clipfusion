@@ -129,16 +129,23 @@ export default function Editor() {
         initializeProject();
     }, []);
 
-    const saveProject = useDebouncedCallback(() => {
-        db.projects.update(project.uuid, {
-            ...project
-        });
-    }, 100);
+    const saveProject = useDebouncedCallback(
+        async (nextProject: Project) => {
+            if (!nextProject?.uuid) return;
+            try {
+                await db.projects.put(nextProject);
+            } catch (err) {
+                console.error("Failed to save project", err);
+            }
+        },
+        500,
+        { maxWait: 2000 }
+    );
 
     // Automatically save changes to the project
     React.useEffect(() => {
-        saveProject();
-    }, [project]);
+        saveProject(project);
+    }, [project, saveProject]);
 
     useRendering();
     useEditorHotkeys();

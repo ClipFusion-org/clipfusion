@@ -169,10 +169,10 @@ const TimelineTimestamps = ({
     const { contentRef } = useTimelineContext();
     const fixReduction = (r: number) => {
         if (Math.floor(r % fps) === 0) return r;
-        for (let i = 0; i < 5000; i++) {
-            if (((r + i * 0.001) % fps) === 0) return r + i * 0.001;
-        }
-        return r;
+        const remainder = r % fps;
+        if (remainder === 0) return r;
+        const adjustment = fps - remainder;
+        return r + (adjustment < 0.001 ? adjustment : 0);
     };
     const rect = contentRef?.getBoundingClientRect();
     const reduction = fixReduction(Math.min(1, +(pixelsPerFrame / (fps * 0.1)).toFixed(1)));
@@ -184,13 +184,13 @@ const TimelineTimestamps = ({
 
     const optimizedGetTimeString = (frame: number): string => {
         const seconds = Math.floor(frame / fps);
-        return `${expandTimeString(Math.floor(seconds / 3600))}:${expandTimeString(Math.floor(seconds / fps) % 60)}:${expandTimeString(seconds % 60)},${expandTimeString(Math.floor((frame % fps) / fps * 100))}`;
+        return `${expandTimeString(Math.floor(seconds / 3600))}:${expandTimeString(Math.floor(seconds / 60) % 60)}:${expandTimeString(seconds % 60)},${expandTimeString(Math.floor((frame % fps) / fps * 100))}`;
     };
 
     const optimizedGetShortTimeString = (frame: number): string => {
         const seconds = Math.floor(frame / fps);
         if (seconds <= 60) return `${seconds}s`;
-        if (seconds <= 3600) return `${(Math.floor(seconds / fps) % 60)}:${seconds % 60}`;
+        if (seconds <= 3600) return `${(Math.floor(seconds / 60) % 60)}:${seconds % 60}`;
         return optimizedGetTimeString(frame);
     };
 
@@ -236,18 +236,16 @@ const TimelineContentSegment = ({
 
     useDndMonitor({
         onDragMove: (e) => {
-            requestAnimationFrame(() => {
-                if (!contentRef) return;
-                const rect = contentRef.getBoundingClientRect();
-                const x = (e.active.rect.current.translated?.left || 0) - rect.left + contentRef.scrollLeft;
-                if (x < 0) return;
-                if (e.active.id === segment.uuid) {
-                    setProject((prev) => updateProjectSegment(prev, track, {
-                        ...segment,
-                        start: x / pixelsPerFrame
-                    }))
-                }
-            });
+            if (!contentRef) return;
+            const rect = contentRef.getBoundingClientRect();
+            const x = (e.active.rect.current.translated?.left || 0) - rect.left + contentRef.scrollLeft;
+            if (x < 0) return;
+            if (e.active.id === segment.uuid) {
+                setProject((prev) => updateProjectSegment(prev, track, {
+                    ...segment,
+                    start: Math.max(0, x / pixelsPerFrame)
+                }))
+            }
         }
     });
     const rect = contentRef?.getBoundingClientRect();
