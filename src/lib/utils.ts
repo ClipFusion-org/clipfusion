@@ -34,3 +34,7 @@ export const createProject = (): Project => {
 export const clamp = (x: number, a: number, b: number): number => (
     Math.max(a, Math.min(x, b))
 );
+
+export const lerp = (a: number, b: number, t: number): number => (
+    a * t + b * (1 - t)
+);

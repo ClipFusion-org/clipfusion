@@ -1,5 +1,5 @@
 'use client';
-import { useCanvasData, usePlaybackData, useProject } from "@/stores/useEditorStore";
+import { useCanvasData, useEditorStore, usePlaybackData, useProject } from "@/stores/useEditorStore";
 import { Panel, PanelContent, PanelHeader } from "./panel";
 import { ComponentProps, useEffect, useRef } from "react";
 import PlaybackControls from "../controls/playback-controls";
@@ -11,7 +11,7 @@ import { getProjectLength, getTimeStringFromFrame } from "@/types/Project";
 const PlayerPanel = (props: ComponentProps<typeof Panel>) => {
     const [project] = useProject();
     const [playbackData] = usePlaybackData();
-    const [_canvasData, setCanvasData] = useCanvasData();
+    const setCanvasData = useEditorStore((state) => state.setCanvasData);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const canvasDisplayRef = useRef<HTMLVideoElement>(null);
 

@@ -1,7 +1,7 @@
 import { Entity } from "dexie";
 import type EditorDB from "./EditorDB";
 import Track, { generateTrack } from "./Track";
-import { generateSegment } from "./Segment";
+import Segment, { generateSegment } from "./Segment";
 
 export default class Project extends Entity<EditorDB> {
     uuid!: string;
@@ -27,9 +27,18 @@ export const getProjectPreviewRatio = (project: Project): number => (
 );
 
 // returns project length in frames
-export const getProjectLength = (_project: Project): number => (
-    600
-);
+export const getProjectLength = (project: Project): number => {
+    let maxSegmentEnd = 0;
+    if (!project.tracks) return 0;
+    for (const track of project.tracks) {
+        for (const segment of track.segments) {
+            if (segment.start + segment.length > maxSegmentEnd) {
+                maxSegmentEnd = segment.start + segment.length;
+            }
+        }
+    }
+    return maxSegmentEnd;
+}
 
 export const getProjectFPS = (project: Project): number => (
     project.fps || 30
@@ -80,7 +89,23 @@ export const migrateProject = (project: Project): Project => {
     }
     console.log(project);
     return project;
-}
+};
+
+export const updateProjectSegment = (project: Project, targetTrack: Track, targetSegment: Segment): Project => {
+    for (let trackIndex = 0; trackIndex < project.tracks.length; trackIndex++) {
+        const track = project.tracks[trackIndex];
+        if (track.uuid === targetTrack.uuid) {
+            for (let segmentIndex = 0; segmentIndex < track.segments.length; segmentIndex++) {
+                const segment = track.segments[segmentIndex];
+                if (segment.uuid === targetSegment.uuid) {
+                    project.tracks[trackIndex].segments[segmentIndex] = targetSegment;
+                }
+            }
+        }
+    }
+
+    return project;
+};
 
 export const defaultProject: Project = {
     uuid: '',

@@ -3,16 +3,14 @@ import { useCanvasData, usePlaybackData, useProject } from "@/stores/useEditorSt
 import { defaultPlaybackData } from "@/types/PlaybackData";
 import { getProjectRatio } from "@/types/Project";
 import React from "react";
-import useLimitPlaybackData from "./useLimitPlaybackData";
+import { useDebouncedCallback } from "use-debounce";
 
 const useRendering = () => {
     const [project] = useProject();
     const [canvasData] = useCanvasData();
     const [playbackData] = usePlaybackData();
 
-    useLimitPlaybackData();
-
-    React.useEffect(() => {
+    const processFrame = () => {
         if (!canvasData.canvas || !canvasData.ctx || !project) {
             console.log("couldn't render a frame because of bad editor state");
             return;
@@ -23,7 +21,17 @@ const useRendering = () => {
         canvas.height = project.height / project.previewRatio;
 
         renderFrame(project, canvasData, playbackData ?? defaultPlaybackData);
-    }, [project, canvasData, playbackData]);
+    };
+
+    const throttledProcessFrame = useDebouncedCallback(processFrame, 33);
+
+    React.useEffect(() => {
+        if (playbackData.playing) {
+            processFrame();
+        } else {
+            throttledProcessFrame();
+        }
+    }, [project, playbackData]);
 
 };
 

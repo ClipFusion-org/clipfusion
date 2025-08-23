@@ -5,8 +5,9 @@ import { Toggle } from "@/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import groupedColors from "@/constants/groupedColors";
 import { useProject } from "@/stores/useEditorStore";
-import { getProjectPreviewResolutionString, getProjectRatio } from "@/types/Project";
+import Project, { getProjectPreviewResolutionString, getProjectRatio } from "@/types/Project";
 import { CheckIcon, DropletIcon } from "lucide-react";
+import { SetStateAction } from "react";
 
 const PreviewResolutionRatioText = ({
     previewRatio
@@ -70,9 +71,49 @@ const ResolutionPopover = () => {
     )
 }
 
-const BackgroundPopover = () => {
+const BackgroundPopoverContent = () => {
     const [project, setProject] = useProject();
+    return (
+        <>
+            <h3 className="font-bold text-lg">Background</h3>
+            <div className="flex flex-col gap-2 overflow-y-auto">
+                {groupedColors.map((group) => (
+                    <div key={group.name} className="flex flex-col gap-1">
+                        <h4 className="font-semibold text-secondary-foreground">{group.name}</h4>
+                        <div className="grid gap-2 grid-cols-4">
+                            {group.colors.map((color) => (
+                                <Tooltip key={color.color}>
+                                    <TooltipTrigger asChild>
+                                        <div className="relative aspect-square h-auto overflow-hidden">
+                                            <Button className="w-full h-full hover:opacity-60" style={{ backgroundColor: color.color }}
+                                                onClick={() => {
+                                                    setProject((prev) => ({
+                                                        ...prev,
+                                                        backgroundColor: color.color
+                                                    }));
+                                                }}
+                                            />
+                                            {project?.backgroundColor == color.color && (
+                                                <div className="absolute top-0 left-0 w-full h-full bg-black/30 flex items-center justify-center rounded-sm">
+                                                    <CheckIcon />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        {color.name}
+                                    </TooltipContent>
+                                </Tooltip>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </>
+    );
+}
 
+const BackgroundPopover = () => {
     return (
         <Popover>
             <PopoverTrigger asChild>
@@ -81,40 +122,7 @@ const BackgroundPopover = () => {
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="h-80 overflow-y-auto gap-2">
-                <h3 className="font-bold text-lg">Background</h3>
-                <div className="flex flex-col gap-2 overflow-y-auto">
-                    {groupedColors.map((group) => (
-                        <div key={group.name} className="flex flex-col gap-1">
-                            <h4 className="font-semibold text-secondary-foreground">{group.name}</h4>
-                            <div className="grid gap-2 grid-cols-4">
-                                {group.colors.map((color) => (
-                                    <Tooltip key={color.color}>
-                                        <TooltipTrigger asChild>
-                                            <div className="relative aspect-square h-auto overflow-hidden">
-                                                <Button className="w-full h-full hover:opacity-60" style={{ backgroundColor: color.color }}
-                                                    onClick={() => {
-                                                        setProject({
-                                                            ...(project || {}),
-                                                            backgroundColor: color.color
-                                                        });
-                                                    }}
-                                                />
-                                                {project?.backgroundColor == color.color && (
-                                                    <div className="absolute top-0 left-0 w-full h-full bg-black/30 flex items-center justify-center">
-                                                        <CheckIcon />
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            {color.name}
-                                        </TooltipContent>
-                                    </Tooltip>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <BackgroundPopoverContent />
             </PopoverContent>
         </Popover>
     );

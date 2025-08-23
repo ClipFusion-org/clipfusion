@@ -18,7 +18,7 @@ import { ProjectRenameForm, ProjectRenameFormFields, useProjectRenameForm } from
 import useRendering from "@/hooks/useRendering";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
-import { useCanvasData, usePlaybackData, useProject } from "@/stores/useEditorStore";
+import { useCanvasData, useEditorStore, usePlaybackData, useProject } from "@/stores/useEditorStore";
 import { defaultCanvasData } from "@/types/CanvasData";
 import { defaultPlaybackData } from "@/types/PlaybackData";
 import Project, { defaultProject, migrateProject } from "@/types/Project";
@@ -27,6 +27,7 @@ import { ChevronDownIcon, PencilIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import React from "react";
+import { useDebouncedCallback } from "use-debounce";
 
 const ProjectRenamePopover = ({
     className
@@ -55,6 +56,7 @@ const ProjectRenamePopover = ({
     };
 
     React.useEffect(() => {
+        if (!open) return;
         resetForm();
     }, [project]);
 
@@ -94,8 +96,8 @@ const ProjectRenamePopover = ({
 
 export default function Editor() {
     const [project, setProject] = useProject();
-    const [_playbackData, setPlaybackData] = usePlaybackData();
-    const [_canvasData, setCanvasData] = useCanvasData();
+    const setPlaybackData = useEditorStore((state) => state.setPlaybackData);
+    const setCanvasData = useEditorStore((state) => state.setCanvasData);
     const router = useRouter();
     const params = useParams();
     const isMobile = useIsMobile();
@@ -128,11 +130,15 @@ export default function Editor() {
         initializeProject();
     }, []);
 
-    // Automatically save changes to the project
-    React.useEffect(() => {
+    const saveProject = useDebouncedCallback(() => {
         db.projects.update(project.uuid, {
             ...project
         });
+    }, 100);
+
+    // Automatically save changes to the project
+    React.useEffect(() => {
+        saveProject();
     }, [project]);
 
     useRendering();

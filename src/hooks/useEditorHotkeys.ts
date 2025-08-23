@@ -1,8 +1,8 @@
-import { usePlaybackData } from '@/stores/useEditorStore';
+import { useEditorStore, usePlaybackData } from '@/stores/useEditorStore';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 const useEditorHotkeys = () => {
-    const [_playbackData, setPlaybackData] = usePlaybackData();
+    const setPlaybackData = useEditorStore((state) => state.setPlaybackData);
 
     useHotkeys('space', () => {
         setPlaybackData((prev) => ({

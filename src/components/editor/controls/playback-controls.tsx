@@ -28,7 +28,7 @@ const PlaybackControls = () => {
             }));
         };
 
-        const interval = setInterval(nextFrame, 1000 / getProjectFPS(project));
+        const interval = setInterval(nextFrame, Math.floor(1000 / getProjectFPS(project)));
 
         return () => clearInterval(interval);
     }, [playbackData.playing]);
