@@ -320,7 +320,7 @@ const TimelineContentTracks = () => {
         const el = contentRef;
         if (!el) return;
 
-        const speed = el.getBoundingClientRect().width * 0.01;
+        const speed = Math.min(el.getBoundingClientRect().width * 0.01, 20);
 
         const intervalId = setInterval(() => {
             el.scrollLeft += speed * scrollDirection;
