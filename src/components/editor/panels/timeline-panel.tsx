@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import Track from "@/types/Track";
 import { clamp, cn } from "@/lib/utils";
 import Segment from "@/types/Segment";
-import { DndContext, useDroppable, useDraggable, DragOverlay, useDndMonitor, useDndContext, useSensors, PointerSensor, useSensor, TouchSensor } from '@dnd-kit/core';
+import { DndContext, useDroppable, useDraggable, DragOverlay, useDndMonitor, useDndContext, useSensors, PointerSensor, useSensor, TouchSensor, closestCenter } from '@dnd-kit/core';
 
 interface TimelineContextData {
     contentRef: HTMLDivElement | null;
@@ -374,7 +374,8 @@ const TimelinePanel = () => {
     const [dragSegmentData, setDragSegmentData] = React.useState<[Track, Segment] | undefined>();
 
     return (
-        <DndContext onDragStart={(e) => setDragSegmentData(e.active.data.current as [Track, Segment])} onDragEnd={() => setDragSegmentData(undefined)}>
+        <DndContext autoScroll={{
+        }} collisionDetection={closestCenter} onDragStart={(e) => setDragSegmentData(e.active.data.current as [Track, Segment])} onDragEnd={() => setDragSegmentData(undefined)}>
             <HotkeysProvider initiallyActiveScopes={['timeline']}>
                 <Panel className="pb-0">
                     <PanelContent className="p-0 pb-0">
