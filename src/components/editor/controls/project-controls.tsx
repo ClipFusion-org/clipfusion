@@ -5,9 +5,8 @@ import { Toggle } from "@/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import groupedColors from "@/constants/groupedColors";
 import { useProject } from "@/stores/useEditorStore";
-import Project, { getProjectPreviewResolutionString, getProjectRatio } from "@/types/Project";
+import { getProjectPreviewResolutionString, getProjectRatio } from "@/types/Project";
 import { CheckIcon, DropletIcon } from "lucide-react";
-import { SetStateAction } from "react";
 
 const PreviewResolutionRatioText = ({
     previewRatio

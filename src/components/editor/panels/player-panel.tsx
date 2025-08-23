@@ -1,5 +1,5 @@
 'use client';
-import { useCanvasData, useEditorStore, usePlaybackData, useProject } from "@/stores/useEditorStore";
+import { useEditorStore, usePlaybackData, useProject } from "@/stores/useEditorStore";
 import { Panel, PanelContent, PanelHeader } from "./panel";
 import { ComponentProps, useEffect, useRef } from "react";
 import PlaybackControls from "../controls/playback-controls";

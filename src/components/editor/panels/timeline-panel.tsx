@@ -2,21 +2,19 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { Panel, PanelHeader, PanelContent, PanelFooter } from "./panel";
 import DraggableTimestamp from "../draggable-timestamp";
 import { useEditorStore, usePlaybackData, useProject } from "@/stores/useEditorStore";
-import Project, { getProjectFPS, getProjectLength, getShortTimeStringFromFrame, updateProjectSegment } from "@/types/Project";
+import { getProjectFPS, getProjectLength, updateProjectSegment } from "@/types/Project";
 import { Description } from "@/components/typography";
 import useDrag from "@/hooks/useDrag";
 import React from "react";
 import { usePixelsPerFrame } from "@/stores/useTimelineStore";
 import { HotkeysProvider } from "react-hotkeys-hook";
 import { Slider } from "@/components/ui/slider";
-import { MoveLeft, ZoomInIcon, ZoomOutIcon } from "lucide-react";
+import { ZoomInIcon, ZoomOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Track from "@/types/Track";
-import { clamp, cn, lerp } from "@/lib/utils";
+import { clamp, cn } from "@/lib/utils";
 import Segment from "@/types/Segment";
-import { DndContext, useDroppable, useDraggable, UniqueIdentifier, DragOverlay, useDndMonitor, useDndContext } from '@dnd-kit/core';
-
-const TIMELINE_OVERSHOOT = 2;
+import { DndContext, useDroppable, useDraggable, DragOverlay, useDndMonitor, useDndContext } from '@dnd-kit/core';
 
 interface TimelineContextData {
     contentRef: HTMLDivElement | null;
@@ -85,7 +83,7 @@ const TimelineHeader = (props: React.ComponentProps<typeof PanelHeader>) => (
 );
 
 const TimelineTrackContainer = ({
-    track,
+    track: _track,
     ...props
 }: React.ComponentProps<"div"> & {
     track: Track

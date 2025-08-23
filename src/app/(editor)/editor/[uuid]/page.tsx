@@ -18,11 +18,10 @@ import { ProjectRenameForm, ProjectRenameFormFields, useProjectRenameForm } from
 import useRendering from "@/hooks/useRendering";
 import { db } from "@/lib/db";
 import { cn } from "@/lib/utils";
-import { useCanvasData, useEditorStore, usePlaybackData, useProject } from "@/stores/useEditorStore";
+import { useEditorStore, useProject } from "@/stores/useEditorStore";
 import { defaultCanvasData } from "@/types/CanvasData";
 import { defaultPlaybackData } from "@/types/PlaybackData";
 import Project, { defaultProject, migrateProject } from "@/types/Project";
-import { useLiveQuery } from "dexie-react-hooks";
 import { ChevronDownIcon, PencilIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";

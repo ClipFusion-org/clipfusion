@@ -1,4 +1,4 @@
-import { useEditorStore, usePlaybackData } from '@/stores/useEditorStore';
+import { useEditorStore } from '@/stores/useEditorStore';
 import { useHotkeys } from 'react-hotkeys-hook';
 
 const useEditorHotkeys = () => {
