@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import Track from "@/types/Track";
 import { clamp, cn } from "@/lib/utils";
 import Segment from "@/types/Segment";
-import { DndContext, useDroppable, useDraggable, DragOverlay, useDndMonitor, useDndContext } from '@dnd-kit/core';
+import { DndContext, useDroppable, useDraggable, DragOverlay, useDndMonitor, useDndContext, useSensors, PointerSensor, useSensor, TouchSensor } from '@dnd-kit/core';
 
 interface TimelineContextData {
     contentRef: HTMLDivElement | null;
@@ -251,7 +251,7 @@ const TimelineContentSegment = ({
     const rect = contentRef?.getBoundingClientRect();
 
     return (
-        <TimelineTrackContainer ref={setNodeRef} {...listeners} {...attributes} track={track} className="absolute" style={{ width: pixelsPerFrame * segment.length, transform: isDragging ? `translateX(${(contentRef?.scrollLeft ?? 0) + (context.active?.rect.current.translated?.left ?? 0) - (rect ? rect.left : 0)}px)` : undefined, left: isDragging ? 0 : `${Math.floor(segment.start) * pixelsPerFrame}px`, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 10 : undefined }}>
+        <TimelineTrackContainer ref={setNodeRef} {...listeners} {...attributes} track={track} className="absolute touch-none" style={{ width: pixelsPerFrame * segment.length, transform: isDragging ? `translateX(${Math.max(0, (contentRef?.scrollLeft ?? 0) + (context.active?.rect.current.translated?.left ?? 0) - (rect ? rect.left : 0))}px)` : undefined, left: isDragging ? 0 : `${Math.max(0, Math.floor(segment.start) * pixelsPerFrame)}px`, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 10 : undefined }}>
             {!isDragging && (
                 <p className="truncate">{track.name} {segment.uuid}</p>
             )}
