@@ -14,11 +14,13 @@ import { Button } from "@/components/ui/button";
 import Track from "@/types/Track";
 import { clamp, cn } from "@/lib/utils";
 import Segment from "@/types/Segment";
-import { DndContext, useDroppable, useDraggable, DragOverlay, useDndMonitor, useDndContext, useSensors, PointerSensor, useSensor, TouchSensor, closestCenter } from '@dnd-kit/core';
+import { DndContext, useDroppable, useDraggable, DragOverlay, useDndMonitor, useDndContext, useSensors, PointerSensor, useSensor, TouchSensor } from '@dnd-kit/core';
 
 interface TimelineContextData {
     contentRef: HTMLDivElement | null;
     setContentRef: (node: HTMLDivElement | null) => void;
+    stableContentWidth: number | undefined;
+    setStableContentWidth: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
 const TimelineContext = React.createContext<TimelineContextData | null>(null);
@@ -152,7 +154,7 @@ const useContentWidth = () => {
     const rect = contentRef?.getBoundingClientRect();
     const width = rect?.width ?? 0;
     const exactLength = projectLength * pixelsPerFrame + width / 4;
-    return exactLength < width ? undefined : exactLength;
+    return (exactLength < width ? undefined : exactLength);
 };
 
 const TimelineTimestamps = ({
@@ -285,6 +287,18 @@ const TimelineContentTracks = () => {
     const [offsetY, setOffsetY] = React.useState(0);
     const contentWidth = useContentWidth();
 
+    const { active } = useDndContext();
+    const sectionRef = React.useRef<HTMLDivElement>(null);
+    const [scrollDirection, setScrollDirection] = React.useState<number | null>();
+    const { stableContentWidth, setStableContentWidth } = useTimelineContext();
+
+    useDndMonitor({
+        onDragMove: () => {
+            setStableContentWidth((prev) => (prev ?? 0) > (contentWidth ?? 0) ? prev : contentWidth);
+        },
+        onDragEnd: () => setStableContentWidth(undefined)
+    });
+
     React.useEffect(() => {
         if (!contentRef) return;
         const onResize = () => {
@@ -299,8 +313,60 @@ const TimelineContentTracks = () => {
         };
     }, [contentRef]);
 
+    // this scrolls the section based on the direction
+    React.useEffect(() => {
+        if (!scrollDirection) return;
+
+        const el = contentRef;
+        if (!el) return;
+
+        const speed = el.getBoundingClientRect().width * 0.01;
+
+        const intervalId = setInterval(() => {
+            el.scrollLeft += speed * scrollDirection;
+        }, 5);
+
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, [scrollDirection, contentRef]);
+
+    // if we are dragging, detect if we are near the edge of the section
+    React.useEffect(() => {
+        const handleMouseMove = (event: PointerEvent) => {
+            const el = sectionRef.current;
+            if (!active || !el || !contentRef) return;
+            const contentRect = contentRef.getBoundingClientRect();
+            const isOverflowing = el.scrollWidth > contentRect.width;
+            if (!isOverflowing) return;
+
+            const { left, right, width } = contentRect;
+            const xPos = event.clientX;
+            const threshold = width * 0.15;
+
+            const newScrollDirection = xPos < left + threshold ? -1 : xPos > right - threshold ? 1 : null;
+            if (newScrollDirection !== scrollDirection) {
+                setScrollDirection(newScrollDirection);
+            } else {
+                setScrollDirection(null);
+            }
+        };
+
+        if (active) {
+            window.addEventListener('pointermove', handleMouseMove)
+        } else {
+            window.removeEventListener('pointermove', handleMouseMove)
+            setScrollDirection(null)
+        }
+
+        return () => {
+            window.removeEventListener('pointermove', handleMouseMove);
+            setScrollDirection(null);
+        };
+    }, [active, sectionRef, contentRef]);
+
     return (
-        <div className="absolute top-0 left-0 flex flex-col items-center justify-center overflow-y-auto gap-1 min-w-full min-h-full" style={{ width: contentWidth, paddingTop: `calc(var(--spacing) * 8 + ${offsetY}px)` }}>
+        <div ref={sectionRef} className="absolute top-0 left-0 flex flex-col items-center justify-center overflow-y-auto gap-1 min-w-full min-h-full overflow-auto" style={{ width: stableContentWidth ?? contentWidth, paddingTop: `calc(var(--spacing) * 8 + ${offsetY}px)` }}>
             {project.tracks.map((track, i) =>
                 (<TimelineContentTrack key={track.uuid} trackIndex={i} />)
             )}
@@ -309,7 +375,9 @@ const TimelineContentTracks = () => {
 }
 
 const TimelineContentHeaderFiller = () => {
-    const contentWidth = useContentWidth();
+    const { stableContentWidth } = useTimelineContext();
+    const rawContentWidth = useContentWidth();
+    const contentWidth = stableContentWidth ?? rawContentWidth;
     return (
         <div className="relative w-full">
             <TimelineHeader className="absolute top-0 left-0 p-0 min-w-full" style={{ width: contentWidth }} />
@@ -320,7 +388,9 @@ const TimelineContentHeaderFiller = () => {
 const TimelineContentTimestampsHeader = () => {
     const [project] = useProject();
     const [pixelsPerFrame] = usePixelsPerFrame();
-    const contentWidth = useContentWidth();
+    const { stableContentWidth } = useTimelineContext();
+    const rawContentWidth = useContentWidth();
+    const contentWidth = stableContentWidth ?? rawContentWidth;
     return (
         <TimelineHeader className="p-0 min-w-full overflow-hidden" style={{ width: contentWidth }}>
             <MemoizedTimelineTimestamps fps={getProjectFPS(project)} pixelsPerFrame={pixelsPerFrame} projectLength={getProjectLength(project)} contentWidth={contentWidth} />
@@ -345,17 +415,20 @@ const TimelineContentScaleControls = () => {
 
 const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => {
     const [contentRef, setContentRef] = React.useState<HTMLDivElement | null>(null);
+    const [stableContentWidth, setStableContentWidth] = React.useState<number | undefined>();
 
     const value: TimelineContextData = {
         contentRef,
-        setContentRef
+        setContentRef,
+        stableContentWidth,
+        setStableContentWidth
     };
 
     return (
         <TimelineContext.Provider value={value}>
             <ResizablePanel {...props} className="relative w-full h-full flex flex-col overflow-auto justify-between">
                 <TimelineContentHeaderFiller />
-                <div ref={setContentRef} className="relative overflow-scroll scrollbar-thin mb-8 grow basis-0 z-50">
+                <div ref={setContentRef} className="relative overflow-scroll scrollbar-thin mb-8 grow basis-0 z-50 w-full max-w-full">
                     <TimelineContentTracks />
                     <TimelineHeaderAccessibleDrag className="sticky top-0 right-0">
                         <TimelineContentTimestampsHeader />
@@ -374,8 +447,7 @@ const TimelinePanel = () => {
     const [dragSegmentData, setDragSegmentData] = React.useState<[Track, Segment] | undefined>();
 
     return (
-        <DndContext autoScroll={{
-        }} collisionDetection={closestCenter} onDragStart={(e) => setDragSegmentData(e.active.data.current as [Track, Segment])} onDragEnd={() => setDragSegmentData(undefined)}>
+        <DndContext autoScroll={false} onDragStart={(e) => setDragSegmentData(e.active.data.current as [Track, Segment])} onDragEnd={() => setDragSegmentData(undefined)}>
             <HotkeysProvider initiallyActiveScopes={['timeline']}>
                 <Panel className="pb-0">
                     <PanelContent className="p-0 pb-0">
@@ -387,7 +459,7 @@ const TimelinePanel = () => {
                     </PanelContent>
                 </Panel>
             </HotkeysProvider>
-            <DragOverlay zIndex={10}>
+            <DragOverlay>
                 {dragSegmentData && (
                     <TimelineContentSegment track={dragSegmentData[0]} segment={dragSegmentData[1]} />
                 )}
