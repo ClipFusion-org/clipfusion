@@ -107,6 +107,32 @@ export const updateProjectSegment = (project: Project, targetTrack: Track, targe
     return project;
 };
 
+export const moveProjectSegment = (project: Project, previousTrack: Track, targetTrack: Track, targetSegment: Segment) => {
+    let successfullyRemovedOldSegment = false;
+    for (let trackIndex = 0; trackIndex < project.tracks.length; trackIndex++) {
+        const track = project.tracks[trackIndex];
+        if (track.uuid !== previousTrack.uuid) continue;
+        for (let segmentIndex = 0; segmentIndex < track.segments.length; segmentIndex++) {
+            const segment = track.segments[segmentIndex];
+            if (segment.uuid !== targetSegment.uuid) continue;
+            project.tracks[trackIndex].segments.splice(segmentIndex, 1);
+            successfullyRemovedOldSegment = true;
+            break;
+        }
+        if (successfullyRemovedOldSegment) break;
+    }
+    if (!successfullyRemovedOldSegment) return project;
+
+    for (let trackIndex = 0; trackIndex < project.tracks.length; trackIndex++) {
+        const track = project.tracks[trackIndex];
+        if (track.uuid !== targetTrack.uuid) continue;
+        track.segments.push(targetSegment);
+        break;
+    }
+
+    return project;
+}
+
 export const defaultProject: Project = {
     uuid: '',
     origin: '',

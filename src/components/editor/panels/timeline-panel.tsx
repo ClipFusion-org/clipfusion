@@ -2,7 +2,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { Panel, PanelHeader, PanelContent, PanelFooter } from "./panel";
 import DraggableTimestamp from "../draggable-timestamp";
 import { useEditorStore, usePlaybackData, useProject } from "@/stores/useEditorStore";
-import { getProjectFPS, getProjectLength, updateProjectSegment } from "@/types/Project";
+import { getProjectFPS, getProjectLength, moveProjectSegment, updateProjectSegment } from "@/types/Project";
 import { Description } from "@/components/typography";
 import useDrag from "@/hooks/useDrag";
 import React from "react";
@@ -24,6 +24,9 @@ interface TimelineContextData {
 }
 
 const TimelineContext = React.createContext<TimelineContextData | null>(null);
+
+const segmentId = (id: string | Segment) => `segment_${typeof id === 'string' ? id : id.uuid}`;
+const trackId = (id: string | Track) => `track_${typeof id === 'string' ? id : id.uuid}`;
 
 const useTimelineContext = () => {
     const value = React.useContext(TimelineContext);
@@ -231,7 +234,7 @@ const TimelineContentSegment = ({
     const setProject = useEditorStore((state) => state.setProject);
     const [pixelsPerFrame] = usePixelsPerFrame();
     const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-        id: segment.uuid,
+        id: segmentId(segment),
         data: [track, segment]
     });
     const context = useDndContext();
@@ -242,11 +245,22 @@ const TimelineContentSegment = ({
             const rect = contentRef.getBoundingClientRect();
             const x = (e.active.rect.current.translated?.left || 0) - rect.left + contentRef.scrollLeft;
             if (x < 0) return;
-            if (e.active.id === segment.uuid) {
-                setProject((prev) => updateProjectSegment(prev, track, {
-                    ...segment,
-                    start: Math.max(0, x / pixelsPerFrame)
-                }))
+            if (e.active.id === segmentId(segment) && e.over?.id.toString().includes('track')) {
+                const dndTrackData = e.over.data.current as Track;
+                setProject((prev) => {
+                    let processedProject = prev;
+                    const newSegment: Segment = {
+                        ...segment,
+                        start: Math.max(0, x / pixelsPerFrame)
+                    }; 
+                    processedProject = updateProjectSegment(processedProject, track, newSegment);
+
+                    if (dndTrackData.uuid !== track.uuid) {
+                        processedProject = moveProjectSegment(processedProject, track, dndTrackData, newSegment);
+                    }
+
+                    return processedProject;
+                })
             }
         }
     });
@@ -266,10 +280,20 @@ const TimelineContentTrack = ({
 }: {
     trackIndex: number
 }) => {
-    const [project] = useProject();
+    const [project, setProject] = useProject();
     const track = project.tracks[trackIndex];
     const { setNodeRef } = useDroppable({
-        id: track.uuid
+        id: trackId(track),
+        data: track
+    });
+
+    useDndMonitor({
+        onDragEnd: (e) => {
+            if (e.over?.id === trackId(track)) {
+                const dndData = e.active.data.current as [Track, Segment];
+                setProject((prev) => moveProjectSegment(prev, dndData[0], track, dndData[1]));
+            }
+        }
     });
 
     return (
