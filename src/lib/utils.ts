@@ -36,5 +36,5 @@ export const clamp = (x: number, a: number, b: number): number => (
 );
 
 export const lerp = (a: number, b: number, t: number): number => (
-    a * t + b * (1 - t)
+    b * t + a * (1 - t)
 );

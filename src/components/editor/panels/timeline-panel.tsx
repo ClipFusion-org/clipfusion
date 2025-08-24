@@ -12,7 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { ZoomInIcon, ZoomOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Track from "@/types/Track";
-import { clamp, cn } from "@/lib/utils";
+import { clamp, cn, lerp } from "@/lib/utils";
 import Segment from "@/types/Segment";
 import { DndContext, useDroppable, useDraggable, DragOverlay, useDndMonitor, useDndContext, useSensors, PointerSensor, useSensor, TouchSensor, MouseSensor, PointerSensorOptions } from '@dnd-kit/core';
 
@@ -49,7 +49,7 @@ const usePlayheadDrag = () => {
 
         setPlaybackData((prev) => ({
             ...prev,
-            currentFrame: clamp((contentRef.scrollLeft + x) / pixelsPerFrame, 0, getProjectLength(project))
+            currentFrame: clamp(Math.floor((contentRef.scrollLeft + x) / pixelsPerFrame), 0, getProjectLength(project))
         }));
     }, [contentRef, mouseX, dragging, pixelsPerFrame, project]);
 
@@ -63,7 +63,7 @@ const usePlayheadDrag = () => {
 
             setPlaybackData((prev) => ({
                 ...prev,
-                currentFrame: clamp((contentRef.scrollLeft + x) / pixelsPerFrame, 0, getProjectLength(project))
+                currentFrame: clamp(Math.floor((contentRef.scrollLeft + x) / pixelsPerFrame), 0, getProjectLength(project))
             }));
         };
 
@@ -184,7 +184,7 @@ const TimelineTimestamps = ({
     const timestampsCount = Math.ceil(((contentWidth ?? rect?.width ?? 0) / pixelsPerFrame) * reduction);
     const rawTextReduction = Math.min(1, fixReduction(fixReduction(reduction, timestampsCount), fps));
     const textReduction2 = Math.min(1, (rawTextReduction + (rawTextReduction % 0.2)));
-    const textReduction = clamp(+(textReduction2 * textReduction2).toFixed(1), 0.1, 1);
+    const textReduction = clamp(+(textReduction2).toFixed(1), 0.1, 1);
 
     const expandTimeString = (value: number) => (
         `${value}`.length <= 1 ? `0${value}` : `${value}`
@@ -202,18 +202,25 @@ const TimelineTimestamps = ({
         return optimizedGetTimeString(frame);
     };
 
-    console.log(textReduction);
+    const optimizedGetShortFloatingTimeString = (frame: number): string => {
+        const seconds = Math.floor(frame / fps);
+        const float = expandTimeString(Math.floor((frame % fps) / fps * 100));
+        if (seconds <= 60) return `${seconds},${float}s`;
+        if (seconds <= 3600) return `${Math.floor(seconds / 60) % 60}:${expandTimeString(seconds % 60)},${float}s`;
+        return optimizedGetTimeString(frame);
+    };
 
     return (
         <div className="relative w-full h-full">
             {[...Array(Math.max(timestampsCount))].map((_e, i) => (
                 <div key={i}>
                     <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground opacity-50"} style={{ position: 'absolute', bottom: 0, left: i / reduction * pixelsPerFrame, width: 1, height: (Math.floor(i / reduction) % fps) < 1 / reduction && !((Math.floor((i - 1) / reduction) % fps) < 1 / reduction) || i === 0 ? '35%' : ((Math.floor(i / reduction) % (fps / 2)) < 1 / reduction && !((Math.floor((i - 1) / reduction) % (fps / 2)) < 1 / reduction) ? '30%' : '15%') }}></div>
-                    {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength + fps && (i) % Math.floor(1 / textReduction) < 1 && (
+                    {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength && (i) % Math.floor(1 / textReduction) < 1 && Math.floor(i / reduction) + fps * lerp(optimizedGetShortTimeString(Math.floor(i / reduction)).length * 0.35, 0.5, reduction) < projectLength && (
                         <Description className="select-none" style={{ position: 'absolute', opacity: Math.floor(i / reduction) > projectLength ? 0.5 : 1, bottom: '30%', left: `${Math.floor(i / reduction) * pixelsPerFrame}px`, transform: i !== 0 ? `translateX(${i === projectLength ? '-100%' : '-45%'})` : '' }}>{optimizedGetShortTimeString(Math.floor(i / reduction))}</Description>
                     )}
                 </div>
             ))}
+            <Description className="select-none" style={{ position: 'absolute', opacity: 0.5, bottom: '30%', left: projectLength * pixelsPerFrame, transform: `translateX(-50%)` }}>{optimizedGetShortFloatingTimeString(projectLength)}</Description>
         </div>
     );
 };
@@ -291,6 +298,7 @@ const TimelineContentTrack = ({
         id: trackId(track),
         data: track
     });
+    const { active } = useDndContext();
 
     useDndMonitor({
         onDragEnd: (e) => {
@@ -302,7 +310,7 @@ const TimelineContentTrack = ({
     });
 
     return (
-        <TimelineTrackContainer ref={setNodeRef} track={track} className="relative w-full flex items-center justify-center bg-transparent">
+        <TimelineTrackContainer ref={setNodeRef} track={track} className={cn("relative w-full flex items-center justify-center transition-colors duration-100", active?.id.toString().includes('segment') ? "bg-muted/20" : "bg-transparent")}>
             {track.segments.map((segment) =>
                 <TimelineContentSegment key={segment.uuid} track={track} segment={segment} />
             )}
