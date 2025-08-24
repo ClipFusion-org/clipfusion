@@ -250,8 +250,8 @@ const TimelineContentSegment = ({
             const rect = contentRef.getBoundingClientRect();
             const x = (e.active.rect.current.translated?.left || 0) - rect.left + contentRef.scrollLeft;
             if (x < 0) return;
-            if (e.active.id === segmentId(segment) && e.over?.id.toString().includes('track')) {
-                const dndTrackData = e.over.data.current as Track;
+            if (e.active.id === segmentId(segment)) {
+                const dndTrackData = e.over?.data.current as Track | null;
                 setProject((prev) => {
                     let processedProject = prev;
                     const newSegment: Segment = {
@@ -260,7 +260,7 @@ const TimelineContentSegment = ({
                     }; 
                     processedProject = updateProjectSegment(processedProject, track, newSegment);
 
-                    if (dndTrackData.uuid !== track.uuid) {
+                    if (dndTrackData && dndTrackData.uuid !== track.uuid) {
                         processedProject = moveProjectSegment(processedProject, track, dndTrackData, newSegment);
                     }
 
