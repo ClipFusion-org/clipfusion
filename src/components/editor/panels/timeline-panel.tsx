@@ -209,8 +209,8 @@ const TimelineTimestamps = ({
             {[...Array(Math.max(timestampsCount))].map((_e, i) => (
                 <div key={i}>
                     <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground opacity-50"} style={{ position: 'absolute', bottom: 0, left: i / reduction * pixelsPerFrame, width: 1, height: (Math.floor(i / reduction) % fps) < 1 / reduction && !((Math.floor((i - 1) / reduction) % fps) < 1 / reduction) || i === 0 ? '35%' : ((Math.floor(i / reduction) % (fps / 2)) < 1 / reduction && !((Math.floor((i - 1) / reduction) % (fps / 2)) < 1 / reduction) ? '30%' : '15%') }}></div>
-                    {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength && (i) % Math.floor(1 / textReduction) < 1 && (
-                        <Description className="select-none" style={{ position: 'absolute', bottom: '30%', left: `${Math.floor(i / reduction) * pixelsPerFrame}px`, transform: i !== 0 ? `translateX(${i === projectLength ? '-100%' : '-45%'})` : '' }}>{optimizedGetShortTimeString(Math.floor(i / reduction))}</Description>
+                    {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength + fps && (i) % Math.floor(1 / textReduction) < 1 && (
+                        <Description className="select-none" style={{ position: 'absolute', opacity: Math.floor(i / reduction) > projectLength ? 0.5 : 1, bottom: '30%', left: `${Math.floor(i / reduction) * pixelsPerFrame}px`, transform: i !== 0 ? `translateX(${i === projectLength ? '-100%' : '-45%'})` : '' }}>{optimizedGetShortTimeString(Math.floor(i / reduction))}</Description>
                     )}
                 </div>
             ))}
