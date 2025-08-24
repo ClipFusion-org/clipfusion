@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import Track from "@/types/Track";
 import { clamp, cn } from "@/lib/utils";
 import Segment from "@/types/Segment";
-import { DndContext, useDroppable, useDraggable, DragOverlay, useDndMonitor, useDndContext, useSensors, PointerSensor, useSensor, TouchSensor } from '@dnd-kit/core';
+import { DndContext, useDroppable, useDraggable, DragOverlay, useDndMonitor, useDndContext, useSensors, PointerSensor, useSensor, TouchSensor, MouseSensor, PointerSensorOptions } from '@dnd-kit/core';
 
 interface TimelineContextData {
     contentRef: HTMLDivElement | null;
@@ -272,7 +272,7 @@ const TimelineContentSegment = ({
     const rect = contentRef?.getBoundingClientRect();
 
     return (
-        <TimelineTrackContainer ref={setNodeRef} {...listeners} {...attributes} track={track} className="absolute touch-none" style={{ width: pixelsPerFrame * segment.length, transform: isDragging ? `translateX(${Math.max(0, (contentRef?.scrollLeft ?? 0) + (context.active?.rect.current.translated?.left ?? 0) - (rect ? rect.left : 0))}px)` : undefined, left: isDragging ? 0 : `${Math.max(0, Math.floor(segment.start) * pixelsPerFrame)}px`, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 10 : undefined }}>
+        <TimelineTrackContainer ref={setNodeRef} {...listeners} {...attributes} track={track} className="absolute touch-manipulation" style={{ width: pixelsPerFrame * segment.length, transform: isDragging ? `translateX(${Math.max(0, (contentRef?.scrollLeft ?? 0) + (context.active?.rect.current.translated?.left ?? 0) - (rect ? rect.left : 0))}px)` : undefined, left: isDragging ? 0 : `${Math.max(0, Math.floor(segment.start) * pixelsPerFrame)}px`, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 10 : undefined }}>
             {!isDragging && (
                 <p className="truncate">{track.name} {segment.uuid}</p>
             )}
@@ -475,15 +475,16 @@ const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => 
 const TimelinePanel = () => {
     const [dragSegmentData, setDragSegmentData] = React.useState<[Track, Segment] | undefined>();
 
-    const pointerSensor = useSensor(PointerSensor, {
-        activationConstraint: {
-            delay: 150, // milliseconds
-            tolerance: 10, // pixels
-        },
-    });
+    const sensors = useSensors(
+        useSensor(TouchSensor, {
+            delay: 150,
+            tolerance: 10
+        } as PointerSensorOptions),
+        useSensor(MouseSensor)
+    );
 
     return (
-        <DndContext sensors={[pointerSensor]} autoScroll={false} onDragStart={(e) => setDragSegmentData(e.active.data.current as [Track, Segment])} onDragEnd={() => setDragSegmentData(undefined)}>
+        <DndContext sensors={sensors} autoScroll={false} onDragStart={(e) => setDragSegmentData(e.active.data.current as [Track, Segment])} onDragEnd={() => setDragSegmentData(undefined)}>
             <HotkeysProvider initiallyActiveScopes={['timeline']}>
                 <Panel className="pb-0">
                     <PanelContent className="p-0 pb-0">
