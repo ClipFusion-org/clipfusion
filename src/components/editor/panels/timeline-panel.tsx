@@ -172,16 +172,19 @@ const TimelineTimestamps = ({
     contentWidth: number | undefined
 }) => {
     const { contentRef } = useTimelineContext();
-    const fixReduction = (r: number) => {
-        if (Math.floor(r % fps) === 0) return r;
-        const remainder = r % fps;
+    const fixReduction = (r: number, target: number) => {
+        if (Math.floor(r % target) === 0) return r;
+        const remainder = r % target;
         if (remainder === 0) return r;
-        const adjustment = fps - remainder;
+        const adjustment = target - remainder;
         return r + (adjustment < 0.001 ? adjustment : 0);
     };
     const rect = contentRef?.getBoundingClientRect();
-    const reduction = fixReduction(Math.min(1, +(pixelsPerFrame / (fps * 0.1)).toFixed(1)));
+    const reduction = fixReduction(Math.min(1, +(pixelsPerFrame / (fps * 0.1)).toFixed(1)), fps);
     const timestampsCount = Math.ceil(((contentWidth ?? rect?.width ?? 0) / pixelsPerFrame) * reduction);
+    const rawTextReduction = Math.min(1, fixReduction(fixReduction(reduction, timestampsCount), fps));
+    const textReduction2 = Math.min(1, (rawTextReduction + (rawTextReduction % 0.2)));
+    const textReduction = clamp(+(textReduction2 * textReduction2).toFixed(1), 0.1, 1);
 
     const expandTimeString = (value: number) => (
         `${value}`.length <= 1 ? `0${value}` : `${value}`
@@ -195,16 +198,18 @@ const TimelineTimestamps = ({
     const optimizedGetShortTimeString = (frame: number): string => {
         const seconds = Math.floor(frame / fps);
         if (seconds <= 60) return `${seconds}s`;
-        if (seconds <= 3600) return `${(Math.floor(seconds / 60) % 60)}:${seconds % 60}`;
+        if (seconds <= 3600) return `${Math.floor(seconds / 60) % 60}:${expandTimeString(seconds % 60)}`;
         return optimizedGetTimeString(frame);
     };
+
+    console.log(textReduction);
 
     return (
         <div className="relative w-full h-full">
             {[...Array(Math.max(timestampsCount))].map((_e, i) => (
                 <div key={i}>
                     <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground opacity-50"} style={{ position: 'absolute', bottom: 0, left: i / reduction * pixelsPerFrame, width: 1, height: (Math.floor(i / reduction) % fps) < 1 / reduction && !((Math.floor((i - 1) / reduction) % fps) < 1 / reduction) || i === 0 ? '35%' : ((Math.floor(i / reduction) % (fps / 2)) < 1 / reduction && !((Math.floor((i - 1) / reduction) % (fps / 2)) < 1 / reduction) ? '30%' : '15%') }}></div>
-                    {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength && (
+                    {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength && (i) % Math.floor(1 / textReduction) < 1 && (
                         <Description className="select-none" style={{ position: 'absolute', bottom: '30%', left: `${Math.floor(i / reduction) * pixelsPerFrame}px`, transform: i !== 0 ? `translateX(${i === projectLength ? '-100%' : '-45%'})` : '' }}>{optimizedGetShortTimeString(Math.floor(i / reduction))}</Description>
                     )}
                 </div>
@@ -426,11 +431,11 @@ const TimelineContentScaleControls = () => {
     const [pixelsPerFrame, setPixelsPerFrame] = usePixelsPerFrame();
     return (
         <div className="flex flex-row items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => setPixelsPerFrame((prev) => prev - 0.1)}>
+            <Button variant="ghost" size="icon" onClick={() => setPixelsPerFrame((prev) => Math.max(0.2, prev - 0.1))}>
                 <Description><ZoomOutIcon size={15} /></Description>
             </Button>
             <Slider className="w-48" min={2} value={[pixelsPerFrame * 10]} onValueChange={(value) => setPixelsPerFrame(value[0] / 10)} max={100} />
-            <Button variant="ghost" size="icon" onClick={() => setPixelsPerFrame((prev) => prev + 0.1)}>
+            <Button variant="ghost" size="icon" onClick={() => setPixelsPerFrame((prev) => Math.min(prev + 0.1, 10))}>
                 <Description><ZoomInIcon size={15} /></Description>
             </Button>
         </div>
@@ -470,8 +475,15 @@ const TimelineContent = (props: React.ComponentProps<typeof ResizablePanel>) => 
 const TimelinePanel = () => {
     const [dragSegmentData, setDragSegmentData] = React.useState<[Track, Segment] | undefined>();
 
+    const pointerSensor = useSensor(PointerSensor, {
+        activationConstraint: {
+            delay: 150, // milliseconds
+            tolerance: 10, // pixels
+        },
+    });
+
     return (
-        <DndContext autoScroll={false} onDragStart={(e) => setDragSegmentData(e.active.data.current as [Track, Segment])} onDragEnd={() => setDragSegmentData(undefined)}>
+        <DndContext sensors={[pointerSensor]} autoScroll={false} onDragStart={(e) => setDragSegmentData(e.active.data.current as [Track, Segment])} onDragEnd={() => setDragSegmentData(undefined)}>
             <HotkeysProvider initiallyActiveScopes={['timeline']}>
                 <Panel className="pb-0">
                     <PanelContent className="p-0 pb-0">
