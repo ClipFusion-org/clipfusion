@@ -178,11 +178,11 @@ const TimelineTimestamps = ({
         const adjustment = target - remainder;
         return r + (adjustment < 0.001 ? adjustment : 0);
     };
-    const reduction = fixReduction(Math.min(1, +(pixelsPerFrame / (fps * 0.1)).toFixed(1)), fps);
+    const reduction = fixReduction(+Math.max(0.2, Math.min(1, (pixelsPerFrame / (fps * 0.1)))).toFixed(1), fps);
     const timestampsCount = Math.ceil(((contentWidth ?? 0) / pixelsPerFrame) * reduction);
     const rawTextReduction = Math.min(1, fixReduction(fixReduction(reduction, timestampsCount), fps));
     const textReduction2 = Math.min(1, (rawTextReduction + (rawTextReduction % 0.2)));
-    const textReduction = clamp(+(textReduction2).toFixed(1), 0.1, 1);
+    const textReduction = clamp(+(textReduction2).toFixed(1), 0.2, 1);
 
     const expandTimeString = (value: number) => (
         `${value}`.length <= 1 ? `0${value}` : `${value}`
@@ -428,8 +428,9 @@ const TimelineContentTimestampsHeader = () => {
     const [project] = useProject();
     const [pixelsPerFrame] = usePixelsPerFrame();
     const { stableContentWidth } = useTimelineContext();
+    const { contentRef } = useTimelineContext();
     const rawContentWidth = useContentWidth();
-    const contentWidth = Math.floor(stableContentWidth ?? rawContentWidth ?? 0);
+    const contentWidth = Math.floor(stableContentWidth ?? rawContentWidth ?? contentRef?.getBoundingClientRect().width ?? 0);
     const fps = getProjectFPS(project);
     const length = getProjectLength(project);
     return (
@@ -446,7 +447,9 @@ const TimelineContentScaleControls = () => {
             <Button variant="ghost" size="icon" onClick={() => setPixelsPerFrame((prev) => Math.max(0.2, prev - 0.1))}>
                 <Description><ZoomOutIcon size={15} /></Description>
             </Button>
-            <Slider className="w-48" min={2} value={[pixelsPerFrame * 10]} onValueChange={(value) => setPixelsPerFrame(value[0] / 10)} max={100} />
+            <Slider className="w-48" min={2} value={[pixelsPerFrame * 10]} onValueChange={(value) => {
+                setPixelsPerFrame(Math.max(value[0] / 10, 0.2));
+            }} max={100} />
             <Button variant="ghost" size="icon" onClick={() => setPixelsPerFrame((prev) => Math.min(prev + 0.1, 10))}>
                 <Description><ZoomInIcon size={15} /></Description>
             </Button>
