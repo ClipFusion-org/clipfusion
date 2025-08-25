@@ -6,7 +6,7 @@ import { getProjectFPS, getProjectLength, moveProjectSegment, updateProjectSegme
 import { Description } from "@/components/typography";
 import useDrag from "@/hooks/useDrag";
 import React from "react";
-import { usePixelsPerFrame } from "@/stores/useTimelineStore";
+import { usePixelsPerFrame, useSelectedSegments } from "@/stores/useTimelineStore";
 import { HotkeysProvider } from "react-hotkeys-hook";
 import { Slider } from "@/components/ui/slider";
 import { ZoomInIcon, ZoomOutIcon } from "lucide-react";
@@ -299,11 +299,35 @@ const TimelineContentSegment = ({
     const { contentRef } = React.useContext(TimelineContext) ?? { contentRef: undefined };
     const setProject = useEditorStore((state) => state.setProject);
     const [pixelsPerFrame] = usePixelsPerFrame();
-    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    const [selectedSegments, setSelectedSegments] = useSelectedSegments();
+    const { attributes, listeners, node: ref, setNodeRef, isDragging } = useDraggable({
         id: segmentId(segment),
         data: [track, segment]
     });
     const context = useDndContext();
+    const rect = contentRef?.getBoundingClientRect();
+    const selected = selectedSegments.includes(segment.uuid);
+
+    const filterSegments = (a: (string | undefined)[]) => (
+        a.filter((item, pos) =>
+            a.indexOf(item) == pos
+        )
+    );
+
+    const handleClick = (e: React.MouseEvent) => {
+        let newSegments = selectedSegments;
+        const index = selectedSegments.indexOf(segment.uuid);
+        if (e.ctrlKey) {
+            if (index >= 0) {
+                newSegments.splice(index, 1);
+            } else {
+                newSegments = [...newSegments, segment.uuid];
+            }
+        } else {
+            newSegments = [segment.uuid];
+        }
+        setSelectedSegments(filterSegments(newSegments));
+    };
 
     useDndMonitor({
         onDragMove: (e) => {
@@ -330,13 +354,11 @@ const TimelineContentSegment = ({
             }
         }
     });
-    const rect = contentRef?.getBoundingClientRect();
 
     return (
-        <TimelineTrackContainer ref={setNodeRef} {...listeners} {...attributes} track={track} className="absolute touch-manipulation" style={{ width: pixelsPerFrame * segment.length, transform: isDragging ? `translateX(${Math.max(0, (contentRef?.scrollLeft ?? 0) + (context.active?.rect.current.translated?.left ?? 0) - (rect ? rect.left : 0))}px)` : undefined, left: isDragging ? 0 : `${Math.max(0, Math.floor(segment.start) * pixelsPerFrame)}px`, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 10 : undefined }}>
-            {!isDragging && (
-                <p className="truncate">{track.name} {segment.uuid}</p>
-            )}
+        <TimelineTrackContainer onClick={handleClick} ref={setNodeRef} {...listeners} {...attributes} track={track} className="absolute touch-manipulation" style={{ width: pixelsPerFrame * segment.length, transform: isDragging ? `translateX(${Math.max(0, (contentRef?.scrollLeft ?? 0) + (context.active?.rect.current.translated?.left ?? 0) - (rect ? rect.left : 0))}px)` : undefined, left: isDragging ? 0 : `${Math.max(0, Math.floor(segment.start) * pixelsPerFrame)}px`, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 10 : undefined }}>
+            <p className="truncate">{track.name} {segment.uuid}</p>
+            {selected && "selected"}
         </TimelineTrackContainer>
     );
 }
@@ -547,10 +569,15 @@ const TimelinePanel = () => {
 
     const sensors = useSensors(
         useSensor(TouchSensor, {
-            delay: 150,
-            tolerance: 10
-        } as PointerSensorOptions),
-        useSensor(MouseSensor)
+            activationConstraint: {
+                distance: 0.01
+            }
+        }),
+        useSensor(MouseSensor, {
+            activationConstraint: {
+                distance: 0.01
+            }
+        })
     );
 
     return (
