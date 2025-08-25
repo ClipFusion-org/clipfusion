@@ -192,7 +192,7 @@ const TimelineTimestamps = ({
         };
     }, [contentRef, setScrollX]);
     const reduction = fixDivision(+Math.max(0.1, Math.min(1, (pixelsPerFrame / (fps * 0.1)))).toFixed(1), fps);
-    const backwardOffset = Math.floor(Math.min((contentRef?.getBoundingClientRect().width ?? 0) * 0.1 / pixelsPerFrame / fps, 10));
+    const backwardOffset = Math.max((contentRef?.getBoundingClientRect().width ?? 0) * 0.1 / pixelsPerFrame / fps, 2.5);
     const timestampsCount = Math.floor((exactWidth ?? 0) / pixelsPerFrame + (fps * backwardOffset));
     const frameOffset = Math.max(0, scrollX / pixelsPerFrame * reduction - (fps * backwardOffset * 0.5) * reduction);
     const rawTextReduction = Math.min(1, fixDivision(fixDivision(reduction, timestampsCount), fps));
