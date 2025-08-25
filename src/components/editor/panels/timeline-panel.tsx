@@ -28,6 +28,14 @@ const TimelineContext = React.createContext<TimelineContextData | null>(null);
 const segmentId = (id: string | Segment) => `segment_${typeof id === 'string' ? id : id.uuid}`;
 const trackId = (id: string | Track) => `track_${typeof id === 'string' ? id : id.uuid}`;
 
+const fixDivision = (r: number, target: number) => {
+    if (Math.floor(r % target) === 0) return r;
+    const remainder = r % target;
+    if (remainder === 0) return r;
+    const adjustment = target - remainder;
+    return r + (adjustment < 0.001 ? adjustment : 0);
+};
+
 const useTimelineContext = () => {
     const value = React.useContext(TimelineContext);
     if (!value) throw new Error("TimelineContext is not defined");
@@ -164,23 +172,30 @@ const TimelineTimestamps = ({
     pixelsPerFrame,
     fps,
     projectLength,
-    contentWidth
+    exactWidth
 }: {
     pixelsPerFrame: number,
     fps: number,
     projectLength: number,
-    contentWidth: number | undefined
+    exactWidth: number
 }) => {
-    const fixReduction = (r: number, target: number) => {
-        if (Math.floor(r % target) === 0) return r;
-        const remainder = r % target;
-        if (remainder === 0) return r;
-        const adjustment = target - remainder;
-        return r + (adjustment < 0.001 ? adjustment : 0);
-    };
-    const reduction = fixReduction(+Math.max(0.2, Math.min(1, (pixelsPerFrame / (fps * 0.1)))).toFixed(1), fps);
-    const timestampsCount = Math.ceil(((contentWidth ?? 0) / pixelsPerFrame) * reduction);
-    const rawTextReduction = Math.min(1, fixReduction(fixReduction(reduction, timestampsCount), fps));
+    const { contentRef } = useTimelineContext();
+    const [scrollX, setScrollX] = React.useState(0);
+    React.useEffect(() => {
+        const handleScroll = () => setScrollX(contentRef?.scrollLeft ?? 0);
+
+        handleScroll();
+        contentRef?.addEventListener('scroll', handleScroll);
+
+        return () => {
+            contentRef?.removeEventListener('scroll', handleScroll);
+        };
+    }, [contentRef, setScrollX]);
+    const reduction = fixDivision(+Math.max(0.1, Math.min(1, (pixelsPerFrame / (fps * 0.1)))).toFixed(1), fps);
+    const backwardOffset = (contentRef?.getBoundingClientRect().width ?? 0) * 0.1 / pixelsPerFrame / fps;
+    const timestampsCount = Math.floor((exactWidth ?? 0) / pixelsPerFrame + (fps * backwardOffset));
+    const frameOffset = Math.max(0, scrollX / pixelsPerFrame * reduction - (fps * backwardOffset * 0.5) * reduction);
+    const rawTextReduction = Math.min(1, fixDivision(fixDivision(reduction, timestampsCount), fps));
     const textReduction2 = Math.min(1, (rawTextReduction + (rawTextReduction % 0.2)));
     const textReduction = clamp(+(textReduction2).toFixed(1), 0.2, 1);
 
@@ -210,20 +225,23 @@ const TimelineTimestamps = ({
 
     return (
         <div className="relative w-full h-full">
-            {[...Array(Math.max(timestampsCount))].map((_e, i) => (
-                <div key={i}>
-                    <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground opacity-50"} style={{ position: 'absolute', bottom: 0, left: 0, transform: `translateX(${i / reduction * pixelsPerFrame}px)`, width: 1, height: (Math.floor(i / reduction) % fps) < 1 / reduction && !((Math.floor((i - 1) / reduction) % fps) < 1 / reduction) || i === 0 ? '35%' : ((Math.floor(i / reduction) % (fps / 2)) < 1 / reduction && !((Math.floor((i - 1) / reduction) % (fps / 2)) < 1 / reduction) ? '30%' : '15%') }}></div>
-                    {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength && (i) % Math.floor(1 / textReduction) < 1 && Math.floor(i / reduction) + fps * lerp(optimizedGetShortTimeString(Math.floor(i / reduction)).length * 1.8, 0.5, reduction) < projectLength && (
-                        <Description className="select-none" style={{ position: 'absolute', opacity: Math.floor(i / reduction) > projectLength ? 0.5 : 1, bottom: '30%', left: 0, transform: i !== 0 ? `translateX(calc(${i === projectLength ? '-100%' : '-45%'} + ${Math.floor(i / reduction) * pixelsPerFrame}px))` : '' }}>{optimizedGetShortTimeString(Math.floor(i / reduction))}</Description>
-                    )}
-                </div>
-            ))}
+            {[...Array(Math.floor(timestampsCount * reduction))].map((_e, baseIndex) => {
+                const i = Math.floor(baseIndex + frameOffset);
+                return (
+                    (
+                        <React.Fragment key={i}>
+                            <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground opacity-50"} style={{ position: 'absolute', bottom: 0, left: 0, transform: `translateX(${i / reduction * pixelsPerFrame}px)`, width: 1, height: (Math.floor(i / reduction) % fps) < 1 / reduction && !((Math.floor((i - 1) / reduction) % fps) < 1 / reduction) || i === 0 ? '35%' : ((Math.floor(i / reduction) % (fps / 2)) < 1 / reduction && !((Math.floor((i - 1) / reduction) % (fps / 2)) < 1 / reduction) ? '30%' : '15%') }}></div>
+                            {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength && (i) % Math.floor(1 / textReduction) < 1 && Math.floor(i / reduction) + fps * lerp(optimizedGetShortTimeString(Math.floor(i / reduction)).length * 1.8, 0.5, reduction) < projectLength && (
+                                <Description className="select-none" style={{ position: 'absolute', opacity: Math.floor(i / reduction) > projectLength ? 0.5 : 1, bottom: '30%', left: 0, transform: i !== 0 ? `translateX(calc(${i === projectLength ? '-100%' : '-45%'} + ${Math.floor(i / reduction) * pixelsPerFrame}px))` : '' }}>{optimizedGetShortTimeString(Math.floor(i / reduction))}</Description>
+                            )}
+                        </React.Fragment>
+                    )
+                );
+            })}
             <Description className="select-none" style={{ position: 'absolute', opacity: 0.5, bottom: '30%', left: projectLength * pixelsPerFrame, transform: `translateX(-50%)` }}>{optimizedGetShortFloatingTimeString(projectLength)}</Description>
         </div>
     );
 };
-
-const MemoizedTimelineTimestamps = React.memo(TimelineTimestamps);
 
 const TimelineHeaderAccessibleDrag = (props: React.ComponentProps<"div">) => {
     const ref = usePlayheadDrag();
@@ -403,7 +421,7 @@ const TimelineContentTracks = () => {
 
     return (
         <>
-            <div className="absolute top-0 left-0 bg-card/20 h-full" style={{width: getProjectLength(project) * pixelsPerFrame}} />
+            <div className="absolute top-0 left-0 bg-card/20 h-full" style={{ width: getProjectLength(project) * pixelsPerFrame }} />
             <div ref={sectionRef} className="absolute top-0 left-0 flex flex-col items-center justify-center overflow-y-auto gap-1 min-w-full min-h-full overflow-auto" style={{ width: stableContentWidth ?? contentWidth, paddingTop: `calc(var(--spacing) * 8 + ${offsetY}px)` }}>
                 {project.tracks.map((track, i) =>
                     (<TimelineContentTrack key={track.uuid} trackIndex={i} />)
@@ -431,11 +449,10 @@ const TimelineContentTimestampsHeader = () => {
     const { contentRef } = useTimelineContext();
     const rawContentWidth = useContentWidth();
     const contentWidth = Math.floor(stableContentWidth ?? rawContentWidth ?? contentRef?.getBoundingClientRect().width ?? 0);
-    const fps = getProjectFPS(project);
-    const length = getProjectLength(project);
+
     return (
         <TimelineHeader className="p-0 min-w-full overflow-hidden" style={{ width: contentWidth }}>
-            <MemoizedTimelineTimestamps fps={fps} pixelsPerFrame={pixelsPerFrame} projectLength={length} contentWidth={contentWidth} />
+            <TimelineTimestamps fps={getProjectFPS(project)} pixelsPerFrame={pixelsPerFrame} projectLength={getProjectLength(project)} exactWidth={contentRef?.getBoundingClientRect().width ?? 0} />
         </TimelineHeader>
     );
 }
