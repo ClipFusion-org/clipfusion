@@ -212,9 +212,9 @@ const TimelineTimestamps = ({
         <div className="relative w-full h-full">
             {[...Array(Math.max(timestampsCount))].map((_e, i) => (
                 <div key={i}>
-                    <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground opacity-50"} style={{ position: 'absolute', bottom: 0, left: i / reduction * pixelsPerFrame, width: 1, height: (Math.floor(i / reduction) % fps) < 1 / reduction && !((Math.floor((i - 1) / reduction) % fps) < 1 / reduction) || i === 0 ? '35%' : ((Math.floor(i / reduction) % (fps / 2)) < 1 / reduction && !((Math.floor((i - 1) / reduction) % (fps / 2)) < 1 / reduction) ? '30%' : '15%') }}></div>
-                    {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength && (i) % Math.floor(1 / textReduction) < 1 && Math.floor(i / reduction) + fps * lerp(optimizedGetShortTimeString(Math.floor(i / reduction)).length * 0.35, 0.5, reduction) < projectLength && (
-                        <Description className="select-none" style={{ position: 'absolute', opacity: Math.floor(i / reduction) > projectLength ? 0.5 : 1, bottom: '30%', left: `${Math.floor(i / reduction) * pixelsPerFrame}px`, transform: i !== 0 ? `translateX(${i === projectLength ? '-100%' : '-45%'})` : '' }}>{optimizedGetShortTimeString(Math.floor(i / reduction))}</Description>
+                    <div className={Math.floor(i / reduction) <= projectLength ? "bg-muted-foreground" : "bg-muted-foreground opacity-50"} style={{ position: 'absolute', bottom: 0, left: 0, transform: `translateX(${i / reduction * pixelsPerFrame}px)`, width: 1, height: (Math.floor(i / reduction) % fps) < 1 / reduction && !((Math.floor((i - 1) / reduction) % fps) < 1 / reduction) || i === 0 ? '35%' : ((Math.floor(i / reduction) % (fps / 2)) < 1 / reduction && !((Math.floor((i - 1) / reduction) % (fps / 2)) < 1 / reduction) ? '30%' : '15%') }}></div>
+                    {Math.floor((i / reduction) % fps) === 0 && Math.floor(i / reduction) <= projectLength && (i) % Math.floor(1 / textReduction) < 1 && Math.floor(i / reduction) + fps * lerp(optimizedGetShortTimeString(Math.floor(i / reduction)).length * 1.8, 0.5, reduction) < projectLength && (
+                        <Description className="select-none" style={{ position: 'absolute', opacity: Math.floor(i / reduction) > projectLength ? 0.5 : 1, bottom: '30%', left: 0, transform: i !== 0 ? `translateX(calc(${i === projectLength ? '-100%' : '-45%'} + ${Math.floor(i / reduction) * pixelsPerFrame}px))` : '' }}>{optimizedGetShortTimeString(Math.floor(i / reduction))}</Description>
                     )}
                 </div>
             ))}
@@ -262,7 +262,7 @@ const TimelineContentSegment = ({
                     const newSegment: Segment = {
                         ...segment,
                         start: Math.max(0, x / pixelsPerFrame)
-                    }; 
+                    };
                     processedProject = updateProjectSegment(processedProject, track, newSegment);
 
                     if (dndTrackData && dndTrackData.uuid !== track.uuid) {
@@ -318,6 +318,7 @@ const TimelineContentTrack = ({
 
 const TimelineContentTracks = () => {
     const [project] = useProject();
+    const [pixelsPerFrame] = usePixelsPerFrame();
     const { contentRef } = useTimelineContext();
     const [offsetY, setOffsetY] = React.useState(0);
     const contentWidth = useContentWidth();
@@ -401,11 +402,14 @@ const TimelineContentTracks = () => {
     }, [active, sectionRef, contentRef]);
 
     return (
-        <div ref={sectionRef} className="absolute top-0 left-0 flex flex-col items-center justify-center overflow-y-auto gap-1 min-w-full min-h-full overflow-auto" style={{ width: stableContentWidth ?? contentWidth, paddingTop: `calc(var(--spacing) * 8 + ${offsetY}px)` }}>
-            {project.tracks.map((track, i) =>
-                (<TimelineContentTrack key={track.uuid} trackIndex={i} />)
-            )}
-        </div>
+        <>
+            <div className="absolute top-0 left-0 bg-card/20 h-full" style={{width: getProjectLength(project) * pixelsPerFrame}} />
+            <div ref={sectionRef} className="absolute top-0 left-0 flex flex-col items-center justify-center overflow-y-auto gap-1 min-w-full min-h-full overflow-auto" style={{ width: stableContentWidth ?? contentWidth, paddingTop: `calc(var(--spacing) * 8 + ${offsetY}px)` }}>
+                {project.tracks.map((track, i) =>
+                    (<TimelineContentTrack key={track.uuid} trackIndex={i} />)
+                )}
+            </div>
+        </>
     );
 }
 
