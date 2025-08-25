@@ -157,7 +157,7 @@ const TimelinePlayhead = () => {
         if (!contentRef || !ref.current || !playbackData.playing) return;
         const passedPx = playbackData.currentFrame * pixelsPerFrame;
         const boundary = contentRef.clientWidth / 2;
-        if (passedPx > boundary && !noAutoscroll) {
+        if (passedPx - contentRef.scrollLeft > boundary && !noAutoscroll) {
             contentRef.scrollLeft = Math.max(0, passedPx - boundary);
             lastScrollX.current = contentRef.scrollLeft;
         }
