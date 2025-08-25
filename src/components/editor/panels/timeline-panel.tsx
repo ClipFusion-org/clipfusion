@@ -149,6 +149,44 @@ const TimelinePlayhead = () => {
     const [playbackData] = usePlaybackData();
     const [pixelsPerFrame] = usePixelsPerFrame();
     const ref = usePlayheadDrag();
+    const { contentRef } = useTimelineContext();
+    const [noAutoscroll, setNoAutoscroll] = React.useState(false);
+    const lastScrollX = React.useRef(-1);
+
+    React.useEffect(() => {
+        if (!contentRef || !ref.current || !playbackData.playing) return;
+        const passedPx = playbackData.currentFrame * pixelsPerFrame;
+        const boundary = contentRef.clientWidth / 2;
+        if (passedPx > boundary && !noAutoscroll) {
+            contentRef.scrollLeft = Math.max(0, passedPx - boundary);
+            lastScrollX.current = contentRef.scrollLeft;
+        }
+    }, [playbackData, ref, noAutoscroll]);
+
+    React.useEffect(() => {
+        if (!playbackData.playing) {
+            setNoAutoscroll(false);
+            lastScrollX.current = -1;
+            return;
+        }
+        if (!contentRef) return;
+        const handleScroll = () => {
+            if (lastScrollX.current < 0) {
+                lastScrollX.current = contentRef.scrollLeft;
+                return;
+            }
+            if (lastScrollX.current != contentRef.scrollLeft) {
+                setNoAutoscroll(true);
+            }
+        };
+
+        handleScroll();
+        contentRef.addEventListener('scroll', handleScroll);
+
+        return () => {
+            contentRef.removeEventListener('scroll', handleScroll);
+        };
+    }, [playbackData, contentRef, setNoAutoscroll]);
 
     return (
         <div ref={ref as React.RefObject<HTMLDivElement>} className="absolute top-0 left-0 h-full w-4 cursor-ew-resize z-50 pt-6" style={{ transform: `translateX(${pixelsPerFrame * Math.floor(playbackData.currentFrame)}px)` }}>
