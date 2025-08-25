@@ -6,7 +6,7 @@ import { getProjectFPS, getProjectLength, moveProjectSegment, updateProjectSegme
 import { Description } from "@/components/typography";
 import useDrag from "@/hooks/useDrag";
 import React from "react";
-import { usePixelsPerFrame, useSelectedSegments } from "@/stores/useTimelineStore";
+import { usePixelsPerFrame, useSelectedSegments, useTimelineStore } from "@/stores/useTimelineStore";
 import { HotkeysProvider } from "react-hotkeys-hook";
 import { Slider } from "@/components/ui/slider";
 import { ZoomInIcon, ZoomOutIcon } from "lucide-react";
@@ -326,6 +326,7 @@ const TimelineContentSegment = ({
         } else {
             newSegments = [segment.uuid];
         }
+        e.stopPropagation();
         setSelectedSegments(filterSegments(newSegments));
     };
 
@@ -400,6 +401,7 @@ const TimelineContentTracks = () => {
     const { contentRef } = useTimelineContext();
     const [offsetY, setOffsetY] = React.useState(0);
     const contentWidth = useContentWidth();
+    const setSelectedSegments = useTimelineStore((state) => state.setSelectedSegments);
 
     const { active } = useDndContext();
     const sectionRef = React.useRef<HTMLDivElement>(null);
@@ -481,8 +483,8 @@ const TimelineContentTracks = () => {
 
     return (
         <>
-            <div className="absolute top-0 left-0 bg-card/20 h-full" style={{ width: getProjectLength(project) * pixelsPerFrame }} />
-            <div ref={sectionRef} className="absolute top-0 left-0 flex flex-col items-center justify-center overflow-y-auto gap-1 min-w-full min-h-full overflow-auto" style={{ width: stableContentWidth ?? contentWidth, paddingTop: `calc(var(--spacing) * 8 + ${offsetY}px)` }}>
+            <div className="absolute top-0 left-0 bg-card/20 min-h-full" style={{ width: getProjectLength(project) * pixelsPerFrame }} />
+            <div onClick={() => setSelectedSegments([])} ref={sectionRef} className="absolute top-0 left-0 flex flex-col items-center justify-center overflow-y-auto gap-1 min-w-full min-h-full overflow-auto" style={{ width: stableContentWidth ?? contentWidth, paddingTop: `calc(var(--spacing) * 8 + ${offsetY}px)` }}>
                 {project.tracks.map((track, i) =>
                     (<TimelineContentTrack key={track.uuid} trackIndex={i} />)
                 )}
