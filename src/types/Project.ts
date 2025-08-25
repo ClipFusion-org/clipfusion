@@ -37,7 +37,7 @@ export const getProjectLength = (project: Project): number => {
             }
         }
     }
-    return maxSegmentEnd;
+    return Math.floor(maxSegmentEnd);
 }
 
 export const getProjectFPS = (project: Project): number => (

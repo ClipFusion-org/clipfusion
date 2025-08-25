@@ -171,7 +171,6 @@ const TimelineTimestamps = ({
     projectLength: number,
     contentWidth: number | undefined
 }) => {
-    const { contentRef } = useTimelineContext();
     const fixReduction = (r: number, target: number) => {
         if (Math.floor(r % target) === 0) return r;
         const remainder = r % target;
@@ -179,9 +178,8 @@ const TimelineTimestamps = ({
         const adjustment = target - remainder;
         return r + (adjustment < 0.001 ? adjustment : 0);
     };
-    const rect = contentRef?.getBoundingClientRect();
     const reduction = fixReduction(Math.min(1, +(pixelsPerFrame / (fps * 0.1)).toFixed(1)), fps);
-    const timestampsCount = Math.ceil(((contentWidth ?? rect?.width ?? 0) / pixelsPerFrame) * reduction);
+    const timestampsCount = Math.ceil(((contentWidth ?? 0) / pixelsPerFrame) * reduction);
     const rawTextReduction = Math.min(1, fixReduction(fixReduction(reduction, timestampsCount), fps));
     const textReduction2 = Math.min(1, (rawTextReduction + (rawTextReduction % 0.2)));
     const textReduction = clamp(+(textReduction2).toFixed(1), 0.1, 1);
@@ -427,10 +425,12 @@ const TimelineContentTimestampsHeader = () => {
     const [pixelsPerFrame] = usePixelsPerFrame();
     const { stableContentWidth } = useTimelineContext();
     const rawContentWidth = useContentWidth();
-    const contentWidth = stableContentWidth ?? rawContentWidth;
+    const contentWidth = Math.floor(stableContentWidth ?? rawContentWidth ?? 0);
+    const fps = getProjectFPS(project);
+    const length = getProjectLength(project);
     return (
         <TimelineHeader className="p-0 min-w-full overflow-hidden" style={{ width: contentWidth }}>
-            <MemoizedTimelineTimestamps fps={getProjectFPS(project)} pixelsPerFrame={pixelsPerFrame} projectLength={getProjectLength(project)} contentWidth={contentWidth} />
+            <MemoizedTimelineTimestamps fps={fps} pixelsPerFrame={pixelsPerFrame} projectLength={length} contentWidth={contentWidth} />
         </TimelineHeader>
     );
 }
